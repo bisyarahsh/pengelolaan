@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Pengelolaan Rapat</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>Rapatin</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li>
+                        <a href="index.html" class="nav-link active" data-menu="agenda">
+                            <i class="fas fa-calendar-check"></i>
+                            <span>Agenda Rapat</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="history.html" class="nav-link" data-menu="history">
+                            <i class="fas fa-history"></i>
+                            <span>History Rapat</span>
+                        </a>
+                    </li>
+                    
+                    <li>
+                        <a href="setting.html" class="nav-link" data-menu="settings">
+                            <i class="fas fa-cog"></i>
+                            <span>Pengaturan</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="login.html" class="nav-link" data-menu="settings">
+                            <i class="fas fa-sign-out"></i>
+                            <span>Logout</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="main-header">
+                <button id="sidebar-toggle" class="menu-toggle"><i class="fas fa-bars"></i></button>
+                <h1>Dashboard Pengelolaan Rapat</h1>
+                
+            </header>
+
+            <section class="content-area active" id="agenda-rapat-content">
+                <h2>Agenda Rapat</h2>
+
+                <div class="table-container">
+      <div class="table-controls">
+        <div>
+          Show
+          <select id="showEntries">
+            <option value="5">5</option>
+            <option value="10" selected>10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+          </select>
+          entries
+        </div>
+        <div>
+          Search: <input type="text" id="searchInput" placeholder="Cari rapat..." />
+        </div>
+      </div>
+               
+                <div class="data-table-container">
+                    <h3>Daftar Agenda Rapat Mendatang</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Topik</th>
+                                <th>Tanggal</th>
+                                <th>Waktu</th>
+                                <th>Ruangan</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Rapat Strategi Q4</td>
+                                <td>15 Okt 2025</td>
+                                <td>10:00</td>
+                                <td>Ruang A</td>
+                                <td><span class="status-badge scheduled">Terjadwal</span></td>
+                            </tr>
+                            <tr>
+                                <td>Review Anggaran Proyek X</td>
+                                <td>16 Okt 2025</td>
+                                <td>14:00</td>
+                                <td>Online</td>
+                                <td><span class="status-badge scheduled">Terjadwal</span></td>
+                            </tr>
+
+                            <tr>
+                                <td>Review Performa Bulanan</td>
+                                <td>01 Okt 2025</td>
+                                <td>09:00</td>
+                                <td>Ruang B</td>
+                                <td><span class="status-badge status-done">Selesai</span></td>
+                            </tr>
+
+                            <tr>
+                                <td>Perencanaan Marketing Q1</td>
+                                <td>25 Sep 2025</td>
+                                <td>13:00</td>
+                                <td>Online</td>    
+                                <td><span class="status-badge status-done">Selesai</span></td>                         
+                            </tr>
+                
+                            <tr>
+                                <td>Evaluasi Proyek Alpha</td>
+                                <td>18 Sep 2025</td>
+                                <td>16:00</td>
+                                <td>Ruang C</td>
+                                <td><span class="status-badge status-cancel">batal</span></td>
+                            </tr>
+                            <tr>
+                                <td>Sesi Pelatihan Tim Baru</td>
+                                <td>10 Sep 2025</td>
+                                <td>10:00</td>
+                                <td>Ruang A</td>
+                                <td><span class="status-badge status-done">Selesai</span></td>
+                            </tr>    
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            
+            <section class="content-area1" id="history-rapat-content"><h2>History Rapat 📜</h2><p>Daftar semua rapat yang telah selesai.</p></section>
+            <section class="content-area1" id="manage-user-content"><h2>Manage User 👥</h2><p>Kelola daftar pengguna dan hak akses.</p></section>
+            <section class="content-area1" id="pengaturan-content"><h2>Pengaturan ⚙️</h2><p>Sesuaikan pengaturan sistem dan notifikasi.</p></section>
+
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
