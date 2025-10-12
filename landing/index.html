@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jadwalkan Rapat Eksklusif - [Nama Perusahaan Anda]</title>
+    <link rel="stylesheet" href="page.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+
+    <header class="hero">
+        <div class="hero-content">
+            <span class="tagline">Penjadwalan Tingkat Selanjutnya</span>
+            <h1>Jadwalkan Rapat Penting Anda Tanpa Hambatan Waktu Bersama RAPATIN</h1>
+            <p>RAPATIN memastikan sinkronisasi instan, menghemat waktu 40% untuk koordinasi. Pesan demo 1-on-1 dengan pakar kami.</p>
+            <a href="#form-section" class="cta-button primary">Jadwalkan Demo Eksklusif</a>
+        </div>
+    </header>
+
+    <section class="benefits-section">
+        <h2>Mengapa Memilih Kami?</h2>
+        <div class="benefits-grid">
+            <div class="benefit-card">
+                <i class="fas fa-clock"></i>
+                <h3>Efisiensi Waktu</h3>
+                <p>Otomatisasi zona waktu dan ketersediaan, menghilangkan *email* bolak-balik yang memakan waktu.</p>
+            </div>
+            <div class="benefit-card">
+                <i class="fas fa-lock"></i>
+                <h3>Keamanan Data</h3>
+                <p>Data rapat dan klien Anda dienkripsi dan dijamin keamanannya sesuai standar industri.</p>
+            </div>
+            <div class="benefit-card">
+                <i class="fas fa-calendar-check"></i>
+                <h3>Integrasi Kalender</h3>
+                <p>Sinkronisasi mulus dengan Google Calendar, Outlook, dan aplikasi kalender populer lainnya.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="form-section" class="form-container">
+        <h2>Isi Formulir Penjadwalan</h2>
+        <p class="sub-heading">Kami akan menghubungi Anda dalam 1x24 jam untuk mengonfirmasi waktu terbaik.</p>
+        
+        <form id="schedulingForm">
+            <div class="input-group">
+                <label for="name">Nama Lengkap</label>
+                <input type="text" id="name" name="name" required placeholder="Contoh: Risa Saraswati">
+            </div>
+            
+            <div class="input-group">
+                <label for="email">Email Kantor</label>
+                <input type="email" id="email" name="email" required placeholder="nama@perusahaan.com">
+            </div>
+            
+            <div class="input-group">
+                <label for="company">Nama Perusahaan</label>
+                <input type="text" id="company" name="company" placeholder="PT Sukses Bersama">
+            </div>
+            
+            <button type="submit" class="cta-button secondary">Kirim Permintaan Rapat</button>
+            
+            <p id="message" class="hidden-message">Terima kasih banyak! Permintaan demo/rapat Anda sudah kami terima dan sedang diproses. Cek email Anda sebentar lagi!</p>
+        </form>
+    </section>
+
+    <section class="testimonial-section">
+        <h2>Apa Kata Klien Kami?</h2>
+        <div class="testimonial-card">
+            <p>"Sejak menggunakan platform ini, waktu yang terbuang untuk mengatur jadwal tim berkurang drastis. Sangat elegan dan efisien!"</p>
+            <div class="client-info">
+                <span>— Budi Setiawan, CEO TechNova</span>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2025 [Nama Perusahaan Anda]. Hak Cipta Dilindungi. <span class="privacy-link">Kebijakan Privasi</span></p>
+    </footer>
+
+    <script>
+        // JavaScript tetap sederhana, hanya untuk simulasi pengiriman
+        document.getElementById('schedulingForm').addEventListener('submit', function(event) {
+            event.preventDefault(); 
+            
+            const form = this;
+            const message = document.getElementById('message');
+
+            // Menyembunyikan tombol dan menampilkan pesan sukses
+            form.querySelector('.cta-button.secondary').style.display = 'none';
+            message.style.display = 'block';
+            message.style.opacity = '0';
+            
+            // Animasi pesan sukses
+            setTimeout(() => {
+                message.style.opacity = '1';
+            }, 10);
+
+            // Setelah beberapa detik, reset tampilan (opsional)
+            setTimeout(() => {
+                form.reset();
+                form.querySelector('.cta-button.secondary').style.display = 'block';
+                message.style.display = 'none';
+            }, 5000); 
+
+            // Di produksi nyata, kode AJAX/Fetch untuk mengirim data akan dimasukkan di sini
+        });
+    </script>
+</body>
+</html>
