@@ -151,7 +151,36 @@ main {
 	width: 100%;
 	padding: 24px 20px 20px 20px;
 }
+
+main .rapat{
+	box-shadow: 0 0 15px 0 rgba(0, 0, 0, 0.4);
+	border-radius: 10px;
+	padding: 10px;
+}
+
+main .tableheader{
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-start;
+}
+
+main .tableheader h2{
+	color: #1775F1;
+	margin-left: 10px;
+	font-size: 25px;
+}
 /* MAIN */
+
+/* Pengaturan */
+main .pengaturan{
+	align-items: center;
+	width: 50%;
+	box-shadow: 0 0 15px 0 rgba(0, 0, 0, 0.4);
+	border-radius: 10px;
+	padding: 10px;
+}
+/* Pengaturan */
+
 /* CONTENT */
 
 /* Responsive */
@@ -160,6 +189,17 @@ main {
 		position: relative;
 		width: calc(100% - 60px);
 		transition: all .3s ease;
+	}
+	.rapat{
+		overflow-x: auto;
+	}
+	.aksi{
+		margin-bottom: 3px;
+	}
+	main .pengaturan{
+		position: relative;
+		width: calc(100% - 60px);
+		transition: all .3s ease;	
 	}
 }
 /* Responsive */
