@@ -1,146 +1,86 @@
-/* Palet Warna */
-:root {
-    --biru-tua: #1E3A5F;
-    --cyan-cerah: #00BCD4;
-    --abu-biru: #F0F4F8; 
-    --putih-transparan: rgba(255, 255, 255, 0.95);
-}
+    :root{
+      --blue-1: #0d6efd; /* primary */
+      --blue-2: #0652c5;
+      --blue-3: #0b5ed7;
+      --glass: rgba(255,255,255,0.08);
+    }
 
-body {
-    font-family: 'Poppins', sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
-    overflow: hidden;
-    
-    /* GRADIENT FULL SCREEN DENGAN SEMUA WARNA */
-    background: var(--biru-tua); /* Fallback */
-    background: linear-gradient(
-        150deg, 
-        var(--biru-tua) 0%,      /* Mulai dari Biru Tua */
-        var(--abu-biru) 50%,     /* Transisi di tengah dengan Abu-abu Muda Kebiruan */
-        var(--cyan-cerah) 100%   /* Berakhir dengan Cyan Cerah */
-    );
-}
+    body{
+      min-height: 100vh;
+      background: radial-gradient(1000px 400px at 10% 10%, rgba(11,94,215,0.12), transparent),
+                  linear-gradient(180deg, rgba(6,82,197,0.08) 0%, rgba(13,110,253,0.06) 50%),
+                  #e9f2ff; /* soft blue background */
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+      padding: 2rem;
+    }
 
-.login-container {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
+    .login-card{
+      width: 100%;
+      max-width: 980px;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 12px 30px rgba(13,110,253,0.12);
+      background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0.85));
+    }
 
-.login-box {
-    /* Kotak login menggunakan putih transparan di atas gradien */
-    background-color: var(--putih-transparan);
-    padding: 40px 50px;
-    border-radius: 15px;
-    /* Bayangan yang menonjol */
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4); 
-    width: 380px;
-    transition: all 0.4s ease;
-}
+    .left-panel{
+      background: linear-gradient(180deg, var(--blue-2), var(--blue-3));
+      color: white;
+      padding: 3rem 2.5rem;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+    }
 
-.login-box:hover {
-    transform: scale(1.02); 
-    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5); 
-}
+    .brand-logo{
+      width:56px;
+      height:56px;
+      border-radius:12px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.08));
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:700;
+      font-size:1.2rem;
+      box-shadow: inset 0 -6px 12px rgba(0,0,0,0.06);
+    }
 
-/* --- Typography & Aksesori --- */
+    .left-panel h3{font-weight:700}
+    .left-panel p{opacity:0.95}
 
-.login-header {
-    text-align: center;
-    margin-bottom: 30px;
-}
+    .decor-circles{
+      position: absolute;
+      right: -80px;
+      bottom: -60px;
+      width: 240px;
+      height: 240px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.06);
+      filter: blur(30px);
+      transform: rotate(25deg);
+    }
 
-.login-header h2 {
-    color: var(--biru-tua); 
-    font-weight: 700;
-    font-size: 1.9em; 
-    margin-bottom: 5px;
-}
+    .form-panel{
+      padding: 2.5rem 2rem;
+      background: transparent;
+    }
 
-.login-header p {
-    color: var(--cyan-cerah); 
-    font-weight: 600;
-}
+    .social-btn{
+      border-radius: 10px;
+      border: 1px solid rgba(13,110,253,0.08);
+      padding: .6rem .9rem;
+    }
 
-/* --- Input Fields --- */
+    .input-group .form-control:focus{box-shadow: none; border-color: var(--blue-1)}
 
-.input-group {
-    margin-bottom: 25px;
-    text-align: left;
-}
+    .show-pass{
+      cursor:pointer;
+    }
 
-.input-group label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 600;
-    color: var(--biru-tua);
-}
-
-.login-form input {
-    width: 100%;
-    padding: 14px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    box-sizing: border-box; 
-    font-size: 1em;
-}
-
-.login-form input:focus {
-    /* Border fokus dengan warna Cyan Cerah */
-    border-color: var(--cyan-cerah); 
-    box-shadow: 0 0 8px rgba(0, 188, 212, 0.7);
-    outline: none;
-}
-
-/* --- Button Styling --- */
-
-.btn-login {
-    /* Tombol utama menggunakan Cyan Cerah sebagai fokus */
-    background-color: var(--cyan-cerah); 
-    color: var(--biru-tua);
-    padding: 15px 20px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    width: 100%;
-    font-size: 1.1em;
-    font-weight: 700;
-    box-shadow: 0 5px 15px rgba(0, 188, 212, 0.4);
-    transition: all 0.3s ease;
-}
-
-.btn-login:hover {
-    /* Hover dengan warna Biru Tua */
-    background-color: var(--biru-tua);
-    color: white; 
-    box-shadow: 0 7px 20px rgba(30, 58, 95, 0.6);
-    transform: translateY(-2px);
-}
-
-/* --- Footer & Link --- */
-
-.forgot-password a,
-.login-footer a {
-    color: var(--biru-tua);
-    text-decoration: none;
-    font-weight: 600;
-}
-
-.forgot-password a:hover,
-.login-footer a:hover {
-    color: var(--cyan-cerah);
-    text-decoration: underline;
-}
-
-.login-footer {
-    text-align: center;
-    margin-top: 30px;
-    font-size: 0.9em;
-    color: #666;
-}
+    @media (max-width: 767.98px){
+      .left-panel{display:none}
+      .login-card{border-radius:12px}
+    }

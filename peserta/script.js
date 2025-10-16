@@ -1,56 +1,107 @@
-document.addEventListener('DOMContentLoaded', () => {
-    // ... (kode JavaScript sebelumnya tetap ada di sini) ...
+// SIDEBAR COLLAPSE
+const toggleSidebar = document.querySelector('nav .toggle-sidebar');
+const allSideDivider = document.querySelectorAll('#sidebar .divider');
 
-    const addUserBtn = document.getElementById('add-user-btn');
-    const userModal = document.getElementById('user-modal');
-    const closeBtn = userModal.querySelector('.close-btn');
-    const addUserForm = document.getElementById('add-user-form');
+if(sidebar.classList.contains('hide')) {
+	allSideDivider.forEach(item=> {
+		item.textContent = '-'
+	})
+	allDropdown.forEach(item=> {
+		const a = item.parentElement.querySelector('a:first-child');
+		a.classList.remove('active');
+		item.classList.remove('show');
+	})
+} else {
+	allSideDivider.forEach(item=> {
+		item.textContent = item.dataset.text;
+	})
+}
 
-    // Fungsi untuk menampilkan modal
-    if (addUserBtn) {
-        addUserBtn.addEventListener('click', () => {
-            userModal.classList.add('open');
-        });
-    }
+toggleSidebar.addEventListener('click', function () {
+	sidebar.classList.toggle('hide');
 
-    // Fungsi untuk menutup modal
-    const closeModal = () => {
-        userModal.classList.remove('open');
-        addUserForm.reset(); // Reset form saat ditutup
-    };
+	if(sidebar.classList.contains('hide')) {
+		allSideDivider.forEach(item=> {
+			item.textContent = '-'
+		})
 
-    // Tutup saat tombol 'X' ditekan
-    if (closeBtn) {
-        closeBtn.addEventListener('click', closeModal);
-    }
+		allDropdown.forEach(item=> {
+			const a = item.parentElement.querySelector('a:first-child');
+			a.classList.remove('active');
+			item.classList.remove('show');
+		})
+	} else {
+		allSideDivider.forEach(item=> {
+			item.textContent = item.dataset.text;
+		})
+	}
+})
 
-    // Tutup saat mengklik di luar modal (overlay)
-    if (userModal) {
-        userModal.addEventListener('click', (e) => {
-            if (e.target === userModal) {
-                closeModal();
-            }
-        });
-    }
 
-    // Handle pengiriman form (Contoh sederhana tanpa backend)
-    if (addUserForm) {
-        addUserForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            
-            // Dapatkan data form
-            const userData = {
-                name: document.getElementById('name').value,
-                email: document.getElementById('email').value,
-                role: document.getElementById('role').value
-                // Password tidak ditampilkan di sini
-            };
 
-            alert(`Pengguna Baru Ditambahkan:\nNama: ${userData.name}\nEmail: ${userData.email}\nRole: ${userData.role}\n\n(Logika penyimpanan ke database belum diimplementasikan)`);
 
-            // Tutup modal setelah submit
-            closeModal();
-        });
-    }
-});
+sidebar.addEventListener('mouseleave', function () {
+	if(this.classList.contains('hide')) {
+		allDropdown.forEach(item=> {
+			const a = item.parentElement.querySelector('a:first-child');
+			a.classList.remove('active');
+			item.classList.remove('show');
+		})
+		allSideDivider.forEach(item=> {
+			item.textContent = '-'
+		})
+	}
+})
 
+
+
+sidebar.addEventListener('mouseenter', function () {
+	if(this.classList.contains('hide')) {
+		allDropdown.forEach(item=> {
+			const a = item.parentElement.querySelector('a:first-child');
+			a.classList.remove('active');
+			item.classList.remove('show');
+		})
+		allSideDivider.forEach(item=> {
+			item.textContent = item.dataset.text;
+		})
+	}
+})
+
+
+// MENU
+const allMenu = document.querySelectorAll('main .content-data .head .menu');
+
+allMenu.forEach(item=> {
+	const icon = item.querySelector('.icon');
+	const menuLink = item.querySelector('.menu-link');
+
+	icon.addEventListener('click', function () {
+		menuLink.classList.toggle('show');
+	})
+})
+
+
+
+window.addEventListener('click', function (e) {
+	if(e.target !== imgProfile) {
+		if(e.target !== dropdownProfile) {
+			if(dropdownProfile.classList.contains('show')) {
+				dropdownProfile.classList.remove('show');
+			}
+		}
+	}
+
+	allMenu.forEach(item=> {
+		const icon = item.querySelector('.icon');
+		const menuLink = item.querySelector('.menu-link');
+
+		if(e.target !== icon) {
+			if(e.target !== menuLink) {
+				if (menuLink.classList.contains('show')) {
+					menuLink.classList.remove('show')
+				}
+			}
+		}
+	})
+})
