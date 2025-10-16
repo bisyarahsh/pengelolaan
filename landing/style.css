@@ -1,8 +1,8 @@
 /* RESET DASAR & DEFINISI VARIABEL */
 :root {
     /* Palet Warna Profesional untuk Penjadwalan Rapat */
-    --color-primary: #1775f1; /* Biru Tua/Navy - Kekuatan, Kepercayaan, Profesional */
-    --color-secondary: #1775f1; /* Biru Cerah/Cyan - Efisiensi, Teknologi, Energi */
+    --color-primary: #1775f1; /* Biru */
+    --color-secondary: #1775f1; /* Biru*/
     --color-text: #333333;      /* Abu-abu Gelap untuk Teks */
     --color-bg-light: #F0F4F8;  /* Latar Belakang Terang/Putih Kebiruan */
     --color-bg-dark: #1F2833;   /* Latar Belakang Footer/Gelap */
@@ -484,3 +484,4 @@ a:hover {
         grid-template-columns: 1fr;
     }
 }
+
