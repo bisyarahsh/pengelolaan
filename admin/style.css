@@ -198,7 +198,7 @@ main .pengaturan{
 	}
 	main .pengaturan{
 		position: relative;
-		width: calc(100% - 60px);
+		width: 100%;
 		transition: all .3s ease;	
 	}
 }
