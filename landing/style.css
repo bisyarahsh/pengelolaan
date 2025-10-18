@@ -1,487 +1,54 @@
-/* RESET DASAR & DEFINISI VARIABEL */
-:root {
-    /* Palet Warna Profesional untuk Penjadwalan Rapat */
-    --color-primary: #1775f1; /* Biru */
-    --color-secondary: #1775f1; /* Biru*/
-    --color-text: #333333;      /* Abu-abu Gelap untuk Teks */
-    --color-bg-light: #F0F4F8;  /* Latar Belakang Terang/Putih Kebiruan */
-    --color-bg-dark: #1F2833;   /* Latar Belakang Footer/Gelap */
-    --color-white: #ffffff;     /* Warna Putih */
-    
-    /* Ukuran Font Dasar */
-    --font-family-base: 'Poppins', sans-serif;
-    
-    /* Padding/Margin Dasar */
-    --padding-section: 80px 0;
-}
-
-* {
-    /* Reset margin dan padding default browser */
-    margin: 0;
-    padding: 0;
-    /* Box-sizing border-box agar padding dan border tidak menambah ukuran elemen */
-    box-sizing: border-box;
-}
-
-body {
-    /* Terapkan font di seluruh body */
-    font-family: var(--font-family-base);
-    /* Atur warna teks default */
-    color: var(--color-text);
-    /* Latar belakang utama */
-    background-color: var(--color-white);
-    /* Scroll halus saat navigasi link internal */
-    scroll-behavior: smooth;
-}
-
-/* Utilitas: Kontainer untuk membatasi lebar konten */
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 20px;
-}
-
-/* Link Styling Default */
-a {
-    text-decoration: none; /* Hilangkan garis bawah pada link */
-    color: var(--color-primary);
-    transition: color 1s ease; /* Transisi warna hover */
-}
-
-a:hover {
-    color: var(--color-secondary);
-}
-
-
-/* --- BAGIAN 1: HEADER & NAVIGASI --- */
-
-.header {
-    /* Header selalu di atas saat discroll */
-    position: fixed; 
-    width: 100%;
-    /* Latar belakang transparan dengan sedikit efek blur (opsional) */
-    background-color: rgba(255, 255, 255, 0.95);
-    /* Tambahkan bayangan ringan untuk kesan melayang */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 1);
-    z-index: 1000; /* Pastikan di atas elemen lain */
-}
-
-.header .container {
-    /* Menggunakan flexbox untuk mengatur logo dan navigasi */
-    display: flex;
-    justify-content: space-between; /* Pisahkan logo dan nav */
-    align-items: center; /* Posisikan vertikal di tengah */
-    padding: 15px 20px;
-}
-
-/* Styling Logo */
-.logo {
-    font-size: 1.6rem;
-    font-weight: 700; /* Tebal */
-    color: var(--color-primary);
-    display: flex;
-    align-items: center;
-}
-
-.logo i {
-    /* Ikon logo */
-    color: var(--color-secondary);
-    margin-right: 5px;
-    font-size: 1.8rem;
-}
-
-/* Navigasi */
-.nav ul {
-    list-style: none;
-    display: flex; /* List item sejajar horizontal */
-}
-
-.nav li {
-    margin-left: 30px;
-}
-
-.nav a {
-    /* Style link navigasi */
-    font-weight: 600;
-    color: var(--color-text);
-    padding: 5px 0;
-    position: relative;
-}
-
-.nav a:hover {
-    color: var(--color-secondary);
-}
-
-/* CTA di Navigasi */
-.cta-nav {
-    /* Tombol CTA di navbar */
-    background-color: var(--color-secondary);
-    color: var(--color-white) !important;
-    padding: 8px 15px;
-    border-radius: 5px;
-    transition: background-color 0.3s ease;
-}
-
-.cta-nav:hover {
-    background-color: var(--color-primary); /* Ubah warna saat hover */
-}
-
-/* Sembunyikan toggle checkbox dan label di desktop */
-.nav-toggle, .nav-toggle-label {
-    display: none;
-}
-
-
-/* --- UTILITY: BUTTONS & SECTION TITLES --- */
-
-/* Tombol Primer (Utama) */
-.btn-primary {
-    display: inline-block;
-    background-color: var(--color-secondary);
-    color: var(--color-white) !important;
-    padding: 12px 25px;
-    border-radius: 8px;
-    font-weight: 600;
-    margin-right: 15px;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    border: 2px solid var(--color-secondary);
-}
-
-.btn-primary:hover {
-    background-color: var(--color-primary);
-    border-color: var(--color-primary);
-    transform: translateY(-2px); /* Efek sedikit terangkat saat hover */
-}
-
-/* Tombol Sekunder */
-.btn-secondary {
-    display: inline-block;
-    color: var(--color-primary) !important;
-    padding: 12px 25px;
-    border-radius: 8px;
-    font-weight: 600;
-    border: 2px solid var(--color-primary);
-    transition: background-color 0.3s ease, transform 0.2s ease;
-}
-
-.btn-secondary:hover {
-    background-color: var(--color-primary);
-    color: var(--color-white) !important;
-    transform: translateY(-2px);
-}
-
-/* Judul Bagian */
-.section-title {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: var(--color-primary);
-    text-align: center;
-    margin-bottom: 50px;
-}
-
-/* --- BAGIAN 2: HERO SECTION (HOME) --- */
-
-.hero {
-    /* Tambahkan padding atas untuk mengimbangi fixed header */
-    padding-top: calc(var(--padding-section) + 80px); 
-    padding-bottom: var(--padding-section);
-    /* Latar belakang terang */
-    background-color: var(--color-bg-light);
-}
-
-.hero .container {
-    /* Layout Hero menggunakan Flexbox */
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 40px; /* Jarak antar konten dan gambar */
-}
-
-.hero-content {
-    /* Konten mengambil 60% dari lebar container */
-    flex: 1.5; 
-}
-
-.hero-content h1 {
-    font-size: 3.5rem;
-    font-weight: 700;
-    color: var(--color-primary);
-    line-height: 1.2;
-    margin-bottom: 20px;
-}
-
-.hero-content p {
-    font-size: 1.2rem;
-    color: var(--color-text);
-    margin-bottom: 30px;
-}
-
-.hero-image {
-    /* Gambar/Ilustrasi mengambil 40% dari lebar container */
-    flex: 1; 
-    text-align: center;
-}
-
-.hero-image i {
-    /* Styling ikon placeholder */
-    font-size: 150px;
-    color: var(--color-secondary);
-    opacity: 0.8;
-}
-
-
-/* --- BAGIAN 3: ABOUT SECTION --- */
-
-.about {
-    padding: var(--padding-section);
-}
-
-.about-grid {
-    /* Tata letak 3 kolom untuk keunggulan */
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 30px;
-    text-align: center;
-}
-
-.about-item {
-    /* Style setiap item keunggulan */
-    padding: 30px;
-    background-color: var(--color-white);
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08); /* Bayangan lembut */
-    transition: transform 0.3s ease;
-}
-
-.about-item:hover {
-    transform: translateY(-5px); /* Efek terangkat saat hover */
-}
-
-.about-item i {
-    /* Ikon di setiap item */
-    font-size: 2.5rem;
-    color: var(--color-secondary);
-    margin-bottom: 15px;
-}
-
-.about-item h3 {
-    font-size: 1.5rem;
-    color: var(--color-primary);
-    margin-bottom: 10px;
-}
-
-
-/* --- BAGIAN 4: MENU/FITUR SECTION --- */
-
-.menu {
-    padding: var(--padding-section);
-    background-color: var(--color-bg-light); /* Latar belakang berbeda */
-}
-
-.menu-list {
-    /* Tata letak 3 kolom untuk fitur */
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 30px;
-    margin-bottom: 60px;
-}
-
-.menu-item {
-    /* Style setiap item fitur */
-    padding: 30px;
-    background-color: var(--color-white);
-    border-radius: 10px;
-    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.05);
-    text-align: center;
-}
-
-.menu-item i {
-    /* Ikon fitur */
-    font-size: 2rem;
-    color: var(--color-primary);
-    margin-bottom: 15px;
-}
-
-.menu-item h3 {
-    font-size: 1.4rem;
-    color: var(--color-secondary);
-    margin-bottom: 10px;
-}
-
-.menu-cta {
-    /* Area CTA di bawah daftar fitur */
-    text-align: center;
-    padding: 40px;
-    background-color: var(--color-white);
-    border-radius: 10px;
-    border: 1px solid var(--color-secondary);
-}
-
-.menu-cta p {
-    font-size: 1.5rem;
-    font-weight: 600;
-    margin-bottom: 20px;
-    color: var(--color-primary);
-}
-
-
-/* --- BAGIAN 5: FOOTER --- */
-
-.footer {
-    padding: 30px 0;
-    /* Latar belakang gelap */
-    background-color: var(--color-bg-dark);
-    color: var(--color-bg-light); /* Teks terang */
-}
-
-.footer .container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap; /* Agar responsif */
-}
-
-.footer p {
-    /* Teks hak cipta */
-    font-size: 0.9rem;
-}
-
-.footer-links a {
-    /* Link di footer */
-    color: var(--color-bg-light);
-    margin-left: 20px;
-    font-size: 0.9rem;
-}
-
-.footer-links a:hover {
-    color: var(--color-secondary);
-}
-
-/* --- RESPONSIVITAS (MEDIA QUERIES) --- */
-
-/* Tablet & Mobile (Mulai dari lebar 768px ke bawah) */
-@media (max-width: 768px) {
-    
-    /* Global */
-    .section-title {
-        font-size: 2rem; /* Kecilkan ukuran judul */
-    }
-
-    /* HEADER & NAVIGASI (MOBILE MENU) */
-    .nav {
-        /* Sembunyikan navigasi di bawah 768px */
-        position: absolute;
-        top: 100%; /* Posisikan di bawah header */
-        left: 0;
-        right: 0;
-        background-color: var(--color-primary);
-        max-height: 0; /* Sembunyikan dengan ketinggian 0 */
-        overflow: hidden;
-        transition: max-height 0.3s ease-in-out;
-        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
-    }
-
-    .nav ul {
-        flex-direction: column; /* Ubah list item menjadi vertikal */
-        padding: 20px;
-    }
-
-    .nav li {
-        margin: 0;
-        text-align: center;
-        padding: 10px 0;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }
-    
-    .nav li:last-child {
-        border-bottom: none;
-    }
-
-    .nav a {
-        color: var(--color-white);
-        font-size: 1.1rem;
-        display: block;
-    }
-    
-    /* Tampilkan hamburger icon */
-    .nav-toggle-label {
-        display: block;
-        cursor: pointer;
-        font-size: 1.5rem;
-        color: var(--color-primary);
-    }
-
-    /* Ketika checkbox dicentang, buka menu */
-    .nav-toggle:checked ~ .nav {
-        max-height: 300px; /* Atur ketinggian yang cukup untuk menampilkan menu */
-    }
-
-    /* HERO SECTION */
-    .hero .container {
-        flex-direction: column; /* Ubah layout flex menjadi vertikal */
-        text-align: center;
-    }
-    
-    .hero-content h1 {
-        font-size: 2.5rem;
-    }
-    
-    .hero-content p {
-        font-size: 1rem;
-    }
-
-    .hero-image {
-        /* Pindahkan gambar ke bawah dan beri jarak */
-        order: 1; 
-        margin-top: 30px;
-    }
-
-    .hero-content {
-        /* Pindahkan konten ke atas */
-        order: 2; 
-        flex: 1;
-    }
-    
-    /* Tombol-tombol CTA */
-    .btn-primary, .btn-secondary {
-        /* Tombol agar penuh lebar di mobile */
-        display: block; 
-        margin: 10px auto; 
-    }
-    
-    .btn-secondary {
-        margin-right: 0;
-    }
-    
-    /* FOOTER */
-    .footer .container {
-        flex-direction: column;
-        text-align: center;
-    }
-    
-    .footer p {
-        margin-bottom: 15px;
-    }
-
-    .footer-links a {
-        margin: 0 10px;
-    }
-}
-
-/* Smartphone (Mulai dari lebar 480px ke bawah) */
-@media (max-width: 480px) {
-    
-    .hero-content h1 {
-        font-size: 2rem;
-    }
-    
-    .hero-image i {
-        font-size: 100px; /* Kecilkan ikon hero */
-    }
-    
-    .about-grid, .menu-list {
-        /* Grid akan menjadi 1 kolom di layar yang sangat kecil */
-        grid-template-columns: 1fr;
-    }
-}
-
+ /* Komentar: Gaya untuk Body - Atur font dasar */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f8f9fa; /* Latar belakang abu-abu muda */
+        }
+
+        /* Komentar: Gaya untuk Hero Section - Dominasi warna perusahaan yang menarik */
+        .hero-section {
+            background: linear-gradient(135deg, #0d6efd 0%, #00b4d8 100%); /* Biru gradien yang kuat */
+            color: white;
+            padding: 120px 0; /* Padding lebih besar */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Komentar: Mengatur ukuran dan tampilan CTA button di Hero */
+        .hero-section .btn-warning {
+            transition: all 0.3s ease;
+        }
+
+        .hero-section .btn-warning:hover {
+            transform: translateY(-2px); /* Efek sedikit terangkat saat hover */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Komentar: Gaya untuk Bagian Fitur - Menambahkan sedikit efek visual pada kartu */
+        #fitur .card {
+            border: none;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        #fitur .card:hover {
+            transform: translateY(-5px); /* Kartu sedikit terangkat saat disentuh/hover */
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Komentar: Gaya untuk ikon fitur */
+        #fitur i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        /* Komentar: Gaya untuk Formulir Kontak */
+        #jadwal form {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+        }
+
+        /* Komentar: Gaya untuk Footer */
+        footer {
+            background-color: #343a40 !important; /* Warna gelap lebih tegas */
+        }
