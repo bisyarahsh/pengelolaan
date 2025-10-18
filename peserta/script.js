@@ -84,13 +84,6 @@ allMenu.forEach(item=> {
 
 
 window.addEventListener('click', function (e) {
-	if(e.target !== imgProfile) {
-		if(e.target !== dropdownProfile) {
-			if(dropdownProfile.classList.contains('show')) {
-				dropdownProfile.classList.remove('show');
-			}
-		}
-	}
 
 	allMenu.forEach(item=> {
 		const icon = item.querySelector('.icon');
@@ -105,3 +98,14 @@ window.addEventListener('click', function (e) {
 		}
 	})
 })
+
+// Table
+new DataTable('#example');
+// Table
+
+// Modal Select
+mobiscroll.select('#multiple-select', {
+    inputElement: document.getElementById('my-input'),
+    touchUi: false
+});
+// Modal Select
