@@ -103,9 +103,3 @@ window.addEventListener('click', function (e) {
 new DataTable('#example');
 // Table
 
-// Modal Select
-mobiscroll.select('#multiple-select', {
-    inputElement: document.getElementById('my-input'),
-    touchUi: false
-});
-// Modal Select
