@@ -15,7 +15,7 @@
       rel="stylesheet"
       href="https://cdn.datatables.net/2.3.4/css/dataTables.bootstrap5.css"
     />
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="../assets/admin.css" />
     <title>Rapatin</title>
   </head>
   <body>
@@ -37,17 +37,17 @@
         </li>
         <li>
           <a href="manage_unit.html"
-            ><i class="fa-solid fa-users icon"></i> Pengaturan Unit</a
+            ><i class="fa-solid fa-users icon"></i> Organisasi</a
           >
         </li>
         <li>
           <a href="manage_user.html"
-            ><i class="fa-solid fa-user icon"></i> Pengaturan Pengguna</a
+            ><i class="fa-solid fa-user icon"></i> Pengguna</a
           >
         </li>
         <li>
           <a href="pengaturan.html" class="active"
-            ><i class="fa-solid fa-gear icon"></i> Pengaturan</a
+            ><i class="fa-solid fa-gear icon"></i> Ganti Password</a
           >
         </li>
         <li>
@@ -69,19 +69,29 @@
 
       <!-- Main -->
       <main>
-        <div class="pengaturan bg-light">
+        <div class="pengaturan bg-light mx-auto">
           <div class="tableheader">
             <h2>Ganti Password</h2>
           </div>
           <form action="">
             <div class="mb-3">
-              <label class="mb-2" for="password">Password</label>
+              <label class="mb-2" for="password">Password Lama</label>
               <input
                 class="form-control"
                 type="password"
                 name="name"
                 id="name"
-                placeholder="Masukkan Password..."
+                placeholder="Masukkan Password Lama Anda..."
+              />
+            </div>
+            <div class="mb-3">
+              <label class="mb-2" for="password">Password Baru</label>
+              <input
+                class="form-control"
+                type="password"
+                name="name"
+                id="name"
+                placeholder="Masukkan Password Baru Anda..."
               />
             </div>
             <div class="mb-3">
@@ -94,8 +104,8 @@
                 placeholder="Masukkan Password..."
               />
             </div>
-            <button type="button" class="btn btn-primary">
-              Simpan Perubahan
+            <button type="button" class="btn btn-primary d-block ms-auto px-3">
+              Simpan
             </button>
           </form>
         </div>
@@ -108,6 +118,6 @@
     <script src="https://cdn.datatables.net/2.3.4/js/dataTables.js"></script>
     <script src="https://cdn.datatables.net/2.3.4/js/dataTables.bootstrap5.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="script.js"></script>
+    <script src="../assets/admin.js"></script>
   </body>
 </html>

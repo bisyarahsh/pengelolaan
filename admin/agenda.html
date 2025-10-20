@@ -7,7 +7,7 @@
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
 	<link rel="stylesheet" href="https://cdn.datatables.net/2.3.4/css/dataTables.bootstrap5.css">
 	<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.3.4/css/responsive.bootstrap5.min.css">
-	<link rel="stylesheet" href="style.css">
+	<link rel="stylesheet" href="../assets/admin.css">
 	<title>Rapatin </title>
 </head>
 <body>
@@ -15,12 +15,13 @@
 	<!-- SIDEBAR -->
 	<section id="sidebar">
 		<a href="../landing/index.html" class="logo ps-3"><i class='ps-5'></i> Rapatin</a>
+		<a href="../landing/index.html" class="logo-mini fw-bold"> R</a>
 		<ul class="side-menu">
 			<li><a href="agenda.html" class="active"><i class="fa-solid fa-calendar-days icon"></i> Agenda Rapat</a></li>
 			<li><a href="riwayat.html"><i class="fa-solid fa-clock-rotate-left icon"></i> Riwayat Rapat</a></li>
-			<li><a href="manage_unit.html"><i class="fa-solid fa-users icon"></i> Pengaturan Unit</a></li>
-			<li><a href="manage_user.html"><i class="fa-solid fa-user icon"></i> Pengaturan Pengguna</a></li>
-			<li><a href="pengaturan.html"><i class="fa-solid fa-gear icon"></i> Pengaturan</a></li>
+			<li><a href="manage_unit.html"><i class="fa-solid fa-users icon"></i> Organisasi</a></li>
+			<li><a href="manage_user.html"><i class="fa-solid fa-user icon"></i> Pengguna</a></li>
+			<li><a href="pengaturan.html"><i class="fa-solid fa-gear icon"></i> Ganti Password</a></li>
 			<li><a href="../login/login.html"><i class="fa-solid fa-right-from-bracket icon"></i> Logout</a></li>
 		</ul>
 	</section>
@@ -39,60 +40,64 @@
 			<div class="rapat bg-light">
 				<div class="tableheader">
 					<h2>Agenda Rapat</h2>
-					<button type="button" class="btn btn-primary tambah" data-bs-toggle="modal" data-bs-target="#exampleModal">Tambah Rapat</button>
+					<button type="button" class="btn btn-primary tambah" data-bs-toggle="modal" data-bs-target="#exampleModal">Tambah</button>
 				</div>
 				<table id="example" class="table table-striped">
         			<thead>
         			    <tr>
-        			        <th>No</th>
+        			        <th class="text-center">No</th>
         			        <th>Tanggal Rapat</th>
         			        <th>Jam Rapat</th>
         			        <th>Judul Rapat</th>
         			        <th>Keterangan</th>
-        			        <th>Aksi</th>
+        			        <th class="text-center">Aksi</th>
         			    </tr>
         			</thead>
         			<tbody>
         			    <tr>
-        			        <td>1</td>
+        			        <td class="text-center">1</td>
         			        <td>25-09-2025</td>
         			        <td>10:00 WIB</td>
         			        <td>HMTI Fair</td>
         			        <td>Membahas Terkait Kepanitiaan HMTI Fair 2025</td>
-        			        <td>
+        			        <td class="text-center">
+								<button type="button" class="btn btn-warning aksi" data-bs-toggle="modal" data-bs-target="#exampleModal"><i class="fa-solid fa-eye"></i></button>
 								<button type="button" class="btn btn-primary aksi" data-bs-toggle="modal" data-bs-target="#editModal"><i class="fa-solid fa-pen-to-square"></i></button>
 								<button type="button" class="btn btn-danger aksi" data-bs-toggle="modal" data-bs-target="#deletemodal"><i class="fa-solid fa-trash"></i></i></button>
 							</td>
         			    </tr>
 						<tr>
-        			        <td>2</td>
+        			        <td class="text-center">2</td>
         			        <td>25-09-2025</td>
         			        <td>10:00 WIB</td>
         			        <td>HMTI Fair</td>
         			        <td>Membahas Terkait Kepanitiaan HMTI Fair 2025</td>
-        			        <td>
+        			        <td class="text-center">
+								<button type="button" class="btn btn-warning aksi" data-bs-toggle="modal" data-bs-target="#exampleModal"><i class="fa-solid fa-eye"></i></button>
 								<button type="button" class="btn btn-primary aksi" data-bs-toggle="modal" data-bs-target="#editModal"><i class="fa-solid fa-pen-to-square"></i></button>
 								<button type="button" class="btn btn-danger aksi" data-bs-toggle="modal" data-bs-target="#deletemodal"><i class="fa-solid fa-trash"></i></i></button>
 							</td>
         			    </tr>
 						<tr>
-        			        <td>3</td>
+        			        <td class="text-center">3</td>
         			        <td>25-09-2025</td>
         			        <td>10:00 WIB</td>
         			        <td>HMTI Fair</td>
         			        <td>Membahas Terkait Kepanitiaan HMTI Fair 2025</td>
-        			        <td>
+        			        <td class="text-center">
+								<button type="button" class="btn btn-warning aksi" data-bs-toggle="modal" data-bs-target="#exampleModal"><i class="fa-solid fa-eye"></i></button>
 								<button type="button" class="btn btn-primary aksi" data-bs-toggle="modal" data-bs-target="#editModal"><i class="fa-solid fa-pen-to-square"></i></button>
 								<button type="button" class="btn btn-danger aksi" data-bs-toggle="modal" data-bs-target="#deletemodal"><i class="fa-solid fa-trash"></i></i></button>
 							</td>
         			    </tr>
 						<tr>
-        			        <td>4</td>
+        			        <td class="text-center">4</td>
         			        <td>25-09-2025</td>
         			        <td>10:00 WIB</td>
         			        <td>HMTI Fair</td>
         			        <td>Membahas Terkait Kepanitiaan HMTI Fair 2025</td>
-        			        <td>
+        			        <td class="text-center">
+								<button type="button" class="btn btn-warning aksi" data-bs-toggle="modal" data-bs-target="#exampleModal"><i class="fa-solid fa-eye"></i></button>
 								<button type="button" class="btn btn-primary aksi" data-bs-toggle="modal" data-bs-target="#editModal"><i class="fa-solid fa-pen-to-square"></i></button>
 								<button type="button" class="btn btn-danger aksi" data-bs-toggle="modal" data-bs-target="#deletemodal"><i class="fa-solid fa-trash"></i></i></button>
 							</td>
@@ -127,9 +132,9 @@
 									<input class="form-control" type="name" name="name" id="name" placeholder="Masukkan Ruang Rapat...">
 								</div>
 								<div class="mb-3">
-									<label class="mb-2" for="peserta">Unit</label>
+									<label class="mb-2" for="peserta">Organisasi</label>
 									<select class="form-select" name="peserta" id="peserta">
-										<option class="disabled" value="">Pilih Unit</option>
+										<option class="disabled" value="">Pilih Organisasi</option>
 										<option value="">HMTI</option>
 										<option value="">BEM</option>
 										<option value="">BLUG</option>
@@ -158,7 +163,7 @@
 						</div>
 						<div class="modal-footer">
 							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-							<button type="button" class="btn btn-primary">Tambah Rapat</button>
+							<button type="button" class="btn btn-primary">Tambah</button>
 						</div>
 				    </div>
 				</div>
@@ -191,9 +196,9 @@
 									<input class="form-control" type="name" name="name" id="name" placeholder="Masukkan Ruang Rapat...">
 								</div>
 								<div class="mb-3">
-									<label class="mb-2" for="peserta">Unit</label>
+									<label class="mb-2" for="peserta">Organisasi</label>
 									<select class="form-select" name="peserta" id="peserta">
-										<option class="disabled" value="">Pilih Unit</option>
+										<option class="disabled" value="">Pilih Organisasi</option>
 										<option value="">HMTI</option>
 										<option value="">BEM</option>
 										<option value="">BLUG</option>
@@ -258,6 +263,6 @@
 <script src="https://cdn.datatables.net/2.3.4/js/dataTables.js"></script>
 <script src="https://cdn.datatables.net/2.3.4/js/dataTables.bootstrap5.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="script.js"></script>
+<script src="../assets/admin.js"></script>
 </body>
 </html>
