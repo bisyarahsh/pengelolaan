@@ -170,18 +170,78 @@
         </div>
     </section>
 
-    <section id="faq" class="py-5 bg-light">
-        <div class="container">
-            <h2 class="text-center mb-5 fw-bold">FAQ</h2>
-            <div class="row justify-content-center"> <div class="col-md-8 mb-4 text-center"> <div class="card p-4 shadow">
-                        <blockquote class="blockquote mb-0">
-                            <p class="fst-italic text-muted">RAPATIN merupakan website yang dirancang untuk mempermudah pengaturan waktu pertemuan antar anggota tim atau antar departemen. Dengan sistem ini, pengguna dapat menentukan tanggal, waktu, lokasi (fisik atau virtual), serta peserta rapat secara efisien. Fitur ini juga dapat terintegrasi dengan kalender digital dan mengirimkan undangan otomatis ke seluruh peserta, lengkap dengan pengingat dan detail agenda. Penjadwalan yang terorganisir membantu mengurangi bentrokan jadwal, meningkatkan kehadiran, serta memastikan rapat berjalan sesuai rencana.</p>
-                        </blockquote>
-                    </div>
+    <div class="container my-5">
+    <h1 class="text-center mb-5 fw-bold text-dark">Frequently Asked Questions</h1>
+    
+    <div class="accordion" id="faqAccordion">
+        
+        <div class="accordion-item shadow mb-3 border border-2 rounded-3">
+            <h2 class="accordion-header" id="headingOne">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                    Bagaimana cara membuat akun?
+                </button>
+            </h2>
+            <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                    <p class="mb-0 text-muted">Akun anda otomatis akan dibuatkan oleh admin, jika anda adalah salah satu peserta rapat, maka akun akan dikirimkan melalui email peserta.</p>
                 </div>
             </div>
         </div>
-    </section>
+
+        <div class="accordion-item shadow mb-3 border border-1 rounded-3">
+            <h2 class="accordion-header" id="headingTwo">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                    Apa website ini gratis?
+                </button>
+            </h2>
+            <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                    <p class="mb-0 text-muted">Tentu saja, website ini gratis karena kami merupakan mahasiswa di Politeknik Negeri Batam yang sedang mengimplementasikan ilmu yang kami dapat ke dalam sebuah website yang berguna untuk semua orang.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="accordion-item shadow mb-3 border border-1 rounded-3">
+            <h2 class="accordion-header" id="headingThree">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                    Saya lupa password, bagaimana cara saya me-resetnya?
+                </button>
+            </h2>
+            <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                    <p class="mb-0 text-muted">Klik "lupa password" di halaman login, masukkan email anda dan ikuti instruksi selanjutnya yang sudah tertera pada halaman.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="accordion-item shadow mb-3 border border-1 rounded-3">
+            <h2 class="accordion-header" id="headingFour">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                    Bagaimana jika admin membantalkan rapat?
+                </button>
+            </h2>
+            <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                    <p class="mb-0 text-muted">Anda akan menerima notifikasi pembatalan, ruang waktu tersebut akan otomatis terbuka kembali di halaman anda.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item shadow mb-3 border border-1 rounded-3">
+            <h2 class="accordion-header" id="headingFive">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
+                    Apakah ada fitur pengingat rapat?
+                </button>
+            </h2>
+            <div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="headingFive" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                    <p class="mb-0 text-muted">Tentu saja, sistem kami mengirimkan email pengingat otomatis kepada anda dan peserta, biasanya 24 jam atau 1 jam sebelum rapat dimulai.</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
     
 
     <hr class="m-0">
