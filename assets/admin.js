@@ -84,10 +84,3 @@ allMenu.forEach(item=> {
 // Table
 new DataTable('#example');
 // Table
-
-// Modal Select
-mobiscroll.select('#multiple-select', {
-    inputElement: document.getElementById('my-input'),
-    touchUi: false
-});
-// Modal Select

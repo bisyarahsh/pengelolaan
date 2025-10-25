@@ -122,10 +122,14 @@ li {
 	margin-right: 6px;
 }
 #sidebar .side-menu {
-	margin: 36px 0;
 	padding: 0 20px;
 	transition: all .3s ease;
 }
+
+#sidebar.hide .side-menu{
+	margin: 33px 0;
+}
+
 #sidebar.hide .side-menu {
 	padding: 0 6px;
 }

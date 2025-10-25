@@ -61,7 +61,7 @@
         			        <td>HMTI Fair</td>
         			        <td>Membahas Terkait Kepanitiaan HMTI Fair 2025</td>
         			        <td class="text-center">
-								<button type="button" class="btn btn-warning aksi" data-bs-toggle="modal" data-bs-target="#exampleModal"><i class="fa-solid fa-eye"></i></button>
+								<button type="button" class="btn btn-warning aksi" data-bs-toggle="modal" data-bs-target="#viewModal"><i class="fa-solid fa-eye"></i></button>
 								<button type="button" class="btn btn-primary aksi" data-bs-toggle="modal" data-bs-target="#editModal"><i class="fa-solid fa-pen-to-square"></i></button>
 								<button type="button" class="btn btn-danger aksi" data-bs-toggle="modal" data-bs-target="#deletemodal"><i class="fa-solid fa-trash"></i></i></button>
 							</td>
@@ -73,7 +73,7 @@
         			        <td>HMTI Fair</td>
         			        <td>Membahas Terkait Kepanitiaan HMTI Fair 2025</td>
         			        <td class="text-center">
-								<button type="button" class="btn btn-warning aksi" data-bs-toggle="modal" data-bs-target="#exampleModal"><i class="fa-solid fa-eye"></i></button>
+								<button type="button" class="btn btn-warning aksi" data-bs-toggle="modal" data-bs-target="#viewModal"><i class="fa-solid fa-eye"></i></button>
 								<button type="button" class="btn btn-primary aksi" data-bs-toggle="modal" data-bs-target="#editModal"><i class="fa-solid fa-pen-to-square"></i></button>
 								<button type="button" class="btn btn-danger aksi" data-bs-toggle="modal" data-bs-target="#deletemodal"><i class="fa-solid fa-trash"></i></i></button>
 							</td>
@@ -85,7 +85,7 @@
         			        <td>HMTI Fair</td>
         			        <td>Membahas Terkait Kepanitiaan HMTI Fair 2025</td>
         			        <td class="text-center">
-								<button type="button" class="btn btn-warning aksi" data-bs-toggle="modal" data-bs-target="#exampleModal"><i class="fa-solid fa-eye"></i></button>
+								<button type="button" class="btn btn-warning aksi" data-bs-toggle="modal" data-bs-target="#viewModal"><i class="fa-solid fa-eye"></i></button>
 								<button type="button" class="btn btn-primary aksi" data-bs-toggle="modal" data-bs-target="#editModal"><i class="fa-solid fa-pen-to-square"></i></button>
 								<button type="button" class="btn btn-danger aksi" data-bs-toggle="modal" data-bs-target="#deletemodal"><i class="fa-solid fa-trash"></i></i></button>
 							</td>
@@ -97,7 +97,7 @@
         			        <td>HMTI Fair</td>
         			        <td>Membahas Terkait Kepanitiaan HMTI Fair 2025</td>
         			        <td class="text-center">
-								<button type="button" class="btn btn-warning aksi" data-bs-toggle="modal" data-bs-target="#exampleModal"><i class="fa-solid fa-eye"></i></button>
+								<button type="button" class="btn btn-warning aksi" data-bs-toggle="modal" data-bs-target="#viewModal"><i class="fa-solid fa-eye"></i></button>
 								<button type="button" class="btn btn-primary aksi" data-bs-toggle="modal" data-bs-target="#editModal"><i class="fa-solid fa-pen-to-square"></i></button>
 								<button type="button" class="btn btn-danger aksi" data-bs-toggle="modal" data-bs-target="#deletemodal"><i class="fa-solid fa-trash"></i></i></button>
 							</td>
@@ -169,6 +169,63 @@
 				</div>
 			</div>
 
+			<!-- Modal View Detail Agenda Rapat -->
+			<div class="modal fade" id="viewModal" tabindex="-1" aria-labelledby="viewModalLabel" aria-hidden="true">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h5 class="modal-title" id="exampleModalLabel">Edit Agenda Rapat</h5>
+							<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+						</div>
+						<div class="modal-body">
+							<form action="#" aria-readonly="true">
+								<div class="mb-3">
+									<label class="mb-2" for="date">Tanggal Rapat</label>
+									<input class="form-control" type="date" name="date" id="date" readonly>
+								</div>
+								<div class="mb-3">
+									<label class="mb-2" for="time">Jam Rapat</label>
+									<input class="form-control" type="time" name="time" id="time" readonly>
+								</div>
+								<div class="mb-3">
+									<label class="mb-2" for="name">Judul Rapat</label>
+									<input class="form-control" type="name" name="name" id="name" placeholder="HMTI Fair" readonly>
+								</div>
+								<div class="mb-3">
+									<label class="mb-2" for="name">Ruang Rapat</label>
+									<input class="form-control" type="name" name="name" id="name" placeholder="GU 705" readonly>
+								</div>
+								<div class="mb-3">
+									<label class="mb-2" for="peserta">Organisasi</label>
+									<select class="form-select" name="peserta" id="peserta">
+										<option class="disabled">Pilih Organisasi</option>
+										<option value="" selected>HMTI</option>
+										<option value="">BEM</option>
+										<option value="">BLUG</option>
+										<option value="">REKAM</option>
+									</select>
+								</div>
+								<div class="mb-3">
+									<label class="mb-2" for="peserta">Peserta Rapat</label>
+									<select class="form-select" name="peserta" id="peserta">
+										<option class="disabled" value="">Pilih Peserta Rapat</option>
+										<option value="">3312501064 - Adrian Septiaji</option>
+										<option value="">3312501065 - Syarifah Bisyarah Shahab</option>
+										<option value="">3312501066 - M. Fauzi Azhari</option>
+										<option value="">3312501067 - Apri Catur Pramudiansyah</option>
+									</select>
+								</div>
+								<div class="mb-3">
+									<label class="mb-2" for="keterangan">Keterangan</label>
+									<textarea class="form-control" name="keterangan" id="keterangan" placeholder="Membahas Terkait Kepanitiaan HMTI Fair 2025" readonly></textarea>
+								</div>
+							</form>
+						</div>
+				    </div>
+				</div>
+			</div>
+			<!-- End Modal View Detail Agenda Rapat -->
+
 			<!-- Modal Edit Agenda Rapat -->
 			<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
 				<div class="modal-dialog">
@@ -207,7 +264,7 @@
 								</div>
 								<div class="mb-3">
 									<label class="mb-2" for="peserta">Peserta Rapat</label>
-									<select class="form-select" name="peserta" id="peserta">
+									<select class="form-select" name="peserta" id="peserta" data-mdb-select-init multiple>
 										<option class="disabled" value="">Pilih Peserta Rapat</option>
 										<option value="">3312501064 - Adrian Septiaji</option>
 										<option value="">3312501065 - Syarifah Bisyarah Shahab</option>
