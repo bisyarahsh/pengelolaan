@@ -8,14 +8,15 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.4/css/dataTables.bootstrap5.css" />
     <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.3.4/css/responsive.bootstrap5.min.css" />
     <link rel="stylesheet" href="../assets/peserta.css" />
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
     <title>Rapatin</title>
   </head>
   <body>
     <!-- SIDEBAR -->
     <section id="sidebar">
-      <a href="../landing/index.html" class="logo ps-3"><i class="ps-5"></i> Rapatin</a>
+      <a href="../landing/index.html" data-aos="fade-down" class="logo ps-3"><i class="ps-5"></i> Rapatin</a>
       <a href="../landing/index.html" class="logo-mini fw-bold"> R</a>
-      <ul class="side-menu">
+      <ul class="side-menu" data-aos="fade-right">
         <li>
           <a href="dashboard.html"><i class="fa-solid fa-calendar-days icon"></i> Agenda Rapat</a>
         </li>
@@ -37,13 +38,13 @@
     <section id="content">
       <!-- Toggle Sidebar -->
       <nav class="atas">
-        <i class="fa-solid fa-bars toggle-sidebar"></i>
+        <i data-aos="fade-right" class="fa-solid fa-bars toggle-sidebar"></i>
       </nav>
       <!-- End Toggle Sidebar -->
 
       <!-- Main -->
       <main>
-        <div class="rapat bg-light">
+        <div data-aos="fade-down" class="rapat bg-light">
           <div class="tableheader">
             <h2>History Rapat</h2>
           </div>
@@ -204,5 +205,21 @@
     <script src="https://cdn.datatables.net/2.3.4/js/dataTables.bootstrap5.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../assets/peserta.js"></script>
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+    <script>
+      AOS.init();
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script type="text/javascript">
+      function hapus() {
+        Swal.fire({
+          title: 'Good job!',
+          text: 'Rapat Berhasil dihapus!',
+          icon: 'success',
+        }).then((result) => {
+          $('#deletemodal').modal('hide');
+        });
+      }
+    </script>
   </body>
 </html>
