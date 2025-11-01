@@ -1,252 +1,350 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aplikasi Jadwal Rapat | Atur Rapat dengan Mudah</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RAPATIN | Aplikasi Penjadwalan Rapat Cerdas</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
 
-    <style>
-        /* ====================
-           Gaya Umum (Body)
-           ==================== */
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f8f9fa; /* Latar belakang abu-abu muda */
-        }
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
 
-        /* Gaya Khusus untuk Navigasi */
-        .nav-link:hover { /* Perbaikan typo dari .navlink ke .nav-link (sesuai standar Bootstrap) */
-            color: rgb(54, 27, 206);
-        }
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
 
-        /* ====================
-           Gaya Header (Hero Section)
-           ==================== */
-        .hero-section {
-            background: linear-gradient(135deg, #0d6efd 0%, #00b4d8 100%); /* Biru gradien yang kuat */
-            color: white;
-            padding: 120px 0; /* Padding lebih besar */
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
+  <!-- AOS Animation -->
+  <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet" />
 
-        /* Mengatur ukuran dan tampilan CTA button di Hero */
-        .hero-section .btn-warning {
-            transition: all 0.3s ease;
-        }
+  <style>
+    /* ===================================
+       GAYA UMUM
+       =================================== */
+    :root {
+      --primary: #0d6efd;
+      --secondary: #00b4d8;
+      --accent: #ffc107;
+      --dark: #212529;
+      --light: #f8f9fa;
+    }
 
-        .hero-section .btn-warning:hover {
-            transform: translateY(-2px); /* Efek sedikit terangkat saat hover */
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-        }
+    * {
+      scroll-behavior: smooth;
+    }
 
-        /* ====================
-           Gaya Bagian Fitur
-           ==================== */
-        #fitur .card {
-            border: none;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            cursor: pointer;
-        }
+    body {
+      font-family: "Poppins", sans-serif;
+      background: var(--light);
+      color: var(--dark);
+      overflow-x: hidden;
+    }
 
-        #fitur .card:hover {
-            transform: translateY(-5px); /* Kartu sedikit terangkat saat disentuh/hover */
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-        }
+    /* ===================================
+       NAVBAR
+       =================================== */
+    .navbar {
+      transition: all 0.4s ease;
+      backdrop-filter: blur(10px);
+      background-color: rgba(0, 0, 0, 0.65);
+    }
 
-        /* Gaya untuk ikon fitur */
-        #fitur i {
-            font-size: 3rem;
-            margin-bottom: 15px;
-            display: block;
-        }
+    .navbar.scrolled {
+      background-color: var(--dark);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    }
 
-        /* ====================
-           Gaya Bagian Form (Dalam kode asli: #jadwal form)
-           ==================== */
-        #jadwal form {
-            background: white;
-            padding: 40px;
-            border-radius: 12px;
-        }
+    .nav-link {
+      color: #fff !important;
+      margin-left: 1rem;
+      transition: color 0.3s ease;
+    }
 
-        /* ====================
-           Gaya Footer
-           ==================== */
-        footer {
-            background-color: #343a40 !important; /* Warna gelap lebih tegas */
-        }
-    </style>
+    .nav-link:hover {
+      color: var(--accent) !important;
+    }
+
+    /* ===================================
+       HERO SECTION
+       =================================== */
+    .hero-section {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      padding: 180px 0;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Animasi latar partikel */
+    .hero-section::before {
+      content: "";
+      position: absolute;
+      width: 120%;
+      height: 120%;
+      top: -10%;
+      left: -10%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 10%, transparent 10%);
+      background-size: 10px 10px;
+      animation: move-bg 10s linear infinite;
+    }
+
+    @keyframes move-bg {
+      from { transform: translate(0, 0); }
+      to { transform: translate(50px, 50px); }
+    }
+
+    .hero-section h1 {
+      font-weight: 700;
+      font-size: 3.5rem;
+    }
+
+    .hero-section p {
+      font-size: 1.2rem;
+      opacity: 0.9;
+      margin-bottom: 40px;
+    }
+
+    .hero-section .btn {
+      font-weight: 600;
+      padding: 15px 40px;
+      border-radius: 30px;
+      transition: all 0.3s ease;
+    }
+
+    .hero-section .btn:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(255, 193, 7, 0.5);
+    }
+
+    /* ===================================
+       FITUR SECTION
+       =================================== */
+    #fitur {
+      background: #fff;
+      padding: 100px 0;
+    }
+
+    #fitur .card {
+      border: none;
+      border-radius: 20px;
+      backdrop-filter: blur(8px);
+      background: rgba(255, 255, 255, 0.8);
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+      transition: all 0.4s ease;
+    }
+
+    #fitur .card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 15px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    #fitur i {
+      font-size: 3.5rem;
+      color: var(--primary);
+      margin-bottom: 20px;
+    }
+
+    /* ===================================
+       TENTANG SECTION
+       =================================== */
+    #tentang {
+      background: linear-gradient(135deg, #ffffff, #e9f2ff);
+      padding: 100px 0;
+    }
+
+    #tentang .card {
+      border: none;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    #tentang .card:hover {
+      transform: scale(1.02);
+    }
+
+    /* ===================================
+       FAQ SECTION
+       =================================== */
+    #faq {
+      padding: 100px 0;
+    }
+
+    .accordion-button {
+      font-weight: 600;
+    }
+
+    .accordion-button:not(.collapsed) {
+      background-color: var(--primary);
+      color: #fff;
+    }
+
+    .accordion-body {
+      background-color: #f8f9fc;
+      border-radius: 0 0 10px 10px;
+    }
+
+    /* ===================================
+       FOOTER
+       =================================== */
+    footer {
+      background: var(--dark);
+      color: #ffffff;
+      text-align: center;
+      padding: 30px 0;
+      font-size: 0.9rem;
+    }
+
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
 <body>
-
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="#">RAPATIN</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="#hero">Beranda</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#fitur">Fitur</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#testimoni">Tentang</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#faqAccordion">FAQ</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-
-    <header id="hero" class="hero-section">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-lg-12"> <h1 class="display-3 fw-bolder mb-4">Mulai Rapat Lebih Cepat, Otomatis, dan Praktis.</h1>
-                    <p class="lead mb-5">Dengan RAPATIN, Penjadwalan rapat jadi cepat, rapi dan profesional</p>
-                    <a href="../login/login.html" class="btn btn-warning text-dark btn-lg me-3 px-5 py-3 shadow">Login</a>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <hr class="m-0">
-
-    <section id="fitur" class="py-5">
-        <div class="container">
-            <h2 class="text-center mb-5 fw-bold">Fitur yang Membuat Rapat Jadi Mudah</h2>
-            <div class="row text-center">
-                <div class="col-md-4 mb-4">
-                    <div class="card h-100 p-3 shadow-sm">
-                        <div class="card-body">
-                            <i class="bi bi-clock-history text-primary"></i>
-                            <h3 class="card-title fs-4 fw-bold">Penjadwalan dan Kirim</h3>
-                            <p class="card-text">Buat undangan profesional hanya dalam hitungan detik. Cukup pilih waktu, tentukan peserta.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4 mb-4">
-                    <div class="card h-100 p-3 shadow-sm">
-                        <div class="card-body">
-                            <i class="bi bi-calendar-check-fill text-success"></i>
-                            <h3 class="card-title fs-4 fw-bold">Pencatatan</h3>
-                            <p class="card-text">Memudahkan dokumentasi rapat secara terstruktur, seperti waktu, tempat, peserta, agenda, dan keputusan yang diambil.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4 mb-4">
-                    <div class="card h-100 p-3 shadow-sm">
-                        <div class="card-body">
-                            <i class="bi bi-bell-fill text-info"></i>
-                            <h3 class="card-title fs-4 fw-bold">Pengingat Otomatis</h3>
-                            <p class="card-text">Mengirim notifikasi rapat serta pengingat kepada seluruh peserta rapat.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <hr class="m-0">
-
-    <section id="testimoni" class="py-5 bg-light">
-        <div class="container">
-            <h2 class="text-center mb-5 fw-bold">Tentang</h2>
-            <div class="row justify-content-center"> <div class="col-md-8 mb-4 text-center"> <div class="card p-4 shadow">
-                        <blockquote class="blockquote mb-0">
-                            <p class="fst-italic text-muted">RAPATIN merupakan website yang dirancang untuk mempermudah pengaturan waktu pertemuan antar anggota tim atau antar departemen. Dengan sistem ini, pengguna dapat menentukan tanggal, waktu, lokasi (fisik atau virtual), serta peserta rapat secara efisien. Fitur ini juga dapat terintegrasi dengan kalender digital dan mengirimkan undangan otomatis ke seluruh peserta, lengkap dengan pengingat dan detail agenda. Penjadwalan yang terorganisir membantu mengurangi bentrokan jadwal, meningkatkan kehadiran, serta memastikan rapat berjalan sesuai rencana.</p>
-                        </blockquote>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <div class="container my-5">
-    <h1 class="text-center mb-5 fw-bold text-dark">Frequently Asked Questions</h1>
-    
-    <div class="accordion" id="faqAccordion">
-        
-        <div class="accordion-item shadow mb-3 border border-2 rounded-3">
-            <h2 class="accordion-header" id="headingOne">
-                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                    Bagaimana cara membuat akun?
-                </button>
-            </h2>
-            <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#faqAccordion">
-                <div class="accordion-body">
-                    <p class="mb-0 text-muted">Akun anda otomatis akan dibuatkan oleh admin, jika anda adalah salah satu peserta rapat, maka akun akan dikirimkan melalui email peserta.</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="accordion-item shadow mb-3 border border-1 rounded-3">
-            <h2 class="accordion-header" id="headingTwo">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                    Apa website ini gratis?
-                </button>
-            </h2>
-            <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#faqAccordion">
-                <div class="accordion-body">
-                    <p class="mb-0 text-muted">Tentu saja, website ini gratis karena kami merupakan mahasiswa di Politeknik Negeri Batam yang sedang mengimplementasikan ilmu yang kami dapat ke dalam sebuah website yang berguna untuk semua orang.</p>
-                </div>
-            </div>
-        </div>
-        
-        <div class="accordion-item shadow mb-3 border border-1 rounded-3">
-            <h2 class="accordion-header" id="headingThree">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                    Saya lupa password, bagaimana cara saya me-resetnya?
-                </button>
-            </h2>
-            <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#faqAccordion">
-                <div class="accordion-body">
-                    <p class="mb-0 text-muted">Klik "lupa password" di halaman login, masukkan email anda dan ikuti instruksi selanjutnya yang sudah tertera pada halaman.</p>
-                </div>
-            </div>
-        </div>
-        
-        <div class="accordion-item shadow mb-3 border border-1 rounded-3">
-            <h2 class="accordion-header" id="headingFour">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
-                    Bagaimana jika admin membantalkan rapat?
-                </button>
-            </h2>
-            <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#faqAccordion">
-                <div class="accordion-body">
-                    <p class="mb-0 text-muted">Anda akan menerima notifikasi pembatalan, ruang waktu tersebut akan otomatis terbuka kembali di halaman anda.</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="accordion-item shadow mb-3 border border-1 rounded-3">
-            <h2 class="accordion-header" id="headingFive">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
-                    Apakah ada fitur pengingat rapat?
-                </button>
-            </h2>
-            <div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="headingFive" data-bs-parent="#faqAccordion">
-                <div class="accordion-body">
-                    <p class="mb-0 text-muted">Tentu saja, sistem kami mengirimkan email pengingat otomatis kepada anda dan peserta, biasanya 24 jam atau 1 jam sebelum rapat dimulai.</p>
-                </div>
-            </div>
-        </div>
-
+  <!-- ========================= NAVBAR ========================= -->
+  <nav class="navbar navbar-expand-lg fixed-top">
+    <div class="container">
+      <a class="navbar-brand fw-bold text-white" href="#">RAPATIN</a>
+      <button class="navbar-toggler bg-light" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto text-center">
+          <li class="nav-item"><a href="#hero" class="nav-link">Beranda</a></li>
+          <li class="nav-item"><a href="#fitur" class="nav-link">Fitur</a></li>
+          <li class="nav-item"><a href="#tentang" class="nav-link">Tentang</a></li>
+          <li class="nav-item"><a href="#faq" class="nav-link">FAQ</a></li>
+        </ul>
+      </div>
     </div>
-</div>
-    
+  </nav>
 
-    <hr class="m-0">
+  <!-- ========================= HERO ========================= -->
+  <section id="hero" class="hero-section">
+    <div class="container" data-aos="fade-up">
+      <h1 class="mb-4">Rapat Lebih Cerdas, Cepat, & Efisien</h1>
+      <p>Atur jadwal, kirim undangan, dan catat hasil rapat hanya dengan beberapa klik.</p>
+      <a href="../login/login.html" class="btn btn-warning text-dark btn-lg">Mulai Sekarang</a>
+    </div>
+  </section>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- ========================= FITUR ========================= -->
+  <section id="fitur">
+    <div class="container">
+      <h2 class="text-center fw-bold mb-5" data-aos="fade-up">Fitur Unggulan</h2>
+      <div class="row text-center">
+        <div class="col-md-4 mb-4" data-aos="zoom-in" data-aos-delay="100">
+          <div class="card p-4 h-100">
+            <i class="bi bi-calendar-event"></i>
+            <h4 class="fw-bold mt-3">Penjadwalan Otomatis</h4>
+            <p class="text-muted">Pilih waktu, kirim undangan, dan sistem akan menyesuaikan jadwal seluruh peserta.</p>
+          </div>
+        </div>
+        <div class="col-md-4 mb-4" data-aos="zoom-in" data-aos-delay="200">
+          <div class="card p-4 h-100">
+            <i class="bi bi-pencil-square text-success"></i>
+            <h4 class="fw-bold mt-3">Pencatatan Digital</h4>
+            <p class="text-muted">Catat agenda, keputusan, dan notulen rapat secara otomatis dan tersimpan di cloud.</p>
+          </div>
+        </div>
+        <div class="col-md-4 mb-4" data-aos="zoom-in" data-aos-delay="300">
+          <div class="card p-4 h-100">
+            <i class="bi bi-bell-fill text-info"></i>
+            <h4 class="fw-bold mt-3">Pengingat Pintar</h4>
+            <p class="text-muted">Dapatkan notifikasi otomatis sebelum rapat dimulai agar semua tetap teratur.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
+  <!-- ========================= TENTANG ========================= -->
+  <section id="tentang">
+    <div class="container">
+      <h2 class="text-center fw-bold mb-5" data-aos="fade-up">Tentang Rapatin</h2>
+      <div class="row justify-content-center">
+        <div class="col-md-8" data-aos="fade-up" data-aos-delay="150">
+          <div class="card p-4 shadow-lg">
+            <p class="lead text-muted">
+              <strong>RAPATIN</strong> merupakan website yang dirancang untuk mempermudah pengaturan waktu pertemuan antar anggota tim atau antar departemen. Dengan sistem ini, pengguna dapat menentukan tanggal, waktu, lokasi (fisik atau virtual), serta peserta rapat secara efisien. Fitur ini juga dapat terintegrasi dengan kalender digital dan mengirimkan undangan otomatis ke seluruh peserta, lengkap dengan pengingat dan detail agenda. Penjadwalan yang terorganisir membantu mengurangi bentrokan jadwal, meningkatkan kehadiran, serta memastikan rapat berjalan sesuai rencana.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================= FAQ ========================= -->
+  <section id="faq" class="bg-light">
+    <div class="container">
+      <h2 class="text-center fw-bold mb-5" data-aos="fade-up">Pertanyaan yang Sering Diajukan</h2>
+      <div class="accordion" id="faqAccordion" data-aos="fade-up" data-aos-delay="150">
+        <div class="accordion-item mb-3">
+          <h2 class="accordion-header" id="q1">
+            <button class="accordion-button" data-bs-toggle="collapse" data-bs-target="#a1">Bagaimana cara membuat akun?</button>
+          </h2>
+          <div id="a1" class="accordion-collapse collapse show">
+            <div class="accordion-body">
+              Akun anda otomatis akan dibuatkan oleh admin, jika anda adalah salah satu peserta rapat, maka akun akan dikirimkan melalui email peserta.
+            </div>
+          </div>
+        </div>
+
+        <div class="accordion-item mb-3">
+          <h2 class="accordion-header" id="q2">
+            <button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#a2">Apakah website ini gratis?</button>
+          </h2>
+          <div id="a2" class="accordion-collapse collapse">
+            <div class="accordion-body">
+              Tentu saja, website ini gratis karena kami merupakan mahasiswa di Politeknik Negeri Batam yang sedang mengimplementasikan ilmu yang kami dapat ke dalam sebuah website yang berguna untuk semua orang.
+            </div>
+          </div>
+        </div>
+
+        <div class="accordion-item mb-3">
+          <h2 class="accordion-header" id="q3">
+            <button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#a3">Saya lupa password, bagaimana cara me-resetnya?</button>
+          </h2>
+          <div id="a3" class="accordion-collapse collapse">
+            <div class="accordion-body">
+              Klik "lupa password" di halaman login, masukkan email anda dan ikuti instruksi selanjutnya yang sudah tertera pada halaman.
+         
+             
+
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================= FOOTER ========================= -->
+  <footer>
+    <p>© 2025 RAPATIN | Dibuat dengan ❤️ oleh Mahasiswa <a href="#">Polibatam</a></p>
+  </footer>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- AOS Animation -->
+  <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+  <script>
+    // Inisialisasi AOS
+    AOS.init({ duration: 1000, once: true });
+
+    // Efek Navbar saat scroll
+    window.addEventListener("scroll", () => {
+      const navbar = document.querySelector(".navbar");
+      navbar.classList.toggle("scrolled", window.scrollY > 50);
+    });
+  </script>
 </body>
 </html>
