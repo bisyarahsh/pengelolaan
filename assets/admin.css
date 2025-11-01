@@ -197,6 +197,10 @@ main {
 	padding: 24px 20px 20px 20px;
 }
 
+#organisasi{
+	width: 75%;
+}
+
 main .rapat{
 	box-shadow: 0 0 15px 0 rgba(0, 0, 0, 0.4);
 	border-radius: 10px;
@@ -237,6 +241,9 @@ main .pengaturan{
 	}
 	.rapat{
 		overflow-x: auto;
+	}
+	#organisasi{
+		width: 100%;
 	}
 	.aksi{
 		margin-bottom: 3px;
