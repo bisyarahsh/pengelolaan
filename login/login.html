@@ -47,7 +47,7 @@
           </div>
         </div>
 
-        <form id="loginForm" class="needs-validation" novalidate>
+        <form action="../peserta/dashboard.html" id="loginForm" class="needs-validation" novalidate>
           <div class="mb-3">
             <label for="email" class="form-label">Email</label>
             <input type="email" class="form-control" id="email" placeholder="Masukkan email" required>
@@ -80,10 +80,6 @@
           if (!form.checkValidity()) {
             event.preventDefault()
             event.stopPropagation()
-          } else {
-            event.preventDefault();
-            // Example: submit via fetch or redirect after successful validation
-            alert('Berhasil masuk (demo).');
           }
           form.classList.add('was-validated')
         }, false)
