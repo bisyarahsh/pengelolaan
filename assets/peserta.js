@@ -81,25 +81,13 @@ allMenu.forEach(item=> {
 	})
 })
 
-
-
-window.addEventListener('click', function (e) {
-
-	allMenu.forEach(item=> {
-		const icon = item.querySelector('.icon');
-		const menuLink = item.querySelector('.menu-link');
-
-		if(e.target !== icon) {
-			if(e.target !== menuLink) {
-				if (menuLink.classList.contains('show')) {
-					menuLink.classList.remove('show')
-				}
-			}
-		}
-	})
-})
-
 // Table
 new DataTable('#example');
 // Table
 
+// Modal Select
+mobiscroll.select('#multiple-select', {
+    inputElement: document.getElementById('my-input'),
+    touchUi: false
+});
+// Modal Select
