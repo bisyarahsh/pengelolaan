@@ -291,8 +291,8 @@ unset($_SESSION['alert']);
 const alertData = <?= json_encode($alert); ?>;
 if (alertData && alertData.message) {
     Swal.fire({
-        // Gunakan 'Perhatian!' untuk icon warning (duplikasi) atau 'Good job!' untuk success
-        title: alertData.icon === 'success' ? "Good job!" : "Perhatian!", 
+        // Gunakan 'Perhatian!' untuk icon warning (duplikasi) atau 'Selamat!' untuk success
+        title: alertData.icon === 'success' ? "Selamat!" : "Perhatian!", 
         text: alertData.message,
         icon: alertData.icon, // Membaca 'success' atau 'warning' dari PHP
         timer: 3000,

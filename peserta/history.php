@@ -3,10 +3,22 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="https://cdn.datatables.net/2.3.4/css/dataTables.bootstrap5.css" />
-    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.3.4/css/responsive.bootstrap5.min.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.datatables.net/2.3.4/css/dataTables.bootstrap5.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.datatables.net/responsive/2.3.4/css/responsive.bootstrap5.min.css"
+    />
     <link rel="stylesheet" href="../assets/peserta.css" />
     <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
     <title>Rapatin</title>
@@ -14,6 +26,7 @@
   <body>
     <!-- SIDEBAR -->
     <section id="sidebar">
+<<<<<<< HEAD:peserta/history.php
       <a href="../landing/index.php" data-aos="fade-down" class="logo ps-3"><i class="ps-5"></i> Rapatin</a>
       <a href="../landing/index.php" class="logo-mini fw-bold"> R</a>
       <ul class="side-menu" data-aos="fade-right">
@@ -28,6 +41,38 @@
         </li>
         <li>
           <a href="logout.php"><i class="fa-solid fa-right-from-bracket icon"></i> Logout</a>
+=======
+      <a href="../landing/index.html" data-aos="fade-down" class="logo ps-3"
+        ><i class="ps-5"></i> Rapatin</a
+      >
+      <a
+        href="../landing/index.html"
+        data-aos="fade-down"
+        class="logo-mini fw-bold"
+      >
+        R</a
+      >
+      <ul class="side-menu" data-aos="fade-right">
+        <li>
+          <a href="dashboard.html"
+            ><i class="fa-solid fa-calendar-days icon"></i> Agenda Rapat</a
+          >
+        </li>
+        <li>
+          <a href="history.html" class="active"
+            ><i class="fa-solid fa-clock-rotate-left icon"></i> Riwayat Rapat</a
+          >
+        </li>
+        <li>
+          <a href="ganti__password.html"
+            ><i class="fa-solid fa-gear icon"></i> Ganti Kata Sandi</a
+          >
+        </li>
+        <li>
+          <a href="../login/login.html"
+            ><i class="fa-solid fa-right-from-bracket icon"></i> Keluar</a
+          >
+>>>>>>> 99d0ad547529d1ee75965a8c35b7dfb1b2cb8075:peserta/history.html
         </li>
       </ul>
     </section>
@@ -111,30 +156,65 @@
             </tbody>
           </table>
 
-          <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+          <div
+            class="modal fade"
+            id="editModal"
+            tabindex="-1"
+            aria-labelledby="editModalLabel"
+            aria-hidden="true"
+          >
             <div class="modal-dialog">
               <div class="modal-content">
                 <div class="modal-header">
-                  <h5 class="modal-title" id="exampleModalLabel">Edit Agenda Rapat</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  <h5 class="modal-title" id="exampleModalLabel">
+                    Edit Agenda Rapat
+                  </h5>
+                  <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                  ></button>
                 </div>
                 <div class="modal-body">
                   <form action="#">
                     <div class="mb-3">
                       <label class="mb-2" for="date">Tanggal Rapat</label>
-                      <input class="form-control" type="date" name="date" id="date" />
+                      <input
+                        class="form-control"
+                        type="date"
+                        name="date"
+                        id="date"
+                      />
                     </div>
                     <div class="mb-3">
                       <label class="mb-2" for="time">Jam Rapat</label>
-                      <input class="form-control" type="time" name="time" id="time" />
+                      <input
+                        class="form-control"
+                        type="time"
+                        name="time"
+                        id="time"
+                      />
                     </div>
                     <div class="mb-3">
                       <label class="mb-2" for="name">Judul Rapat</label>
-                      <input class="form-control" type="name" name="name" id="name" placeholder="Masukkan Judul Rapat..." />
+                      <input
+                        class="form-control"
+                        type="name"
+                        name="name"
+                        id="name"
+                        placeholder="Masukkan Judul Rapat..."
+                      />
                     </div>
                     <div class="mb-3">
                       <label class="mb-2" for="name">Ruang Rapat</label>
-                      <input class="form-control" type="name" name="name" id="name" placeholder="Masukkan Ruang Rapat..." />
+                      <input
+                        class="form-control"
+                        type="name"
+                        name="name"
+                        id="name"
+                        placeholder="Masukkan Ruang Rapat..."
+                      />
                     </div>
                     <div class="mb-3">
                       <label class="mb-2" for="peserta">Unit</label>
@@ -149,26 +229,50 @@
                     <div class="mb-3">
                       <label class="mb-2" for="peserta">Peserta Rapat</label>
                       <select class="form-select" name="peserta" id="peserta">
-                        <option class="disabled" value="">Pilih Peserta Rapat</option>
+                        <option class="disabled" value="">
+                          Pilih Peserta Rapat
+                        </option>
                         <option value="">3312501064 - Adrian Septiaji</option>
-                        <option value="">3312501065 - Syarifah Bisyarah Shahab</option>
+                        <option value="">
+                          3312501065 - Syarifah Bisyarah Shahab
+                        </option>
                         <option value="">3312501066 - M. Fauzi Azhari</option>
-                        <option value="">3312501067 - Apri Catur Pramudiansyah</option>
+                        <option value="">
+                          3312501067 - Apri Catur Pramudiansyah
+                        </option>
                       </select>
                     </div>
                     <div class="mb-3">
                       <label class="mb-2" for="keterangan">Keterangan</label>
-                      <textarea class="form-control" name="keterangan" id="keterangan" placeholder="Masukkan Keterangan..."></textarea>
+                      <textarea
+                        class="form-control"
+                        name="keterangan"
+                        id="keterangan"
+                        placeholder="Masukkan Keterangan..."
+                      ></textarea>
                     </div>
                     <div class="mb-3">
                       <label class="mb-2" for="file">Upload Notulen</label>
-                      <input class="form-control" type="file" id="myFile" name="filename" />
+                      <input
+                        class="form-control"
+                        type="file"
+                        id="myFile"
+                        name="filename"
+                      />
                     </div>
                   </form>
                 </div>
                 <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                  <button type="button" class="btn btn-primary">Simpan Perubahan</button>
+                  <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-bs-dismiss="modal"
+                  >
+                    Close
+                  </button>
+                  <button type="button" class="btn btn-primary">
+                    Simpan Perubahan
+                  </button>
                 </div>
               </div>
             </div>
@@ -176,18 +280,39 @@
           <!-- End Modal Edit Agenda Rapat -->
 
           <!-- Modal Delete Agenda Rapat -->
-          <div class="modal fade" id="deletemodal" tabindex="-1" aria-labelledby="deletemodalLabel" aria-hidden="true">
+          <div
+            class="modal fade"
+            id="deletemodal"
+            tabindex="-1"
+            aria-labelledby="deletemodalLabel"
+            aria-hidden="true"
+          >
             <div class="modal-dialog">
               <div class="modal-content">
                 <div class="modal-header">
-                  <h5 class="modal-title" id="exampleModalLabel">Hapus Agenda Rapat</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  <h5 class="modal-title" id="exampleModalLabel">
+                    Hapus Agenda Rapat
+                  </h5>
+                  <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                  ></button>
                 </div>
                 <div class="modal-body">
-                  <p class="h5">Apakah anda yakin ingin menghapus agenda rapat ini?</p>
+                  <p class="h5">
+                    Apakah anda yakin ingin menghapus agenda rapat ini?
+                  </p>
                 </div>
                 <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                  <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-bs-dismiss="modal"
+                  >
+                    Batal
+                  </button>
                   <button type="button" class="btn btn-danger">Hapus</button>
                 </div>
               </div>
