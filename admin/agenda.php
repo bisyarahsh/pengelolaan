@@ -1,3 +1,20 @@
+<?php
+// Memulai sesi
+session_start();
+// Cek apakah user sudah login
+if ($_SESSION['status'] != "login") {
+    // Jika belum login, arahkan ke halaman login
+    header("location:../login/login.php");
+    exit;
+}
+// Cek apakah role user bukan 'ketua'
+if ($_SESSION['role'] != "Ketua") {
+    // Jika bukan ketua, tolak akses dan arahkan kembali
+    header("location:../login/login.php");
+    exit;
+}
+?>
+	
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -19,15 +36,15 @@
 	
 	<!-- SIDEBAR -->
 	<section id="sidebar">
-		<a href="../landing/index.html" data-aos="fade-down" class="logo ps-3"><i class='ps-5'></i> Rapatin</a>
-		<a href="../landing/index.html" data-aos="fade-down" class="logo-mini fw-bold"> R</a>
+		<a href="../landing/index.php" data-aos="fade-down" class="logo ps-3"><i class='ps-5'></i> Rapatin</a>
+		<a href="../landing/index.php" data-aos="fade-down" class="logo-mini fw-bold"> R</a>
 		<ul class="side-menu" data-aos="fade-right">
-			<li><a href="agenda.html" class="active"><i class="fa-solid fa-calendar-days icon"></i> Agenda Rapat</a></li>
-			<li><a href="riwayat.html"><i class="fa-solid fa-clock-rotate-left icon"></i> Riwayat Rapat</a></li>
-			<li><a href="organisasi.html"><i class="fa-solid fa-users icon"></i> Organisasi</a></li>
-			<li><a href="manage_user.html"><i class="fa-solid fa-user icon"></i> Pengguna</a></li>
-			<li><a href="pengaturan.html"><i class="fa-solid fa-gear icon"></i> Ganti Password</a></li>
-			<li><a href="../login/login.html"><i class="fa-solid fa-right-from-bracket icon"></i> Logout</a></li>
+			<li><a href="agenda.php" class="active"><i class="fa-solid fa-calendar-days icon"></i> Agenda Rapat</a></li>
+			<li><a href="riwayat.php"><i class="fa-solid fa-clock-rotate-left icon"></i> Riwayat Rapat</a></li>
+			<li><a href="organisasi.php"><i class="fa-solid fa-users icon"></i> Organisasi</a></li>
+			<li><a href="manage_user.php"><i class="fa-solid fa-user icon"></i> Pengguna</a></li>
+			<li><a href="pengaturan.php"><i class="fa-solid fa-gear icon"></i> Ganti Password</a></li>
+			<li><a href="logout.php"><i class="fa-solid fa-right-from-bracket icon"></i> Logout</a></li>
 		</ul>
 	</section>
 	<!-- SIDEBAR -->
