@@ -39,21 +39,12 @@ if ($_SESSION['role'] != "Ketua") {
 		<a href="../landing/index.php" data-aos="fade-down" class="logo ps-3"><i class='ps-5'></i> Rapatin</a>
 		<a href="../landing/index.php" data-aos="fade-down" class="logo-mini fw-bold"> R</a>
 		<ul class="side-menu" data-aos="fade-right">
-<<<<<<< HEAD:admin/agenda.php
 			<li><a href="agenda.php" class="active"><i class="fa-solid fa-calendar-days icon"></i> Agenda Rapat</a></li>
 			<li><a href="riwayat.php"><i class="fa-solid fa-clock-rotate-left icon"></i> Riwayat Rapat</a></li>
 			<li><a href="organisasi.php"><i class="fa-solid fa-users icon"></i> Organisasi</a></li>
 			<li><a href="manage_user.php"><i class="fa-solid fa-user icon"></i> Pengguna</a></li>
 			<li><a href="pengaturan.php"><i class="fa-solid fa-gear icon"></i> Ganti Password</a></li>
 			<li><a href="logout.php"><i class="fa-solid fa-right-from-bracket icon"></i> Logout</a></li>
-=======
-			<li><a href="agenda.html" class="active"><i class="fa-solid fa-calendar-days icon"></i> Agenda Rapat</a></li>
-			<li><a href="riwayat.html"><i class="fa-solid fa-clock-rotate-left icon"></i> Riwayat Rapat</a></li>
-			<li><a href="organisasi.html"><i class="fa-solid fa-users icon"></i> Organisasi</a></li>
-			<li><a href="manage_user.html"><i class="fa-solid fa-user icon"></i> Pengguna</a></li>
-			<li><a href="pengaturan.html"><i class="fa-solid fa-gear icon"></i> Ganti Kata Sandi</a></li>
-			<li><a href="../login/login.html"><i class="fa-solid fa-right-from-bracket icon"></i> Keluar</a></li>
->>>>>>> 99d0ad547529d1ee75965a8c35b7dfb1b2cb8075:admin/agenda.html
 		</ul>
 	</section>
 	<!-- SIDEBAR -->
