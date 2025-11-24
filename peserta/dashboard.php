@@ -1,17 +1,7 @@
 <?php
-    // Cek apakah user sudah login
-    if ($_SESSION['status'] != "login") {
-        // Jika belum login, arahkan ke halaman login
-        header("location:../login/login.php");
-        exit;
-    }
-
-    // Cek apakah level user bukan 'Peserta'
-    if ($_SESSION['role'] != "Peserta") {
-        // Jika bukan peserta, tolak akses dan arahkan kembali
-        header("location:../login/login.php");
-        exit;
-    }
+include '../php/koneksi.php';
+// Memulai sesi
+session_start();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -42,23 +32,13 @@
   <body>
     <!-- SIDEBAR -->
     <section id="sidebar">
-<<<<<<< HEAD:peserta/dashboard.php
 		<a href="../landing/index.php" data-aos="fade-down" class="logo ps-3"><i class='ps-5'></i> Rapatin</a>
-		<a href="../landing/index.php" class="logo-mini fw-bold"> R</a>
+		<a href="../landing/index.php" data-aos="fade-down" class="logo-mini fw-bold"> R</a>
 		<ul class="side-menu" data-aos="fade-right">
 			<li><a href="dashboard.php" class="active"><i class="fa-solid fa-calendar-days icon"></i> Agenda Rapat</a></li>
 			<li><a href="history.php"><i class="fa-solid fa-clock-rotate-left icon"></i> Riwayat Rapat</a></li>
-			<li><a href="ganti__password.php"><i class="fa-solid fa-gear icon"></i> Ganti Password</a></li>
-			<li><a href="logout.php"><i class="fa-solid fa-right-from-bracket icon"></i> Logout</a></li>
-=======
-		<a href="../landing/index.html" data-aos="fade-down" class="logo ps-3"><i class='ps-5'></i> Rapatin</a>
-		<a href="../landing/index.html" data-aos="fade-down" class="logo-mini fw-bold"> R</a>
-		<ul class="side-menu" data-aos="fade-right">
-			<li><a href="dashboard.html" class="active"><i class="fa-solid fa-calendar-days icon"></i> Agenda Rapat</a></li>
-			<li><a href="history.html"><i class="fa-solid fa-clock-rotate-left icon"></i> Riwayat Rapat</a></li>
-			<li><a href="ganti__password.html"><i class="fa-solid fa-gear icon"></i> Ganti Kata Sandi</a></li>
-			<li><a href="../login/login.html"><i class="fa-solid fa-right-from-bracket icon"></i> Keluar</a></li>
->>>>>>> 99d0ad547529d1ee75965a8c35b7dfb1b2cb8075:peserta/dashboard.html
+			<li><a href="ganti__password.php"><i class="fa-solid fa-gear icon"></i> Ganti Kata Sandi</a></li>
+			<li><a href="../login/login.php"><i class="fa-solid fa-right-from-bracket icon"></i> Keluar</a></li>
 		</ul>
 	</section>
 	<!-- SIDEBAR -->

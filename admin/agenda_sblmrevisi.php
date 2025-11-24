@@ -1,19 +1,6 @@
 <?php
 // Memulai sesi
 session_start();
-
-if (isset($_GET['status']) && $_GET['status'] == 'sukses_tambah') {
-    echo "<script>
-            document.addEventListener('DOMContentLoaded', function() {
-                Swal.fire({
-                    title: 'Selamat!',
-                    text: 'Rapat Berhasil ditambahkan!',
-                    icon: 'success'
-                });
-            });
-          </script>";
-}
-
 include("../php/koneksi.php"); // Pastikan path benar
 
 // --- Cek Sesi dan Akses ---
@@ -68,40 +55,22 @@ if (isset($_POST['tambah_rapat'])) {
     $notulen_file = '';
 
     // File Upload
-    $notulen_file = ''; // Inisialisasi variabel untuk nama file di database
-
-	// --- 1. Penanganan File Upload ---
-	if (isset($_FILES['filename']) && $_FILES['filename']['error'] == 0) {
-	
-	    // 💡 Tentukan lokasi penyimpanan file (pastikan folder ini ada dan bisa ditulis)
-	    $target_dir = "../notulen_files/"; 
-	
-	    // Pastikan folder target ada, jika tidak, buat
-	    if (!is_dir($target_dir)) {
-	        mkdir($target_dir, 0777, true); 
-	    }
-	
-	    $file_name_original = basename($_FILES["filename"]["name"]);
-	    $file_tmp = $_FILES["filename"]["tmp_name"];
-	    $file_ext = pathinfo($file_name_original, PATHINFO_EXTENSION);
-	
-	    // Sanitasi dan buat nama file unik
-	    $new_file_name = "notulen_" . $tanggal . "_" . time() . "." . $file_ext;
-	    $target_file = $target_dir . $new_file_name;
-	
-	    // 💡 Pindahkan file yang di-upload dari lokasi sementara ke lokasi target
-	    if (move_uploaded_file($file_tmp, $target_file)) {
-	        // Jika berhasil dipindahkan, simpan nama file baru ke database
-	        $notulen_file = $new_file_name; 
-	    } else {
-	        // ❌ Debugging: Gagal memindahkan file (misalnya izin folder)
-	        error_log("Gagal memindahkan file notulen. Path: " . $target_file);
-	        // Jika upload gagal, $notulen_file tetap kosong ('')
-	    }
-	}
+    if (isset($_FILES['filename']) && $_FILES['filename']['error'] == 0) {
+        $target_dir = "../notulen_files/"; // Pastikan folder ini ada
+        $file_name = basename($_FILES["filename"]["name"]);
+        $file_ext = pathinfo($file_name, PATHINFO_EXTENSION);
+        $new_file_name = "notulen_" . time() . "." . $file_ext;
+        $target_file = $target_dir . $new_file_name;
+        
+        if (move_uploaded_file($_FILES["filename"]["tmp_name"], $target_file)) {
+            $notulen_file = $new_file_name;
+        } else {
+            // Handle error upload
+        }
+    }
 
     $sql_insert = "INSERT INTO agenda_rapat (tanggal_rapat, jam_rapat, judul_rapat, ruang_rapat, keterangan, notulen_file, id_organisasi, id_pembuat) 
-               VALUES ('$tanggal', '$jam', '$judul', '$ruangan', '$keterangan', '$notulen_file', '$id_organisasi', '$id_pembuat_rapat')";
+                   VALUES ('$tanggal', '$jam', '$judul', '$ruangan', '$keterangan', '$notulen_file', '$id_organisasi', '$id_pembuat_rapat')";
 
     if (mysqli_query($koneksi, $sql_insert)) {
         $last_id_rapat = mysqli_insert_id($koneksi);
@@ -202,61 +171,70 @@ if (isset($_POST['tambah_rapat'])) {
     			</table>
 			
 			<!-- Modal Tambah Rapat -->
-			<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="viewModalLabel" aria-hidden="true">
+			<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
 				<div class="modal-dialog">
 					<div class="modal-content">
 						<div class="modal-header">
-							<h5 class="modal-title" id="exampleModalLabel">Tambah Agenda Rapat</h5>
+							<h5 class="modal-title" id="exampleModalLabel">Tambah Rapat</h5>
 							<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 						</div>
 						<div class="modal-body">
-							<form action="" method="POST" enctype="multipart/form-data">
+							<form action="#">
 								<div class="mb-3">
-        					        <label class="mb-2" for="date">Tanggal Rapat</label>
-        					        <input class="form-control" type="date" name="date" id="date" required>
-        					    </div>
-        					    <div class="mb-3">
-        					        <label class="mb-2" for="time">Jam Rapat</label>
-        					        <input class="form-control" type="time" name="time" id="time" required>
-        					    </div>
-        					    <div class="mb-3">
-        					        <label class="mb-2" for="judul">Judul Rapat</label>
-        					        <input class="form-control" type="text" name="judul" id="judul" placeholder="Masukkan Judul Rapat..." required>
-        					    </div>
-        					    <div class="mb-3">
-        					        <label class="mb-2" for="ruangan">Ruang Rapat</label>
-        					        <input class="form-control" type="text" name="ruangan" id="ruangan" placeholder="Masukkan Ruang Rapat...">
-        					    </div>
-        					    <div class="mb-3">
-        					        <label class="mb-2" for="organisasi">Organisasi</label>
-        					        <select class="form-select" name="organisasi" id="organisasi" required>
-        					            <option value="" disabled selected>Pilih Organisasi</option>
-        					            <?php foreach ($list_organisasi as $org) : ?>
-        					                <option value="<?php echo $org['id_organisasi']; ?>"><?php echo htmlspecialchars($org['nama_organisasi']); ?></option>
-        					            <?php endforeach; ?>
-        					        </select>
-        					    </div>
-        					    <div class="mb-3">
-        					        <label class="mb-2" for="multiple-select-field">Peserta Rapat (Bisa pilih lebih dari 1)</label>
-        					        <select class="form-select" id="multiple-select-field" name="peserta_rapat[]" data-placeholder="Pilih Peserta" multiple>
-        					            <?php foreach ($list_peserta as $peserta) : ?>
-        					                <option value="<?php echo $peserta['id_user']; ?>"><?php echo htmlspecialchars($peserta['nim'] . ' - ' . $peserta['nama_lengkap']); ?></option>
-        					            <?php endforeach; ?>
-        					        </select>
-        					    </div>
-        					    <div class="mb-3">
-        					        <label class="mb-2" for="keterangan">Keterangan</label>
-        					        <textarea class="form-control" name="keterangan" id="keterangan" placeholder="Masukkan Keterangan..."></textarea>
-        					    </div>
-        					    <div class="mb-3">
-        					        <label class="mb-2" for="file">Upload Notulen</label>
-        					        <input class="form-control" type="file" id="myFile" name="filename" accept=".pdf,.doc,.docx,.jpg">
-        					    </div>
-        					    <div class="modal-footer">
-        					        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-        					        <button type="submit" name="tambah_rapat" class="btn btn-primary">Tambah Rapat</button> 
+									<label class="mb-2" for="date">Tanggal Rapat</label>
+									<input class="form-control" type="date" name="date" id="date">
 								</div>
-        					</form>
+								<div class="mb-3">
+									<label class="mb-2" for="time">Jam Rapat</label>
+									<input class="form-control" type="time" name="time" id="time">
+								</div>
+								<div class="mb-3">
+									<label class="mb-2" for="name">Judul Rapat</label>
+									<input class="form-control" type="name" name="name" id="name" placeholder="Masukkan Judul Rapat...">
+								</div>
+								<div class="mb-3">
+									<label class="mb-2" for="name">Ruang Rapat</label>
+									<input class="form-control" type="name" name="name" id="name" placeholder="Masukkan Ruang Rapat...">
+								</div>
+								<div class="mb-3">
+									<label class="mb-2" for="peserta">Organisasi</label>
+									<select class="form-select" name="peserta" id="peserta">
+										<option class="disabled" value="">Pilih Organisasi</option>
+										<option value="">HMTI</option>
+										<option value="">BEM</option>
+										<option value="">BLUG</option>
+										<option value="">REKAM</option>
+										<option value="">DPM</option>
+										<option value="">KUAS</option>
+										<option value="">ENERGI</option>
+										<option value="">HME</option>
+										<option value="">HMM</option>
+										<option value="">HMMB</option>
+										<option value="">IMMPB</option>
+									</select>
+								</div>
+								<div class="mb-3">
+									<label class="mb-2" for="peserta">Peserta Rapat</label>
+									<select class="form-select" id="multiple-select-field" data-placeholder="Pilih Peserta" multiple>
+										<option>3312501064 - Adrian Septiaji</option>
+										<option>3312501065 - Syarifah Bisyarah Shahab</option>
+										<option>3312501066 - M. Fauzi Azhari</option>
+										<option>3312501067 - Apri Catur Pramudiansyah</option>
+									</select>
+								</div>
+								<div class="mb-3">
+									<label class="mb-2" for="keterangan">Keterangan</label>
+									<textarea class="form-control" name="keterangan" id="keterangan" placeholder="Masukkan Keterangan..."></textarea>
+								</div>
+								<div class="mb-3">
+									<label class="mb-2" for="file">Upload Notulen</label>
+									<input class="form-control" type="file" id="myFile" name="filename">
+								</div>
+							</form>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+							<button type="button" class="btn btn-primary" onclick="sweet()">Tambah</button>
 						</div>
 				    </div>
 				</div>
@@ -267,7 +245,7 @@ if (isset($_POST['tambah_rapat'])) {
 				<div class="modal-dialog">
 					<div class="modal-content">
 						<div class="modal-header">
-							<h5 class="modal-title" id="exampleModalLabel">Detail Agenda Rapat</h5>
+							<h5 class="modal-title" id="exampleModalLabel">Edit Agenda Rapat</h5>
 							<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 						</div>
 						<div class="modal-body">
@@ -399,24 +377,21 @@ if (isset($_POST['tambah_rapat'])) {
 
 			<!-- Modal Delete Agenda Rapat -->
 			<div class="modal fade" id="deletemodal" tabindex="-1" aria-labelledby="deletemodalLabel" aria-hidden="true">
-			    <div class="modal-dialog">
-			        <div class="modal-content">
-			            <div class="modal-header">
-			                <h5 class="modal-title" id="exampleModalLabel">Hapus Agenda Rapat</h5>
-			                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-			            </div>
-			            <form method="POST" action="agenda.php">
-			                <div class="modal-body">
-			                    <input type="hidden" name="hapus_id_rapat" id="hapus_id_rapat_modal"> 
-			                    <p class="h5">Apakah anda yakin ingin menghapus agenda rapat ini?</p>
-			                </div>
-			                <div class="modal-footer">
-			                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-			                    <button type="submit" class="btn btn-danger">Hapus</button> 
-			                </div>
-			            </form>
-			        </div>
-			    </div>
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h5 class="modal-title" id="exampleModalLabel">Hapus Agenda Rapat</h5>
+							<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+						</div>
+						<div class="modal-body">
+							<p class="h5">Apakah anda yakin ingin menghapus agenda rapat ini?</p>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+							<button type="button" class="btn btn-danger" onclick="hapus()">Hapus</button>
+						</div>
+				    </div>
+				</div>
 			</div>
 			<!-- End Modal Delete Riwayat Rapat -->
 			</div>
@@ -477,37 +452,6 @@ function edit(){
             $('#editModal').modal('hide'); 
         });
 }
-
-function confirmDelete(id) {
-    Swal.fire({
-        title: 'Anda Yakin?',
-        text: "Anda tidak akan bisa mengembalikan data rapat ini!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Ya, Hapus!'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            // Redirect ke file delete_rapat.php
-            window.location.href = 'delete_rapat.php?id=' + id;
-        }
-    })
-}
-
-// Tambahkan script ini di bagian <script> Anda
-$('#deletemodal').on('show.bs.modal', function (event) {
-    var button = $(event.relatedTarget); // Tombol yang memicu modal
-    var id_rapat = button.data('id'); // Ambil data-id dari tombol
-    var modal = $(this);
-
-    // 💡 Isi nilai hidden input di modal dengan ID yang benar
-    modal.find('.modal-body #hapus_id_rapat').val(id_rapat); 
-
-    // 💡 Perbaiki URL tombol konfirmasi Hapus (Jika menggunakan GET/redirect)
-    // Jika Anda menggunakan metode POST/FORM SUBMIT, kode ini tidak diperlukan
-    // modal.find('.modal-footer a.btn-danger').attr('href', 'delete_rapat.php?id=' + id_rapat); 
-});
 </script>
 </body>
 </html>

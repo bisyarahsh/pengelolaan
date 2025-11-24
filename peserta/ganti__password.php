@@ -22,21 +22,6 @@
   <body>
     <!-- SIDEBAR -->
     <section id="sidebar">
-<<<<<<< HEAD:peserta/ganti__password.php
-      <a href="../landing/index.php" data-aos="fade-down" class="logo ps-3"><i class="ps-5"></i> Rapatin</a> <a href="../landing/index.php" class="logo-mini fw-bold"> R</a>
-         <ul class="side-menu" data-aos="fade-right">
-        <li>
-          <a href="dashboard.php"><i class="fa-solid fa-calendar-days icon"></i> Agenda Rapat</a>
-        </li>
-        <li>
-          <a href="history.php"><i class="fa-solid fa-clock-rotate-left icon"></i> Riwayat Rapat</a>
-        </li>
-        <li>
-          <a href="ganti__password.php" class="active"><i class="fa-solid fa-gear icon"></i> Ganti Password</a>
-        </li>
-        <li>
-          <a href="logout.php"><i class="fa-solid fa-right-from-bracket icon"></i> Logout</a>
-=======
       <a href="../landing/index.html" data-aos="fade-down" class="logo ps-3"
         ><i class="ps-5"></i> Rapatin</a
       >
@@ -67,7 +52,6 @@
           <a href="../login/login.html"
             ><i class="fa-solid fa-right-from-bracket icon"></i> Keluar</a
           >
->>>>>>> 99d0ad547529d1ee75965a8c35b7dfb1b2cb8075:peserta/ganti__password.html
         </li>
       </ul>
     </section>

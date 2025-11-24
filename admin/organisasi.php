@@ -194,15 +194,15 @@ unset($_SESSION['alert']); // Hapus setelah diambil
         // Tampilkan SweetAlert berdasarkan session alert dari PHP
         const alertData = <?= json_encode($alert); ?>;
 		if (alertData && alertData.message) {
-		    Swal.fire({
-		        title: alertData.icon === 'success' ? "Selamat!" : "Perhatian!", // Menggunakan "Perhatian!" untuk warning
-		        text: alertData.message,
-		        icon: alertData.icon, // Membaca 'success' atau 'warning' dari PHP
-		        timer: 3000,
-		        showConfirmButton: false
-		    });
-		}
-
+            Swal.fire({
+                title: alertData.icon === 'success' ? "Selamat!" : "Perhatian!", // Menggunakan "Perhatian!" untuk warning
+                text: alertData.message,
+                icon: alertData.icon, // Membaca 'success' atau 'warning' dari PHP
+                timer: 3000,
+                showConfirmButton: false
+            });
+        }
+        
         $(document).ready(function () {
             // Logika untuk mengisi data modal Edit saat tombol Edit diklik
             $('.edit-btn').on('click', function () {
