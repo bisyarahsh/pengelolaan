@@ -22,11 +22,11 @@
   <body>
     <!-- SIDEBAR -->
     <section id="sidebar">
-      <a href="../landing/index.html" data-aos="fade-down" class="logo ps-3"
+      <a href="../landing/index.php" data-aos="fade-down" class="logo ps-3"
         ><i class="ps-5"></i> Rapatin</a
       >
       <a
-        href="../landing/index.html"
+        href="../landing/index.php"
         data-aos="fade-down"
         class="logo-mini fw-bold"
       >
@@ -34,22 +34,22 @@
       >
       <ul class="side-menu" data-aos="fade-right">
         <li>
-          <a href="dashboard.html"
+          <a href="dashboard.php"
             ><i class="fa-solid fa-calendar-days icon"></i> Agenda Rapat</a
           >
         </li>
         <li>
-          <a href="history.html"
+          <a href="history.php"
             ><i class="fa-solid fa-clock-rotate-left icon"></i> Riwayat Rapat</a
           >
         </li>
         <li>
-          <a href="ganti__password.html" class="active"
+          <a href="ganti__password.php" class="active"
             ><i class="fa-solid fa-gear icon"></i> Ganti Kata Sandi</a
           >
         </li>
         <li>
-          <a href="../login/login.html"
+          <a href="logout.php"
             ><i class="fa-solid fa-right-from-bracket icon"></i> Keluar</a
           >
         </li>
