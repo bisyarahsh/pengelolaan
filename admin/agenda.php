@@ -130,7 +130,7 @@ while ($r_peserta = mysqli_fetch_assoc($q_peserta)) {
 			<li><a href="riwayat.php"><i class="fa-solid fa-clock-rotate-left icon"></i> Riwayat Rapat</a></li>
 			<li><a href="organisasi.php"><i class="fa-solid fa-users icon"></i> Organisasi</a></li>
 			<li><a href="manage_user.php"><i class="fa-solid fa-user icon"></i> Pengguna</a></li>
-			<li><a href="pengaturan.php"><i class="fa-solid fa-gear icon"></i> Ganti Password</a></li>
+			<li><a href="pengaturan.php"><i class="fa-solid fa-gear icon"></i> Ganti Kata Sandi</a></li>
 			<li><a href="logout.php"><i class="fa-solid fa-right-from-bracket icon"></i> Logout</a></li>
 		</ul>
 	</section>
