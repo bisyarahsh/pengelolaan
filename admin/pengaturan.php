@@ -19,7 +19,7 @@ if (isset($_SESSION['id_user'])) {
 $alert = $_SESSION['alert'] ?? null;
 unset($_SESSION['alert']);
 
-// Proses Ganti Password
+// Proses Ganti Kata Sandi
 if (isset($_POST['ganti_password'])) {
     $password_lama = $_POST['password_lama'];
     $password_baru = $_POST['password_baru'];
@@ -119,7 +119,7 @@ if ($koneksi->ping()) {
         <li><a href="riwayat.php"><i class="fa-solid fa-clock-rotate-left icon"></i> Riwayat Rapat</a></li>
         <li><a href="organisasi.php"><i class="fa-solid fa-users icon"></i> Organisasi</a></li>
         <li><a href="manage_user.php"><i class="fa-solid fa-user icon"></i> Pengguna</a></li>
-        <li><a href="pengaturan.php" class="active"><i class="fa-solid fa-gear icon"></i> Ganti Password</a></li>
+        <li><a href="pengaturan.php" class="active"><i class="fa-solid fa-gear icon"></i> Ganti Kata Sandi</a></li>
         <li><a href="logout.php"><i class="fa-solid fa-right-from-bracket icon"></i> Logout</a></li>
       </ul>
     </section>
@@ -130,19 +130,19 @@ if ($koneksi->ping()) {
       <main>
         <div data-aos="fade-down" class="pengaturan bg-light mx-auto">
           <div class="tableheader">
-            <h2>Ganti Password</h2>
+            <h2>Ganti Kata Sandi</h2>
           </div>
           <form action="" method="POST"> 
             <div class="mb-3">
-              <label class="mb-2" for="password_lama">Password Lama</label>
+              <label class="mb-2" for="password_lama">Kata Sandi Lama</label>
               <input class="form-control" type="password" name="password_lama" id="password_lama" placeholder="Masukkan Password Lama Anda..." required/>
             </div>
             <div class="mb-3">
-              <label class="mb-2" for="password_baru">Password Baru</label>
+              <label class="mb-2" for="password_baru">Kata Sandi Baru</label>
               <input class="form-control" type="password" name="password_baru" id="password_baru" placeholder="Masukkan Password Baru Anda..." required/>
             </div>
             <div class="mb-3">
-              <label class="mb-2" for="konfirmasi_password">Confirm Password</label>
+              <label class="mb-2" for="konfirmasi_password">Konfirmasi Kata Sandi Baru</label>
               <input class="form-control" type="password" name="konfirmasi_password" id="konfirmasi_password" placeholder="Konfirmasi Password Baru..." required/>
             </div>
             <button type="submit" name="ganti_password" class="btn btn-primary d-block ms-auto px-3">
