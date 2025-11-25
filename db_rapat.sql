@@ -1,9 +1,9 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.3
+-- version 5.2.2
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Nov 24, 2025 at 02:19 AM
+-- Generation Time: Nov 25, 2025 at 02:21 AM
 -- Server version: 8.0.30
 -- PHP Version: 8.1.10
 
@@ -38,6 +38,14 @@ CREATE TABLE `agenda_rapat` (
   `id_organisasi` int NOT NULL,
   `id_pembuat` int NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `agenda_rapat`
+--
+
+INSERT INTO `agenda_rapat` (`id_rapat`, `tanggal_rapat`, `jam_rapat`, `judul_rapat`, `ruang_rapat`, `keterangan`, `notulen_file`, `id_organisasi`, `id_pembuat`) VALUES
+(11, '2025-11-24', '16:56:00', 'Magang BLUG', 'TA 12.4', 'Pemilihan ketua pelaksana serta anggota lainnya', 'notulen_2025-11-24_1763985500.pdf', 5, 2),
+(18, '2025-11-28', '18:00:00', 'HMTI Fair', 'Student Center Lt2', 'Membahas tentang kepanitiaan HMTI Fair dan membagi job desk masing masing panita', '', 4, 2);
 
 -- --------------------------------------------------------
 
@@ -79,6 +87,16 @@ CREATE TABLE `peserta_rapat` (
   `id_user` int NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+--
+-- Dumping data for table `peserta_rapat`
+--
+
+INSERT INTO `peserta_rapat` (`id_peserta_rapat`, `id_rapat`, `id_user`) VALUES
+(32, 11, 5),
+(33, 11, 8),
+(34, 11, 9),
+(49, 18, 8);
+
 -- --------------------------------------------------------
 
 --
@@ -103,7 +121,7 @@ INSERT INTO `users` (`id_user`, `nim`, `nama_lengkap`, `email`, `password`, `rol
 (2, '3312501064', 'Adrian Septiaji', 'adrian@gmail.com', '$2y$10$SKhMwa3U.40fjGtHwYUZ7OAP9d/1AAAWW.caPqY.27wNk5QjXXhAu', 'Ketua', 3),
 (5, '3312501067', 'Apri Catur Pramudiansyah', 'apri@gmail.com', '$2y$10$cDuPK6UW2odz65xOaqVSGueAueyrOIBe90UrZyi4TamjgWJdUlPEC', 'Peserta', 3),
 (7, '3312501065', 'Syarifah Bisyarah Shahab', 'syarah@gmail.com', '$2y$10$mpVO55Qyig9aqXFiTaFGIuTbEvRtVDRKnCyh0oi5o4sCKK7/cW6gu', 'Ketua', 4),
-(8, '3312501066', 'M. Fauzi Azhari', 'ari@gmail.com', '$2y$10$FMKimLuJ6/fR0LHwMPskHeK6wmK524LBd4k/Z85aX7ePuEI7ao3/O', 'Peserta', 4),
+(8, '3312501066', 'M. Fauzi Azhari', 'arifozil182@gmail.com', '$2y$10$FMKimLuJ6/fR0LHwMPskHeK6wmK524LBd4k/Z85aX7ePuEI7ao3/O', 'Peserta', 4),
 (9, '3312501063', 'Naila Alzakiiyah', 'naila@gmail.com', '$2y$10$tVVRs14GsHTOHp3e6/sAmOtwH3F0Wfeu9zBUipIRamlcnhPVaGKie', 'Peserta', 10);
 
 --
@@ -150,7 +168,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `agenda_rapat`
 --
 ALTER TABLE `agenda_rapat`
-  MODIFY `id_rapat` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id_rapat` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT for table `organisasi`
@@ -162,7 +180,7 @@ ALTER TABLE `organisasi`
 -- AUTO_INCREMENT for table `peserta_rapat`
 --
 ALTER TABLE `peserta_rapat`
-  MODIFY `id_peserta_rapat` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id_peserta_rapat` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50;
 
 --
 -- AUTO_INCREMENT for table `users`
