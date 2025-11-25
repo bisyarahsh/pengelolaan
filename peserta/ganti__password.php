@@ -17,7 +17,8 @@
     />
     <link rel="stylesheet" href="../assets/peserta.css" />
     <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
-    <title>Rapatin</title>
+    <title>Ganti Sandi | Peserta - Rapatin</title>
+	  <link rel="shortcut icon" href="../assets/logo/logo.png">
   </head>
   <body>
     <!-- SIDEBAR -->
