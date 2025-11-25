@@ -2,6 +2,18 @@
 include '../php/koneksi.php';
 // Memulai sesi
 session_start();
+if ($_SESSION['status'] != "login") {
+    // Jika belum login, arahkan ke halaman login
+    header("location:../login/login.php");
+    exit;
+}
+// Cek apakah role user bukan 'Peserta'
+if ($_SESSION['role'] != "Peserta") {
+    // Jika bukan peserta, tolak akses dan arahkan kembali
+    header("location:../login/login.php");
+    exit;
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
