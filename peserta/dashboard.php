@@ -83,7 +83,8 @@ function get_rapat_status($tanggal, $jam) {
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../assets/peserta.css" />
     <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
-    <title>Rapatin</title>
+    <title>Dashboard | Peserta - Rapatin</title>
+	  <link rel="shortcut icon" href="../assets/logo/logo.png">
   </head>
   <body>
     <section id="sidebar">

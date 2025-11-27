@@ -108,7 +108,8 @@ if ($koneksi->ping()) {
     <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.4/css/dataTables.bootstrap5.css"/>
     <link rel="stylesheet" href="../assets/admin.css" />
-    <title>Rapatin</title>
+    <title>Ganti Sandi | Ketua - Rapatin</title>
+	  <link rel="shortcut icon" href="../assets/logo/logo.png">
 </head>
 <body>
     <section id="sidebar">

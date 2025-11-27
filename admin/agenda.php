@@ -117,7 +117,8 @@ while ($r_peserta = mysqli_fetch_assoc($q_peserta)) {
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.rtl.min.css" />
 	<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
 	<link rel="stylesheet" href="../assets/admin.css">
-	<title>Rapatin </title>
+	<title>Agenda | Ketua - Rapatin</title>
+	<link rel="shortcut icon" href="../assets/logo/logo.png">
 </head>
 <body>
 	

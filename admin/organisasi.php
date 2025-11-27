@@ -42,7 +42,8 @@ unset($_SESSION['alert']); // Hapus setelah diambil
     <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
     <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.3.4/css/responsive.bootstrap5.min.css">
     <link rel="stylesheet" href="../assets/admin.css">
-    <title>Rapatin</title>
+    <title>Organisasi | Ketua - Rapatin</title>
+	<link rel="shortcut icon" href="../assets/logo/logo.png">
 </head>
 <body>
     
