@@ -17,10 +17,10 @@ if (!$id_rapat) {
 // 2. Ambil Data Rapat (Query tetap)
 $sql = "SELECT 
             r.*, 
-            o.nama_organisasi,
+            o.nama_unit,
             GROUP_CONCAT(u.nama_lengkap SEPARATOR '|||') AS peserta_details
         FROM agenda_rapat r
-        LEFT JOIN organisasi o ON r.id_organisasi = o.id_organisasi
+        LEFT JOIN unit o ON r.id_unit = o.id_unit
         LEFT JOIN peserta_rapat pr ON r.id_rapat = pr.id_rapat
         LEFT JOIN users u ON pr.id_user = u.id_user
         WHERE r.id_rapat = '" . mysqli_real_escape_string($koneksi, $id_rapat) . "'
@@ -112,7 +112,7 @@ $html = '
             <tr><th>Jam Rapat</th><td>' . $jamRapatFormatted . '</td></tr>
             <tr><th>Judul Rapat</th><td>' . $judulRapat . '</td></tr>
             <tr><th>Ruang Rapat</th><td>' . htmlspecialchars($data['ruang_rapat']) . '</td></tr>
-            <tr><th>Organisasi</th><td>' . htmlspecialchars($data['nama_organisasi']) . '</td></tr>
+            <tr><th>unit</th><td>' . htmlspecialchars($data['nama_unit']) . '</td></tr>
             <tr><th>Keterangan</th><td>' . nl2br(htmlspecialchars($data['keterangan'])) . '</td></tr>
             <tr><th>File Notulen</th><td>' . $notulenHtml . '</td></tr>
             <tr><th>Peserta Rapat</th><td>' . $pesertaHtml . '</td></tr>

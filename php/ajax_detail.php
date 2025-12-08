@@ -10,11 +10,11 @@ function get_rapat_detail($koneksi, $id_rapat) {
     // Pastikan query ini sudah ada di agenda.php dan berfungsi
     $query = "SELECT 
                 a.*, 
-                o.nama_organisasi, 
+                o.nama_unit, 
                 GROUP_CONCAT(CONCAT(u.nim, ' - ', u.nama_lengkap) SEPARATOR '|||') AS peserta_nama_lengkap,
                 GROUP_CONCAT(u.id_user SEPARATOR '|||') AS peserta_id
               FROM agenda_rapat a
-              LEFT JOIN organisasi o ON a.id_organisasi = o.id_organisasi
+              LEFT JOIN unit o ON a.id_unit = o.id_unit
               LEFT JOIN peserta_rapat pr ON a.id_rapat = pr.id_rapat
               LEFT JOIN users u ON pr.id_user = u.id_user
               WHERE a.id_rapat = '$id_rapat'

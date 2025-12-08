@@ -4,28 +4,28 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 include 'koneksi.php'; // Pastikan path ini benar
 
-// Hapus Organisasi
-if (isset($_POST['hapus_organisasi'])) {
-    $id = $_POST['hapus_id_organisasi'];
+// Hapus unit
+if (isset($_POST['hapus_unit'])) {
+    $id = $_POST['hapus_id_unit'];
 
     if (!empty($id)) {
-        $delete_sql = "DELETE FROM organisasi WHERE id_organisasi = ?";
+        $delete_sql = "DELETE FROM unit WHERE id_unit = ?";
         $delete_stmt = $koneksi->prepare($delete_sql);
         $delete_stmt->bind_param("i", $id);
         if ($delete_stmt->execute()) {
-            $message = "Organisasi Berhasil dihapus!";
+            $message = "Unit Berhasil dihapus!";
             $icon = "success";
         } else {
-            $message = "Gagal menghapus organisasi: " . $koneksi->error;
+            $message = "Gagal menghapus unit: " . $koneksi->error;
             $icon = "error";
         }
         $delete_stmt->close();
     } else {
-        $message = "ID organisasi tidak valid!";
+        $message = "ID unit tidak valid!";
         $icon = "warning";
     }
     // Set session flash message
     $_SESSION['alert'] = ['icon' => $icon, 'message' => $message];
-    header("Location: ../admin/organisasi.php");
+    header("Location: ../admin/unit.php");
     exit();
 }

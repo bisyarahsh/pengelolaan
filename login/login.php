@@ -63,10 +63,13 @@ if(isset($_POST['login'])){
         unset($_SESSION['temp_email']);
 
         if ($user_role == "Ketua") {
-            header("location:../admin/agenda.php");
+            header("location:../ketua/agenda.php");
             exit();
         } else if ($user_role == "Peserta") {
             header("location:../peserta/dashboard.php");
+            exit();
+        } else if ($user_role == "Admin") {
+            header("location:../admin/agenda.php");
             exit();
         }
     } else {

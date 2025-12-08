@@ -12,9 +12,9 @@ if (isset($_POST['edit_pengguna'])) {
     $password_raw = $_POST['edit_password']; // Opsional, hanya jika diisi
     $email = trim($_POST['edit_email']);
     $role = $_POST['edit_role'];
-    $organisasi_id = $_POST['edit_organisasi_id'];
+    $unit_id = $_POST['edit_unit_id'];
 
-    if (empty($id_user) || empty($nim) || empty($nama_lengkap) || empty($email) || empty($role) || empty($organisasi_id)) {
+    if (empty($id_user) || empty($nim) || empty($nama_lengkap) || empty($email) || empty($role) || empty($unit_id)) {
         $message = "Semua kolom harus diisi!";
         $icon = "warning";
     } else {
@@ -30,8 +30,8 @@ if (isset($_POST['edit_pengguna'])) {
             $icon = "warning"; // SweetAlert Warning untuk duplikasi
         } else {
             // Bangun Query Update
-            $update_sql = "UPDATE users SET nim = ?, nama_lengkap = ?, email = ?, role = ?, organisasi_id = ?";
-            $params = [$nim, $nama_lengkap, $email, $role, $organisasi_id];
+            $update_sql = "UPDATE users SET nim = ?, nama_lengkap = ?, email = ?, role = ?, unit_id = ?";
+            $params = [$nim, $nama_lengkap, $email, $role, $unit_id];
             $types = "ssssi";
 
             if (!empty($password_raw)) {

@@ -8,20 +8,35 @@ if ($_SESSION['status'] != "login") {
     header("location:../login/login.php");
     exit;
 }
-// Cek apakah role user bukan 'Ketua'
-if ($_SESSION['role'] != "Ketua") {
-    // Jika bukan ketua, tolak akses dan arahkan kembali
+// Cek apakah role user bukan 'Admin'
+if ($_SESSION['role'] != "Admin") {
+    // Jika bukan Admin, tolak akses dan arahkan kembali
     header("location:../login/login.php");
     exit;
 }
 
-// Ambil data organisasi
-$sql = "SELECT id_organisasi, nama_organisasi FROM organisasi ORDER BY nama_organisasi ASC";
+// MODIFIKASI: INTEGRITAS DATA
+// Ambil data unit, sekaligus cek apakah unit sudah terpakai di tabel 'user' atau 'agenda_rapat'
+$sql = "
+    SELECT 
+        u.id_unit, 
+        u.nama_unit,
+        -- Cek apakah unit terpakai di tabel user
+        (SELECT COUNT(id_user) FROM users WHERE unit_id = u.id_unit) AS user_count,
+        -- Cek apakah unit terpakai di tabel agenda_rapat (unit_id)
+        (SELECT COUNT(id_rapat) FROM agenda_rapat WHERE id_unit = u.id_unit) AS rapat_count
+    FROM 
+        unit u
+    ORDER BY 
+        u.nama_unit ASC";
 $result = $koneksi->query($sql);
-$organisasi = [];
+
+$unit = [];
 if ($result->num_rows > 0) {
     while ($row = $result->fetch_assoc()) {
-        $organisasi[] = $row;
+        // Tambahkan flag 'is_used' untuk mempermudah pengecekan di HTML
+        $row['is_used'] = ($row['user_count'] > 0 || $row['rapat_count'] > 0);
+        $unit[] = $row;
     }
 }
 $koneksi->close(); // Menggunakan $koneksi
@@ -42,7 +57,7 @@ unset($_SESSION['alert']); // Hapus setelah diambil
     <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
     <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.3.4/css/responsive.bootstrap5.min.css">
     <link rel="stylesheet" href="../assets/admin.css">
-    <title>Organisasi | Ketua - Rapatin</title>
+    <title>Unit | Admin - Rapatin</title>
 	<link rel="shortcut icon" href="../assets/logo/logo.png">
 </head>
 <body>
@@ -54,7 +69,7 @@ unset($_SESSION['alert']); // Hapus setelah diambil
         <ul class="side-menu" data-aos="fade-right">
 			<li><a href="agenda.php"><i class="fa-solid fa-calendar-days icon"></i> Agenda Rapat</a></li>
             <li><a href="riwayat.php"><i class="fa-solid fa-clock-rotate-left icon"></i> Riwayat Rapat</a></li>
-            <li><a href="organisasi.php" class="active"><i class="fa-solid fa-users icon"></i>Organisasi</a></li>
+            <li><a href="unit.php" class="active"><i class="fa-solid fa-users icon"></i>Unit</a></li>
             <li><a href="manage_user.php"><i class="fa-solid fa-user icon"></i> Pengguna</a></li>
             <li><a href="pengaturan.php"><i class="fa-solid fa-gear icon"></i> Ganti Kata Sandi</a></li>
             <li><a href="logout.php"><i class="fa-solid fa-right-from-bracket icon"></i> Logout</a></li>
@@ -71,35 +86,40 @@ unset($_SESSION['alert']); // Hapus setelah diambil
 		<!-- End Toggle Sidebar -->
 
 		<!-- Table -->
-        <main id="organisasi">
+        <main id="unit">
             <div data-aos="fade-down" class="rapat bg-light">
                 <div class="tableheader">
-					<h2>Organisasi</h2>
+					<h2>Unit</h2>
                     <button type="button" class="btn btn-primary tambah" data-bs-toggle="modal" data-bs-target="#tambahModal">Tambah</button>
                 </div>
-                <table id="example" class="table table-striped ">
+                <table id="tabel-rapat" class="table table-striped ">
                     <thead>
                         <tr>
                             <th class="text-center">No</th>
-                            <th>Nama Organisasi</th>
+                            <th>Nama Unit</th>
                             <th class="text-center">Aksi</th>
                             </tr>
                         </thead>
                     <tbody>
                         <?php $no = 1;
-                        foreach ($organisasi as $org): ?>
+                        foreach ($unit as $org): 
+                            // Tentukan apakah tombol delete harus di-disable
+                            $disable_delete = $org['is_used'] ? 'disabled' : ''; 
+                            $tooltip_delete = $org['is_used'] ? 'title="Unit ini sudah terpakai di Pengguna atau Rapat, tidak bisa dihapus."' : 'title="Hapus Unit"';
+                        ?>
                             <tr>
                                 <td class="text-center"><?= $no++ ?></td>
-                                <td><?= htmlspecialchars($org['nama_organisasi']) ?></td>
+                                <td><?= htmlspecialchars($org['nama_unit']) ?></td>
                                 <td class="text-center">
-                                    <button type="button" class="btn btn-primary aksi edit-btn" data-bs-toggle="modal" data-bs-target="#editModal" data-id="<?= $org['id_organisasi'] ?>" data-nama="<?= htmlspecialchars($org['nama_organisasi']) ?>">
+                                    <button type="button" class="btn btn-primary aksi edit-btn" data-bs-toggle="modal" data-bs-target="#editModal" data-id="<?= $org['id_unit'] ?>" data-nama="<?= htmlspecialchars($org['nama_unit']) ?>" title="Edit Unit">
                                         <i class="fa-solid fa-pen-to-square"></i>
                                     </button>
-                                    <button type="button" class="btn btn-danger aksi delete-btn" data-bs-toggle="modal" data-bs-target="#deletemodal" data-id="<?= $org['id_organisasi'] ?>" data-nama="<?= htmlspecialchars($org['nama_organisasi']) ?>">
+                                    
+                                    <button type="button" class="btn btn-danger aksi delete-btn" data-bs-toggle="modal" data-bs-target="#deletemodal" data-id="<?= $org['id_unit'] ?>" data-nama="<?= htmlspecialchars($org['nama_unit']) ?>" <?= $disable_delete ?> <?= $tooltip_delete ?>>
                                         <i class="fa-solid fa-trash"></i>
                                     </button>
-                                    </td>
-                                </tr>
+                                </td>
+                            </tr>
                         <?php endforeach; ?>
                         </tbody>
                     </table>
@@ -110,18 +130,18 @@ unset($_SESSION['alert']); // Hapus setelah diambil
 						<div class="modal-dialog">
 							<div class="modal-content">
 								<div class="modal-header">
-									<h5 class="modal-title" id="tambahModalLabel">TambahOrganisasi</h5>
+									<h5 class="modal-title" id="tambahModalLabel">Tambah Unit</h5>
                                 </div>
-								<form method="POST" action="../php/add_organisasi.php">
+								<form method="POST" action="../php/add_unit.php">
 									<div class="modal-body">
 										<div class="mb-3">
-											<label class="mb-2" for="nama_organisasi">Nama Organisasi</label>
-											<input class="form-control" type="text" name="nama_organisasi" id="nama_organisasi" placeholder="Masukkan Nama Organisasi..." required>
+											<label class="mb-2" for="nama_unit">Nama Unit</label>
+											<input class="form-control" type="text" name="nama_unit" id="nama_unit" placeholder="Masukkan Nama Unit..." required>
                                         </div>
                                     </div>
 									<div class="modal-footer">
 										<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                    <button type="submit" name="tambah_organisasi" class="btn btn-primary">Tambah</button>
+                                    <button type="submit" name="tambah_unit" class="btn btn-primary">Tambah</button>
                                     </div>
                                 </form>
                             </div>
@@ -134,20 +154,20 @@ unset($_SESSION['alert']); // Hapus setelah diambil
 						<div class="modal-dialog">
 							<div class="modal-content">
 								<div class="modal-header">
-									<h5 class="modal-title" id="editModalLabel">Edit Organisasi</h5>
+									<h5 class="modal-title" id="editModalLabel">Edit Unit</h5>
 									<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
-								<form method="POST" action="../php/edit_organisasi.php">
+								<form method="POST" action="../php/edit_unit.php">
 									<div class="modal-body">
-										<input type="hidden" name="edit_id_organisasi" id="edit_id_organisasi">
+										<input type="hidden" name="edit_id_unit" id="edit_id_unit">
 										<div class="mb-3">
-											<label class="mb-2" for="edit_nama_organisasi">Nama Organisasi</label>
-                                        	<input class="form-control" type="text" name="edit_nama_organisasi" id="edit_nama_organisasi"placeholder="Masukkan Nama Organisasi..." required>
+											<label class="mb-2" for="edit_nama_unit">Nama Unit</label>
+                                        	<input class="form-control" type="text" name="edit_nama_unit" id="edit_nama_unit"placeholder="Masukkan Nama Unit..." required>
                                         </div>
                                     </div>
 									<div class="modal-footer">
 										<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-										<button type="submit" name="edit_organisasi" class="btn btn-primary">Simpan</button>
+										<button type="submit" name="edit_unit" class="btn btn-primary">Simpan</button>
                                     </div>
                                 </form>
                             </div>
@@ -160,16 +180,16 @@ unset($_SESSION['alert']); // Hapus setelah diambil
 						<div class="modal-dialog">
 							<div class="modal-content">
 								<div class="modal-header">
-									<h5 class="modal-title" id="deletemodalLabel">Hapus Organisasi</h5>
+									<h5 class="modal-title" id="deletemodalLabel">Hapus Unit</h5>
                                 </div>
-								<form method="POST" action="../php/delete_organisasi.php">
+								<form method="POST" action="../php/delete_unit.php">
 									<div class="modal-body">
-										<input type="hidden" name="hapus_id_organisasi"id="hapus_id_organisasi">
-                                    <p class="h5">Apakah anda yakin ingin menghapus Organisasi <span id="hapus_nama"></span>?</p>
+										<input type="hidden" name="hapus_id_unit"id="hapus_id_unit">
+                                    <p class="h5">Apakah anda yakin ingin menghapus unit <span id="hapus_nama"></span>?</p>
                                     </div>
 									<div class="modal-footer">
 										<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                                    	<button type="submit" name="hapus_organisasi" class="btn btn-danger">Hapus</button>
+                                    	<button type="submit" name="hapus_unit" class="btn btn-danger">Hapus</button>
                                     </div>
                                 </form>
                             </div>
@@ -191,6 +211,19 @@ unset($_SESSION['alert']); // Hapus setelah diambil
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script type="text/javascript">
+        $(document).ready(function() {
+	        $('#tabel-rapat').DataTable({
+	            "language": {
+	                "emptyTable": "Tidak ada unit",
+	                "info": "Menampilkan _START_ sampai _END_ dari _TOTAL_ unit",
+	                "infoEmpty": "Menampilkan 0 sampai 0 dari 0 unit",
+	                "infoFiltered": "(difilter dari total _MAX_ unit)",
+	                "lengthMenu": "Tampilkan _MENU_ unit",
+	                "search": "Cari:",
+	                "zeroRecords": "Tidak ditemukan unit yang cocok"
+	            }
+	        });
+        });
 
         // Tampilkan SweetAlert berdasarkan session alert dari PHP
         const alertData = <?= json_encode($alert); ?>;
@@ -210,8 +243,8 @@ unset($_SESSION['alert']); // Hapus setelah diambil
                 const id = $(this).data('id');
                 const nama = $(this).data('nama');
 
-                $('#edit_id_organisasi').val(id);
-                $('#edit_nama_organisasi').val(nama);
+                $('#edit_id_unit').val(id);
+                $('#edit_nama_unit').val(nama);
             });
 
             // Logika untuk mengisi data modal Hapus saat tombol Hapus diklik
@@ -219,7 +252,7 @@ unset($_SESSION['alert']); // Hapus setelah diambil
                 const id = $(this).data('id');
                 const nama = $(this).data('nama');
 
-                $('#hapus_id_organisasi').val(id);
+                $('#hapus_id_unit').val(id);
                 $('#hapus_nama').text(nama);
             });
         });

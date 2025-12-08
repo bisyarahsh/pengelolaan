@@ -4,8 +4,8 @@
 session_start();
 include 'koneksi.php'; // Path koneksi.php dari folder php
 
-// Cek Sesi dan Role (Hanya admin yang boleh menghapus)
-if ($_SESSION['status'] != "login" || strtolower($_SESSION['role']) != "admin" || !isset($_POST['hapus_rapat'])) {
+// Cek Sesi dan Role (Hanya Ketua yang boleh menghapus)
+if ($_SESSION['status'] != "login" || strtolower($_SESSION['role']) != "ketua" || !isset($_POST['hapus_rapat'])) {
     header("location:../login/login.php?error=noaccess");
     exit;
 }
@@ -39,11 +39,11 @@ if (mysqli_query($koneksi, $sql_delete)) {
     
     $_SESSION['alert'] = ['type' => 'success', 'message' => 'Rapat berhasil dihapus!'];
     // Arahkan kembali ke halaman sebelumnya
-    header("location:../admin/" . $redirect_page);
+    header("location:../" . $redirect_page);
     exit;
 } else {
     $_SESSION['alert'] = ['type' => 'error', 'message' => 'Gagal menghapus rapat: ' . mysqli_error($koneksi)];
-    header("location:../admin/" . $redirect_page);
+    header("location:../" . $redirect_page);
     exit;
 }
 ?>

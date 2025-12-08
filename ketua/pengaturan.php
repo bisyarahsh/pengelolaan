@@ -5,7 +5,7 @@ session_start();
 if ($_SESSION['status'] != "login") {
     exit;
 }
-if ($_SESSION['role'] != "Admin") {
+if ($_SESSION['role'] != "Ketua") {
       exit;
 }
 
@@ -108,7 +108,7 @@ if ($koneksi->ping()) {
     <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.4/css/dataTables.bootstrap5.css"/>
     <link rel="stylesheet" href="../assets/admin.css" />
-    <title>Ganti Sandi | Admin - Rapatin</title>
+    <title>Ganti Sandi | Ketua - Rapatin</title>
 	  <link rel="shortcut icon" href="../assets/logo/logo.png">
 </head>
 <body>
@@ -118,7 +118,6 @@ if ($koneksi->ping()) {
       <ul class="side-menu" data-aos="fade-right">
         <li><a href="agenda.php"><i class="fa-solid fa-calendar-days icon"></i> Agenda Rapat</a></li>
         <li><a href="riwayat.php"><i class="fa-solid fa-clock-rotate-left icon"></i> Riwayat Rapat</a></li>
-        <li><a href="unit.php"><i class="fa-solid fa-users icon"></i> Unit</a></li>
         <li><a href="manage_user.php"><i class="fa-solid fa-user icon"></i> Pengguna</a></li>
         <li><a href="pengaturan.php" class="active"><i class="fa-solid fa-gear icon"></i> Ganti Kata Sandi</a></li>
         <li><a href="logout.php"><i class="fa-solid fa-right-from-bracket icon"></i> Logout</a></li>

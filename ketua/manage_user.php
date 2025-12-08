@@ -1,5 +1,5 @@
 <?php
-include '../php/koneksi.php';
+include 'php/koneksi.php';
 // Memulai sesi
 session_start();
 // Cek apakah user sudah login
@@ -8,19 +8,36 @@ if ($_SESSION['status'] != "login") {
     header("location:../login/login.php");
     exit;
 }
-// Cek apakah role user bukan 'Admin'
-if ($_SESSION['role'] != "Admin") {
-    // Jika bukan Admin, tolak akses dan arahkan kembali
+// Cek apakah role user bukan 'ketua'
+if ($_SESSION['role'] != "Ketua") {
+    // Jika bukan ketua, tolak akses dan arahkan kembali
     header("location:../login/login.php");
     exit;
 }
 
-// Ambil semua data pengguna (kecuali Admin) dan gabungkan dengan nama unit
+// ==============================================================================
+// 1. Ambil unit_id Ketua yang sedang login
+// Asumsi: $_SESSION['id_user'] tersedia saat status = "login".
+$current_user_id = $_SESSION['id_user'] ?? 0;
+$unit_id_ketua = 0; // Default ke 0 (tidak akan menampilkan hasil) jika gagal ambil ID
+
+// Query untuk mendapatkan unit_id Ketua
+$unit_sql = "SELECT unit_id FROM users WHERE id_user = " . intval($current_user_id);
+$unit_result = $koneksi->query($unit_sql);
+
+if ($unit_result && $unit_result->num_rows > 0) {
+    $unit_row = $unit_result->fetch_assoc();
+    $unit_id_ketua = intval($unit_row['unit_id']);
+}
+
+// 2. Modifikasi Query Utama: Hanya tampilkan 'peserta' dari unit Ketua
 $sql = "SELECT u.id_user, u.nim, u.nama_lengkap, u.email, u.role, u.unit_id, o.nama_unit 
         FROM users u
         LEFT JOIN unit o ON u.unit_id = o.id_unit
-        WHERE u.role != 'Admin' 
+        WHERE u.role = 'peserta' AND u.unit_id = {$unit_id_ketua}
         ORDER BY u.nim ASC";
+// ==============================================================================
+
 $result = $koneksi->query($sql);
 $users = [];
 if ($result->num_rows > 0) {
@@ -29,7 +46,7 @@ if ($result->num_rows > 0) {
     }
 }
 
-// Ambil semua data unit untuk dropdown di modal
+// Ambil semua data unit untuk dropdown di modal (Ini dibiarkan menampilkan semua unit)
 $org_sql = "SELECT id_unit, nama_unit FROM unit ORDER BY nama_unit ASC";
 $org_result = $koneksi->query($org_sql);
 $unit_list = [];
@@ -57,7 +74,7 @@ unset($_SESSION['alert']);
     <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
     <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.3.4/css/responsive.bootstrap5.min.css">
     <link rel="stylesheet" href="../assets/admin.css">
-    <title>Pengguna | Admin - Rapatin</title>
+    <title>Pengguna | Ketua - Rapatin</title>
     <link rel="shortcut icon" href="../assets/logo/logo.png">
 </head>
 <body>
@@ -68,7 +85,6 @@ unset($_SESSION['alert']);
         <ul class="side-menu" data-aos="fade-right">
             <li><a href="agenda.php"><i class="fa-solid fa-calendar-days icon"></i> Agenda Rapat</a></li>
             <li><a href="riwayat.php"><i class="fa-solid fa-clock-rotate-left icon"></i> Riwayat Rapat</a></li>
-            <li><a href="unit.php"><i class="fa-solid fa-users icon"></i> Unit</a></li>
             <li><a href="manage_user.php" class="active"><i class="fa-solid fa-user icon"></i> Pengguna</a></li>
             <li><a href="pengaturan.php"><i class="fa-solid fa-gear icon"></i> Ganti Kata Sandi</a></li>
             <li><a href="logout.php"><i class="fa-solid fa-right-from-bracket icon"></i> Logout</a></li>
@@ -136,13 +152,13 @@ unset($_SESSION['alert']);
                 </table>
             
                 <div class="modal fade" id="tambahModal" tabindex="-1" aria-labelledby="tambahModalLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-lg">
+                    <div class="modal-dialog ">
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h5 class="modal-title" id="tambahModalLabel">Tambah Pengguna</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
-                            <form method="POST" action="../php/add_user.php">
+                            <form method="POST" action="php/ketua_add_user.php">
                                 <div class="modal-body">
                                     <div class="mb-3">
                                         <label class="mb-2" for="nim">NIM</label>
@@ -154,30 +170,13 @@ unset($_SESSION['alert']);
                                     </div>
                                     
                                     <div class="mb-3">
-                                        <label class="mb-2" for="password">Kata Sandi (Kosongkan untuk menggunakan NIM sebagai sandi bawaan)</label>
-                                        <input class="form-control" type="password" name="password" id="password" placeholder="Kata Sandi Bawaan: NIM..." >
+                                        <label class="mb-2" for="password">Kata Sandi (Kosongkan untuk menggunakan NIM sebagai kata sandi bawaan )</label>
+                                        <input class="form-control" type="password" name="password" id="password" placeholder="Kata sandi : NIM..." >
                                     </div>
                                     
                                     <div class="mb-3">
                                         <label class="mb-2" for="email">Email</label>
                                         <input class="form-control" type="email" name="email" id="email" placeholder="contoh@gmail.com" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="mb-2" for="role">Peran</label>
-                                        <select class="form-select" name="role" id="role" required>
-                                            <option class="disabled" value="">Pilih Peran...</option>
-                                            <option value="Ketua">Ketua</option>
-                                            <option value="Peserta">Peserta</option>
-                                        </select>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="mb-2" for="unit_id">Unit</label>
-                                        <select class="form-select" name="unit_id" id="unit_id" required>
-                                            <option class="disabled" disabled value="">Pilih unit...</option>
-                                            <?php foreach ($unit_list as $org): ?>
-                                                <option value="<?= $org['id_unit'] ?>"><?= htmlspecialchars($org['nama_unit']) ?></option>
-                                            <?php endforeach; ?>
-                                        </select>
                                     </div>
                                 </div>
                                 <div class="modal-footer">
@@ -189,13 +188,13 @@ unset($_SESSION['alert']);
                     </div>
                 </div>
                 <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-lg">
+                    <div class="modal-dialog ">
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h5 class="modal-title" id="editModalLabel">Edit Pengguna</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
-                            <form method="POST" action="../php/edit_user.php">
+                            <form method="POST" action="php/ketua_edit_user.php">
                             <div class="modal-body">
                                 <input type="hidden" name="edit_id_user" id="edit_id_user"> 
                                 <div class="mb-3">
@@ -214,23 +213,6 @@ unset($_SESSION['alert']);
                                     <label class="mb-2" for="edit_email">Email</label>
                                     <input class="form-control" type="email" name="edit_email" id="edit_email" placeholder="contoh@gmail.com" required>
                                 </div>
-                                <div class="mb-3">
-                                    <label class="mb-2" for="edit_role">Peran</label>
-                                    <select class="form-select" name="edit_role" id="edit_role" required>
-                                        <option class="disabled" value="">Pilih Peran...</option>
-                                        <option value="Ketua">Ketua</option>
-                                        <option value="Peserta">Peserta</option>
-                                    </select>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="mb-2" for="edit_unit_id">Unit</label>
-                                    <select class="form-select" name="edit_unit_id" id="edit_unit_id" required>
-                                        <option class="disabled" disabled value="">Pilih unit...</option>
-                                        <?php foreach ($unit_list as $org): ?>
-                                            <option value="<?= $org['id_unit'] ?>"><?= htmlspecialchars($org['nama_unit']) ?></option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </div>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -243,7 +225,7 @@ unset($_SESSION['alert']);
                 <div class="modal fade" id="deletemodal" tabindex="-1" aria-labelledby="deletemodalLabel" aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content">
-                            <form method="POST" action="../php/delete_user.php">
+                            <form method="POST" action="php/ketua_delete_user.php">
                                 <div class="modal-header">
                                     <h5 class="modal-title" id="deletemodalLabel">Hapus Pengguna</h5>
                                 </div>
@@ -262,7 +244,7 @@ unset($_SESSION['alert']);
                 </div>
         </main>
         </section>
-    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
 <script src="https://cdn.datatables.net/2.3.4/js/dataTables.js"></script>
 <script src="https://cdn.datatables.net/2.3.4/js/dataTables.bootstrap5.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>

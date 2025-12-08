@@ -5,7 +5,7 @@ session_start();
 $alert = $_SESSION['alert'] ?? null;
 unset($_SESSION['alert']); 
 
-include("../php/koneksi.php");
+include("php/koneksi.php");
 
 // --- Set Zona Waktu ke WIB ---
 date_default_timezone_set('Asia/Jakarta'); 
@@ -20,7 +20,7 @@ if ($_SESSION['status'] != "login" || !isset($_SESSION['id_user'])) {
 // Gunakan strtolower untuk mengatasi inkonsistensi role dari database
 $current_role = isset($_SESSION['role']) ? strtolower($_SESSION['role']) : '';
 
-if ($current_role != "admin") {
+if ($current_role != "ketua") {
     header("location:../login/login.php?error=noaccess");
     exit;
 }
@@ -94,20 +94,41 @@ while ($r_org = mysqli_fetch_assoc($q_unit)) {
     $list_unit[] = $r_org;
 }
 
-// Ambil list semua Peserta (Role 'Peserta')
-$list_peserta = [];
-$q_peserta = mysqli_query($koneksi, "SELECT id_user, nim, nama_lengkap FROM users WHERE role = 'Peserta' ORDER BY nama_lengkap");
-while ($r_peserta = mysqli_fetch_assoc($q_peserta)) {
-    $list_peserta[] = $r_peserta;
+// Ambil Unit ID Ketua yang sedang login
+$id_unit_ketua = $_SESSION['unit_id'] ?? null; 
+
+// FALLBACK: Jika unit_id belum ada di sesi, ambil dari DB
+if (empty($id_unit_ketua)) {
+    $q_unit = mysqli_query($koneksi, "SELECT unit_id FROM users WHERE id_user = '{$_SESSION['id_user']}'");
+    $r_unit = mysqli_fetch_assoc($q_unit);
+    $id_unit_ketua = $r_unit['unit_id'] ?? null;
+    if ($id_unit_ketua) {
+        $_SESSION['unit_id'] = $id_unit_ketua; // Simpan ke sesi
+    }
 }
 
-// Query untuk mengambil daftar unit
-$q_unit = mysqli_query($koneksi, "SELECT id_unit, nama_unit FROM unit ORDER BY nama_unit ASC");
-$units = [];
-while($r_unit = mysqli_fetch_assoc($q_unit)) {
-    $units[] = $r_unit;
+// Ambil list Unit untuk dropdown modal Edit (tetap tidak difilter)
+$list_unit = [];
+$q_unit = mysqli_query($koneksi, "SELECT * FROM unit ORDER BY nama_unit");
+while ($r_org = mysqli_fetch_assoc($q_unit)) {
+    $list_unit[] = $r_org;
 }
-// ...
+
+// Ambil list Peserta (Difilter berdasarkan Unit Ketua)
+$list_peserta = [];
+if (!empty($id_unit_ketua)) {
+    // Query: Ambil semua user di unit yang sama KECUALI Admin.
+    $peserta_query = "SELECT id_user, nim, nama_lengkap, role FROM users 
+                      WHERE unit_id = '$id_unit_ketua' AND role != 'Ketua' 
+                      ORDER BY nama_lengkap ASC";
+    $q_peserta = mysqli_query($koneksi, $peserta_query);
+    
+    if ($q_peserta) {
+        while ($row = mysqli_fetch_assoc($q_peserta)) {
+            $list_peserta[] = $row;
+        }
+    }
+}
 
 ?>
 <!DOCTYPE html>
@@ -125,7 +146,7 @@ while($r_unit = mysqli_fetch_assoc($q_unit)) {
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.rtl.min.css" />
 	<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
 	<link rel="stylesheet" href="../assets/admin.css">
-	<title>Agenda | Admin - Rapatin</title>
+	<title>Agenda | Ketua - Rapatin</title>
 	<link rel="shortcut icon" href="../assets/logo/logo.png">
 </head>
 <body>
@@ -137,7 +158,6 @@ while($r_unit = mysqli_fetch_assoc($q_unit)) {
 		<ul class="side-menu" data-aos="fade-right">
 			<li><a href="agenda.php" class="active"><i class="fa-solid fa-calendar-days icon"></i> Agenda Rapat</a></li>
 			<li><a href="riwayat.php"><i class="fa-solid fa-clock-rotate-left icon"></i> Riwayat Rapat</a></li>
-			<li><a href="unit.php"><i class="fa-solid fa-users icon"></i> Unit</a></li>
 			<li><a href="manage_user.php"><i class="fa-solid fa-user icon"></i> Pengguna</a></li>
 			<li><a href="pengaturan.php"><i class="fa-solid fa-gear icon"></i> Ganti Kata Sandi</a></li>
 			<li><a href="logout.php"><i class="fa-solid fa-right-from-bracket icon"></i> Logout</a></li>
@@ -220,7 +240,7 @@ while($r_unit = mysqli_fetch_assoc($q_unit)) {
 							<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 						</div>
 						<div class="modal-body">
-							<form action="../php/add_rapat.php" method="POST" enctype="multipart/form-data">
+							<form action="php/ketua_add_rapat.php" method="POST" enctype="multipart/form-data">
 								<div class="mb-3">
                                     <div class="row">
                                     	<div class="col-md-6">
@@ -234,49 +254,23 @@ while($r_unit = mysqli_fetch_assoc($q_unit)) {
                                     </div>
                                 </div>
         					    <div class="mb-3">
-                                    <div class="row">
-                                    	<div class="col-md-6">
-        					        		<label class="mb-2" for="judul">Judul Rapat</label>
-        					        		<input class="form-control" type="text" name="judul" id="judul" placeholder="Masukkan Judul Rapat..." required>
-        					    		</div>
-                                    	<div class="col-md-6">
-        					        		<label class="mb-2" for="ruangan">Ruang Rapat</label>
-        					        		<input class="form-control" type="text" name="ruangan" id="ruangan" placeholder="Masukkan Ruang Rapat...">
-        					    		</div>
-                                    </div>
-                                </div>
-        					    <div class="mb-3">
-        					        <label class="mb-2" for="unit">Unit</label>
-        					        <select class="form-select" name="unit" id="unit" required>
-        					            <option value="" disabled selected>Pilih Unit</option>
-        					            <?php foreach ($list_unit as $org) : ?>
-        					                <option value="<?php echo $org['id_unit']; ?>"><?php echo htmlspecialchars($org['nama_unit']); ?></option>
-        					            <?php endforeach; ?>
-        					        </select>
+        					        <label class="mb-2" for="judul">Judul Rapat</label>
+        					        <input class="form-control" type="text" name="judul" id="judul" placeholder="Masukkan Judul Rapat..." required>
         					    </div>
-        					   <div class="mb-3">
-								    <label class="mb-2" for="multiple-select-field">Peserta Rapat </label>
+        					    <div class="mb-3">
+        					        <label class="mb-2" for="ruangan">Ruang Rapat</label>
+        					        <input class="form-control" type="text" name="ruangan" id="ruangan" placeholder="Masukkan Ruang Rapat...">
+        					    </div>
+        					    <div class="mb-3">
+								    <label class="mb-2" for="multiple-select-field">Peserta Rapat (Unit Anda)</label>
 
 								    <div class="d-flex mb-2">
 								        <button type="button" class="btn btn-sm btn-outline-primary me-2" id="select_all_peserta">
 								            <i class="fa-solid fa-check-double"></i> Pilih Semua
 								        </button>
-								        <a href="manage_user.php" target="_blank" class="me-2 btn btn-sm btn-outline-success" title="Buka di tab baru untuk menambah pengguna baru">
+								        <a href="manage_user.php" target="_blank" class="btn btn-sm btn-outline-success" title="Buka di tab baru untuk menambah pengguna baru">
 								            <i class="fa-solid fa-user-plus"></i> Tambah Peserta Baru
 								        </a>
-										<div class="input-group">
-    								    	<select class="form-select" id="select_unit_peserta" aria-label="Pilih Unit">
-    								    	    <option value="" selected disabled>Pilih Unit untuk Seleksi Massal</option>
-    								    	    <?php foreach ($units as $unit): ?>
-    								    	        <option value="<?= htmlspecialchars($unit['id_unit']) ?>">
-    								    	            Unit: <?= htmlspecialchars($unit['nama_unit']) ?>
-    								    	        </option>
-    								    	    <?php endforeach; ?>
-    								    	</select>
-    								    	<button class="btn btn-secondary" type="button" id="btn_select_all_unit" title="Pilih semua peserta dari unit yang dipilih">
-    								    	    <i class="fa-solid fa-users"></i> Pilih Peserta
-    								    	</button>
-    									</div>
 								    </div>
 
 								    <select class="form-select" id="multiple-select-field" name="peserta_rapat[]" data-placeholder="Pilih Peserta" multiple required>
@@ -285,14 +279,14 @@ while($r_unit = mysqli_fetch_assoc($q_unit)) {
 								        <?php else: ?>
 								            <?php foreach ($list_peserta as $peserta) : 
 								                // Tampilkan NIM - Nama (Role)
-								                $label = $peserta['nim'] . ' - ' . $peserta['nama_lengkap'];
+								                $label = $peserta['nim'] . ' - ' . $peserta['nama_lengkap'] . ' (' . $peserta['role'] . ')';
 								            ?>
 								                <option value="<?php echo $peserta['id_user']; ?>"><?php echo htmlspecialchars($label); ?></option>
 								            <?php endforeach; ?>
 								        <?php endif; ?>
-								    </select>  
+								    </select>
+								    <small class="form-text text-muted">Hanya menampilkan anggota dari unit yang sama dengan Anda.</small>
 								</div>
-								
         					    <div class="mb-3">
         					        <label class="mb-2" for="keterangan">Keterangan</label>
         					        <textarea class="form-control" name="keterangan" id="keterangan" placeholder="Masukkan Keterangan..."></textarea>
@@ -371,10 +365,10 @@ while($r_unit = mysqli_fetch_assoc($q_unit)) {
 			                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			            </div>
 			            <div class="modal-body">
-			                <form action="../php/edit_rapat.php" method="POST" enctype="multipart/form-data" id="form-edit-rapat">
+			                <form action="php/ketua_edit_rapat.php" method="POST" enctype="multipart/form-data" id="form-edit-rapat">
 			                    <input type="hidden" name="edit_id_rapat" id="edit_rapat_id_unik">
 			                    <input type="hidden" name="notulen_file_lama" id="notulen_file_lama">
-			                     <div class="mb-3">
+			                    <div class="mb-3">
                                     <div class="row">
                                     	<div class="col-md-6">
                                     		<label class="mb-2">Tanggal Rapat</label>
@@ -387,61 +381,38 @@ while($r_unit = mysqli_fetch_assoc($q_unit)) {
                                     </div>
                                 </div>
 			                    <div class="mb-3">
-                                    <div class="row">
-                                    	<div class="col-md-6">
-			                        		<label class="mb-2" for="edit_judul">Judul Rapat</label>
-			                        		<input class="form-control" type="text" name="edit_judul" id="edit_judul" placeholder="Masukkan Judul Rapat..." required>
-			                    		</div>
-                                    	<div class="col-md-6">
-			                        		<label class="mb-2" for="edit_ruangan">Ruang Rapat</label>
-			                        		<input class="form-control" type="text" name="edit_ruangan" id="edit_ruangan" placeholder="Masukkan Ruang Rapat...">
-			                    		</div>
-                                    </div>
-                                </div>
-			                    <div class="mb-3">
-			                        <label class="mb-2" for="edit_unit">Unit</label>
-			                        <select class="form-select" name="edit_unit" id="edit_unit" required>
-			                            <option value="" disabled selected>Pilih Unit</option>
-			                            <?php foreach ($list_unit as $org) : ?>
-			                                <option value="<?php echo $org['id_unit']; ?>"><?php echo htmlspecialchars($org['nama_unit']); ?></option>
-			                            <?php endforeach; ?>
-			                        </select>
+			                        <label class="mb-2" for="edit_judul">Judul Rapat</label>
+			                        <input class="form-control" type="text" name="edit_judul" id="edit_judul" placeholder="Masukkan Judul Rapat..." required>
 			                    </div>
 			                    <div class="mb-3">
-								    <label class="mb-2" for="multiple-select-field">Peserta Rapat </label>
+			                        <label class="mb-2" for="edit_ruangan">Ruang Rapat</label>
+			                        <input class="form-control" type="text" name="edit_ruangan" id="edit_ruangan" placeholder="Masukkan Ruang Rapat...">
+			                    </div>
+			                    <div class="mb-3">
+								    <label class="mb-2" for="multiple-select-field">Peserta Rapat (Unit Anda)</label>
 
 								    <div class="d-flex mb-2">
 								        <button type="button" class="btn btn-sm btn-outline-primary me-2" id="select_edit_all_peserta">
 								            <i class="fa-solid fa-check-double"></i> Pilih Semua
 								        </button>
-								        <a href="manage_user.php" target="_blank" class="me-2 btn btn-sm btn-outline-success" title="Buka di tab baru untuk menambah pengguna baru">
+								        <a href="manage_user.php" target="_blank" class="btn btn-sm btn-outline-success" title="Buka di tab baru untuk menambah pengguna baru">
 								            <i class="fa-solid fa-user-plus"></i> Tambah Peserta Baru
 								        </a>
-										<div class="input-group">
-    								    	<select class="form-select" id="edit_select_unit_peserta" aria-label="Pilih Unit">
-    								    	    <option value="" selected disabled>Pilih Unit untuk Seleksi Massal</option>
-    								    	    <?php foreach ($units as $unit): ?>
-    								    	        <option value="<?= htmlspecialchars($unit['id_unit']) ?>">
-    								    	            Unit: <?= htmlspecialchars($unit['nama_unit']) ?>
-    								    	        </option>
-    								    	    <?php endforeach; ?>
-    								    	</select>
-    								    	<button class="btn btn-secondary" type="button" id="edit_btn_select_all_unit" title="Pilih semua peserta dari unit yang dipilih">
-    								    	    <i class="fa-solid fa-users"></i> Pilih Peserta
-    								    	</button>
-    									</div>
 								    </div>
 
 								    <select class="form-select select2-edit" id="edit-multiple-select-field" name="edit_peserta_rapat[]" multiple required>
 								        <?php if (empty($list_peserta)): ?>
 								            <option disabled>Tidak ada anggota di unit Anda.</option>
 								        <?php else: ?>
-								            <?php foreach ($list_peserta as $peserta) : ?>
-			                                <option value="<?php echo $peserta['id_user']; ?>"><?php echo htmlspecialchars($peserta['nim'] . ' - ' . $peserta['nama_lengkap']); ?></option>
-			                            <?php endforeach; ?>
+								            <?php foreach ($list_peserta as $peserta) : 
+								                // Tampilkan NIM - Nama (Role)
+								                $label = $peserta['nim'] . ' - ' . $peserta['nama_lengkap'] . ' (' . $peserta['role'] . ')';
+								            ?>
+								                <option value="<?php echo $peserta['id_user']; ?>"><?php echo htmlspecialchars($label); ?></option>
+								            <?php endforeach; ?>
 								        <?php endif; ?>
 								    </select>
-								    
+								    <small class="form-text text-muted">Hanya menampilkan anggota dari unit yang sama dengan Anda.</small>
 								</div>
 			                    <div class="mb-3">
 			                        <label class="mb-2" for="edit_keterangan">Keterangan</label>
@@ -475,7 +446,7 @@ while($r_unit = mysqli_fetch_assoc($q_unit)) {
 			                <h5 class="modal-title" id="exampleModalLabel">Hapus Agenda Rapat</h5>
 			                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			            </div>
-			            <form method="POST" action="../php/delete_rapat.php">
+			            <form method="POST" action="php/ketua_delete_rapat.php">
 			                <div class="modal-body">
 			                    <input type="hidden" name="hapus_id_rapat" id="hapus_id_rapat_modal"> 
 			                    <p class="h5">Apakah anda yakin ingin menghapus agenda rapat ini?</p>
@@ -498,7 +469,7 @@ while($r_unit = mysqli_fetch_assoc($q_unit)) {
 			                <h5 class="modal-title" id="notifmodalLabel">Kirim Notifikasi Rapat</h5>
 			                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			            </div>
-			            <form method="POST" action="../php/send_notification.php"> 
+			            <form method="POST" action="php/ketua_send_notification.php"> 
 			                <div class="modal-body">
 			                    <input type="hidden" name="notif_id_rapat" id="notif_id_rapat"> 
 			                    <p class="h5">Anda akan mengirimkan notifikasi rapat ini melalui email kepada semua peserta yang terdaftar.</p>
@@ -531,9 +502,7 @@ while($r_unit = mysqli_fetch_assoc($q_unit)) {
 </script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="../assets/agenda_handlers.js"></script>
 <script type="text/javascript">
-
 $(document).ready(function() {
 	$('#tabel-rapat').DataTable({
 	    "language": {
@@ -547,7 +516,65 @@ $(document).ready(function() {
 	    }
 	});
 });
-// Handler SweetAlert dari PHP Session harus tetap di sini
+
+
+$( document ).ready(function() {
+    
+    // Inisialisasi Select2 untuk modal Tambah
+    $( '#multiple-select-field' ).select2( {
+        theme: "bootstrap-5",
+        width: '100%',
+        placeholder: 'Pilih Peserta',
+        dropdownParent: $('#exampleModal'), 
+        closeOnSelect: false,
+    } );
+    
+    // Inisialisasi Select2 untuk modal Edit
+    $( '.select2-edit' ).select2( {
+        theme: "bootstrap-5",
+        width: '100%',
+        placeholder: 'Pilih Peserta',
+        dropdownParent: $('#editModal'), 
+        closeOnSelect: false,
+    } );
+
+    // --- LOGIKA BARU: Pilih Semua Peserta di Modal Tambah ---
+    $('#select_all_peserta').on('click', function() {
+        var selectElement = $('#multiple-select-field');
+        
+        // Kumpulkan ID semua opsi yang tersedia dan tidak disabled
+        var allOptions = [];
+        selectElement.find('option').each(function() {
+            if (!$(this).prop('disabled')) {
+                allOptions.push($(this).val());
+            }
+        });
+        
+        // Set nilai Select2 dan panggil trigger 'change' agar Select2 me-render pilihan
+        selectElement.val(allOptions);
+        selectElement.trigger('change');
+    });
+
+	$('#select_edit_all_peserta').on('click', function() {
+        var selectElement = $('#edit-multiple-select-field');
+        
+        // Kumpulkan ID semua opsi yang tersedia dan tidak disabled
+        var allOptions = [];
+        selectElement.find('option').each(function() {
+            if (!$(this).prop('disabled')) {
+                allOptions.push($(this).val());
+            }
+        });
+        
+        // Set nilai Select2 dan panggil trigger 'change' agar Select2 me-render pilihan
+        selectElement.val(allOptions);
+        selectElement.trigger('change');
+    });
+    // --- END LOGIKA BARU ---
+
+});
+
+// Handler SweetAlert dari PHP Session
 <?php if (isset($_GET['status']) && $_GET['status'] == 'sukses_tambah') : ?>
     Swal.fire({
         title: "Selamat!",
@@ -567,6 +594,138 @@ $(document).ready(function() {
         icon: "error"
     });
 <?php endif; ?>
+
+// Modal Delete Handler menggunakan delegasi
+$(document).on('click', 'button[data-bs-target="#deletemodal"]', function (event) {
+    var id_rapat = $(this).data('id'); 
+    $('#hapus_id_rapat_modal').val(id_rapat); 
+    // Biarkan Bootstrap menampilkan modal
+});
+
+// Modal Edit Handler menggunakan delegasi
+$(document).on('click', 'button[data-bs-target="#editModal"]', function (event) {
+    var button = $(this);
+    
+    // 1. AMBIL SEMUA DATA DARI DATA ATTRIBUTE TOMBOL (Menggunakan var)
+    var id_rapat_terpilih = $(this).data('id'); 
+    var tanggal = button.data('tanggal');
+    var jam = button.data('jam');
+    var judul = button.data('judul');
+    var ruangan = button.data('ruangan');
+    var keterangan = button.data('keterangan');
+    var unit_id = button.data('unitid');
+    var notulen_file = button.data('notulen');
+    var peserta_data = button.data('peserta'); // Ini akan berupa array jika berhasil di-parse
+    
+    // 2. RESET/BERSIHKAN FIELD UTAMA
+    
+    // Bersihkan Select2 (penting)
+    $('#edit-multiple-select-field').val(null).trigger('change');
+    $('#current_file_info').html(''); // Bersihkan info file lama
+
+    // 3. ISI DATA KE INPUT MODAL
+    
+    // ID Rapat (Penting!)
+    $('#edit_rapat_id_unik').val(id_rapat_terpilih); 
+    
+    // Data Dasar
+    $('#edit_date').val(tanggal);
+    $('#edit_time').val(jam);
+    $('#edit_judul').val(judul);
+    $('#edit_ruangan').val(ruangan);
+    $('#edit_keterangan').val(keterangan);
+    
+    // Select unit
+    $('#edit_unit').val(unit_id).trigger('change');
+
+    // Peserta (Select2)
+    if (peserta_data && peserta_data.length > 0) {
+        $('#edit-multiple-select-field').val(peserta_data).trigger('change');
+    }
+
+    // File Notulen
+    $('#notulen_file_lama').val(notulen_file);
+    
+    var notulenHtml = 'Tidak ada file notulen saat ini. ';
+    if (notulen_file) {
+        var fileUrl = '../notulen_files/' + notulen_file;
+        notulenHtml = 'File: <strong>' + notulen_file + '</strong>. (<a href="' + fileUrl + '" target="_blank">Lihat</a>) <br>Centang untuk menghapus: <input type="checkbox" name="hapus_file_lama" value="yes">';
+    }
+    $('#current_file_info').html(notulenHtml);
+    
+    // Catatan: Karena Anda menggunakan data-bs-toggle="modal", modal akan otomatis muncul.
+});
+
+// Modal View Handler menggunakan delegasi dan AJAX
+$(document).on('click', '.view-rapat-btn', function (event) { // <--- Targeting Class Baru
+    var id_rapat = $(this).data('id');
+	$('#view_rapat_modal').val(id_rapat);
+    
+    $('#view_tanggal').html('Memuat...');
+    $('#view_jam').html('Memuat...');
+    $('#view_judul').html('Memuat...');
+    $('#view_ruangan').html('Memuat...');
+    $('#view_unit').html('Memuat...');
+    $('#view_keterangan').html('Memuat...');
+    $('#view_peserta').html('Memuat...');
+    $('#view_notulen_file').html('Memuat...');
+    
+    // 2. Panggil AJAX untuk mengambil detail lengkap
+    $.ajax({
+        // URL menggunakan ID Rapat yang sudah dipastikan ada
+        url: '../php/ajax_detail.php?id=' + id_rapat,
+        method: 'GET',
+        dataType: 'json',
+        success: function(data) {
+            // ... (Kode mengisi data ke #view_tanggal, #view_judul, dst. tetap sama) ...
+
+            if (data && !data.error) {
+                // Konversi tanggal (contoh: 24-November-2025)
+                var tanggalFormatted = data.tanggal_rapat ? new Date(data.tanggal_rapat + 'T00:00:00').toLocaleDateString('id-ID', {day: '2-digit', month: 'long', year: 'numeric'}) : '-';
+				var jamFormatted = data.jam_rapat ? data.jam_rapat.substring(0, 5) + ' WIB' : '-';
+                
+                // Isi data ke dalam sel tabel (<td>)
+                $('#view_tanggal').html(tanggalFormatted);
+                $('#view_jam').html(jamFormatted);
+                $('#view_judul').html(data.judul_rapat || '-');
+                $('#view_ruangan').html(data.ruang_rapat || '-'); 
+                $('#view_unit').html(data.nama_unit || '-'); 
+                $('#view_keterangan').html(data.keterangan || '-');
+
+                // Tampilkan daftar peserta
+                var pesertaHtml = 'Tidak ada peserta.';
+                if (data.peserta_details && data.peserta_details.length > 0) {
+                    pesertaHtml = data.peserta_details.join(', ');
+                }
+                $('#view_peserta').html(pesertaHtml);
+
+                // Tampilkan file notulen
+                var fileHtml = 'Tidak ada file notulen.';
+                if (data.notulen_file) {
+                    var fileUrl = '../notulen_files/' + data.notulen_file;
+                    fileHtml = '<a href="' + fileUrl + '" target="_blank" class="btn btn-sm btn-info"><i class="fa-solid fa-file-alt"></i> Lihat File Notulen</a>';
+                }
+                $('#view_notulen_file').html(fileHtml);
+
+            } else {
+                 // Menangani error dari PHP (misalnya: Data rapat tidak ditemukan untuk ID ini.)
+                $('#view_tanggal').html('ERROR: ' + (data.error || 'Data rapat tidak ditemukan.'));
+                console.error("Respon Server Error:", data.error);
+            }
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            // Jika koneksi AJAX gagal
+            $('#view_tanggal').html('Kesalahan Server/Koneksi. Status: ' + jqXHR.status);
+            console.error("AJAX GAGAL:", textStatus, errorThrown);
+        }
+    });
+});
+
+$(document).on('click', 'button[data-bs-target="#notifmodal"]', function (event) {
+    var id_rapat = $(this).data('id'); 
+    $('#notif_id_rapat').val(id_rapat); 
+    // Biarkan Bootstrap menampilkan modal
+});
 </script>
 </body>
 </html>

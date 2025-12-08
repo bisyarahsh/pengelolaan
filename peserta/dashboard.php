@@ -22,7 +22,34 @@ if (strtolower($_SESSION['role']) != "peserta") {
 // Definisikan waktu saat ini untuk filtering
 $now_datetime = date('Y-m-d H:i:s'); 
 
+// --- Tambahan Logika Cek Password Default dan Sesi Alert ---
+$show_password_alert = false;
+
+// Cek apakah alert sudah pernah ditampilkan di sesi ini
+if (!isset($_SESSION['password_alert_shown']) || $_SESSION['password_alert_shown'] !== true) {
+    
+    $q_user_data = mysqli_query($koneksi, "SELECT nim, password FROM users WHERE id_user = '$id_user'");
+    $user_data = mysqli_fetch_assoc($q_user_data);
+
+    if ($user_data) {
+        $nim = $user_data['nim'];
+        $hashed_password = $user_data['password'];
+        
+        // Cek apakah password masih default (NIM)
+        if (password_verify($nim, $hashed_password)) {
+            // Jika NIM cocok dengan password hash (berarti masih password default)
+            $show_password_alert = true;
+            // Catat bahwa alert AKAN ditampilkan di bagian JS
+            $_SESSION['password_alert_shown'] = true; 
+        }
+    }
+}
+// --- Akhir Tambahan Logika ---
+
+// ... (lanjutkan dengan Query SQL dan Fungsi Status)
+
 // --- 2. Query untuk Mengambil Data Rapat yang BELUM SELESAI ---
+// ... (Kode SQL Anda tetap sama)
 $sql_agenda = "
     SELECT
         ar.tanggal_rapat,
@@ -30,13 +57,13 @@ $sql_agenda = "
         ar.judul_rapat,
         ar.keterangan,
         ar.ruang_rapat,
-        o.nama_organisasi
+        o.nama_unit
     FROM
         agenda_rapat ar
     JOIN
         peserta_rapat pr ON ar.id_rapat = pr.id_rapat
     LEFT JOIN 
-        organisasi o ON ar.id_organisasi = o.id_organisasi
+        unit o ON ar.id_unit = o.id_unit
     WHERE
         pr.id_user = '$id_user' 
         -- Filter: Gabungan tanggal dan jam rapat HARUS lebih besar atau sama dengan waktu saat ini
@@ -46,16 +73,14 @@ $sql_agenda = "
 ";
 $query_agenda = mysqli_query($koneksi, $sql_agenda);
 
-// Fungsi Status (Disimpan untuk konsistensi meskipun hasilnya seharusnya 'Menunggu')
+// Fungsi Status (kode tetap sama)
 function get_rapat_status($tanggal, $jam) {
     $datetime_rapat = date('Y-m-d H:i:s', strtotime("$tanggal $jam"));
     $now = date('Y-m-d H:i:s');
     
-    // Karena kita sudah memfilter di kueri SQL, semua ini seharusnya "Menunggu"
     if ($datetime_rapat >= $now) {
         return ['text' => 'Menunggu', 'class' => 'bg-warning'];
     } 
-    // Baris ini tidak akan terpanggil karena sudah difilter di SQL
     return ['text' => 'Selesai', 'class' => 'bg-success']; 
 }
 ?>
@@ -106,13 +131,13 @@ function get_rapat_status($tanggal, $jam) {
           <div class="tableheader">
             <h2>Agenda Rapat</h2>
           </div>
-          <table id="example" class="table table-striped">
+          <table id="tabel-rapat" class="table table-striped">
             <thead>
               <tr>
                 <th>No</th>
                 <th>Tanggal Rapat</th>
                 <th>Jam Rapat</th>
-                <th>Organisasi</th>
+                <th>unit</th>
                 <th>Judul Rapat</th>
                 <th>Ruangan</th>
                 <th>Status</th>
@@ -134,7 +159,7 @@ function get_rapat_status($tanggal, $jam) {
                     <td><?php echo $no++; ?></td>
                     <td><?php echo $tanggal_indo; ?></td>
                     <td><?php echo $jam_wib; ?></td>
-                    <td><?php echo htmlspecialchars($rapat['nama_organisasi']); ?></td>
+                    <td><?php echo htmlspecialchars($rapat['nama_unit']); ?></td>
                     <td><?php echo htmlspecialchars($rapat['judul_rapat']); ?></td>
                     <td><?php echo htmlspecialchars($rapat['ruang_rapat']); ?></td>
                     <td class="text-center">
@@ -162,7 +187,39 @@ function get_rapat_status($tanggal, $jam) {
       AOS.init();
       // Inisialisasi DataTables setelah data dimuat
       $(document).ready(function () {
-        $('#example').DataTable();
+      	$('#tabel-rapat').DataTable({
+      	    "language": {
+      	        "emptyTable": "Tidak ada agenda rapat",
+      	        "info": "Menampilkan _START_ sampai _END_ dari _TOTAL_ agenda",
+      	        "infoEmpty": "Menampilkan 0 sampai 0 dari 0 agenda",
+      	        "infoFiltered": "(difilter dari total _MAX_ agenda)",
+      	        "lengthMenu": "Tampilkan _MENU_ agenda",
+      	        "search": "Cari:",
+      	        "zeroRecords": "Tidak ditemukan agenda rapat yang cocok"
+      	    }
+      	});
+        
+        // --- Logika SweetAlert untuk Password Default ---
+        <?php if ($show_password_alert): ?>
+        Swal.fire({
+            title: 'Peringatan Keamanan!',
+            html: "Kata sandi Anda masih menggunakan sandi bawaan (NIM Anda).<br><br>Untuk keamanan akun, sangat disarankan untuk mengganti kata sandi Anda sekarang.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Ganti Kata Sandi Sekarang',
+            cancelButtonText: 'Nanti Saja',
+            allowOutsideClick: false,
+            allowEscapeKey: false
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Arahkan ke halaman ganti password
+                window.location.href = 'ganti__password.php';
+            }
+        });
+        <?php endif; ?>
+        // --- Akhir Logika SweetAlert ---
       });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

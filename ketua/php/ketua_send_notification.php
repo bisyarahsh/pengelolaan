@@ -25,7 +25,7 @@ $smtpPort     = 587;                      // Port SMTP (587 dengan STARTTLS)
 // ------------------------------------
 
 // Cek Sesi dan Role (Hanya Ketua yang boleh mengirim notifikasi)
-if ($_SESSION['status'] != "login" || strtolower($_SESSION['role']) != "admin" || !isset($_POST['send_notification'])) {
+if ($_SESSION['status'] != "login" || strtolower($_SESSION['role']) != "ketua" || !isset($_POST['send_notification'])) {
     header("location:../login/login.php?error=noaccess");
     exit;
 }
@@ -95,7 +95,7 @@ Anda diundang untuk menghadiri rapat dengan detail sebagai berikut:
 Mohon hadir tepat waktu. Terima kasih.
 
 Salam,
-Ketua unit
+Ketua Unit
 ";
 
 $success_count = 0;

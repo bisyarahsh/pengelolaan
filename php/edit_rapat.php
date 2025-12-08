@@ -20,7 +20,7 @@ if (isset($_POST['edit_rapat'])) {
     $jam = mysqli_real_escape_string($koneksi, $_POST['edit_time']);
     $judul = mysqli_real_escape_string($koneksi, $_POST['edit_judul']);
     $ruangan = mysqli_real_escape_string($koneksi, $_POST['edit_ruangan']);
-    $id_organisasi = mysqli_real_escape_string($koneksi, $_POST['edit_organisasi']);
+    $id_unit = mysqli_real_escape_string($koneksi, $_POST['edit_unit']);
     $peserta_arr = $_POST['edit_peserta_rapat'] ?? []; // Array ID Peserta
     $keterangan = mysqli_real_escape_string($koneksi, $_POST['edit_keterangan']);
     
@@ -78,7 +78,7 @@ if (isset($_POST['edit_rapat'])) {
                     ruang_rapat = '$ruangan', 
                     keterangan = '$keterangan', 
                     notulen_file = '$new_notulen_file', 
-                    id_organisasi = '$id_organisasi'
+                    id_unit = '$id_unit'
                     WHERE id_rapat = '$id_rapat'";
 
     if (mysqli_query($koneksi, $sql_update)) {

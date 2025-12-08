@@ -13,7 +13,7 @@ if ($_SESSION['status'] != "login") {
     exit;
 }
 // Cek apakah role user bukan 'ketua'
-if ($_SESSION['role'] != "Admin") {
+if ($_SESSION['role'] != "Ketua") {
     header("location:../login/login.php");
     exit;
 }
@@ -51,7 +51,7 @@ if ($id_pembuat_rapat) {
 	<link rel="stylesheet" href="https://cdn.datatables.net/2.3.4/css/dataTables.bootstrap5.css">
 	<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
 	<link rel="stylesheet" href="../assets/admin.css">
-	<title>Riwayat | Admin - Rapatin</title>
+	<title>Riwayat | Ketua - Rapatin</title>
 	<link rel="shortcut icon" href="../assets/logo/logo.png">
 </head>
 <body>
@@ -62,7 +62,6 @@ if ($id_pembuat_rapat) {
 		<ul class="side-menu" data-aos="fade-right">
 			<li><a href="agenda.php"><i class="fa-solid fa-calendar-days icon"></i> Agenda Rapat</a></li>
 			<li><a href="riwayat.php" class="active"><i class="fa-solid fa-clock-rotate-left icon"></i> Riwayat Rapat</a></li>
-			<li><a href="unit.php"><i class="fa-solid fa-users icon"></i> Unit</a></li>
 			<li><a href="manage_user.php"><i class="fa-solid fa-user icon"></i> Pengguna</a></li>
 			<li><a href="pengaturan.php"><i class="fa-solid fa-gear icon"></i> Ganti Password</a></li>
 			<li><a href="logout.php"><i class="fa-solid fa-right-from-bracket icon"></i> Logout</a></li>
@@ -137,7 +136,7 @@ if ($id_pembuat_rapat) {
 							<h5 class="modal-title" id="deletemodalLabel">Hapus Riwayat Rapat</h5>
 							<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 						</div>
-						<form method="POST" action="../php/delete_rapat.php">
+						<form method="POST" action="php/ketua_delete_rapat.php">
 			                <div class="modal-body">
 			                    <input type="hidden" name="hapus_id_rapat" id="hapus_id_rapat_modal"> 
 			                    <p class="h5">Apakah anda yakin ingin menghapus riwayat rapat ini?</p>
@@ -153,6 +152,8 @@ if ($id_pembuat_rapat) {
 			</div>
 		</main>
 		</section>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
 <script src="https://cdn.datatables.net/2.3.4/js/dataTables.js"></script>
 <script src="https://cdn.datatables.net/2.3.4/js/dataTables.bootstrap5.js"></script>
@@ -177,6 +178,7 @@ $(document).ready(function() {
         }
     });
 });
+
 
 // Handler SweetAlert dari PHP Session
 <?php if (isset($alert) && $alert['type'] == 'success') : ?>
