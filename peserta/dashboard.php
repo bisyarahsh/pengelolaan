@@ -22,6 +22,26 @@ if (strtolower($_SESSION['role']) != "peserta") {
 // Definisikan waktu saat ini untuk filtering
 $now_datetime = date('Y-m-d H:i:s'); 
 
+function tgl_indo($tanggal){
+	$bulan = array (
+		1 =>   'Januari',
+		'Februari',
+		'Maret',
+		'April',
+		'Mei',
+		'Juni',
+		'Juli',
+		'Agustus',
+		'September',
+		'Oktober',
+		'November',
+		'Desember'
+	);
+	$pecahkan = explode('-', $tanggal);
+ 
+	return $pecahkan[2] . ' ' . $bulan[ (int)$pecahkan[1] ] . ' ' . $pecahkan[0];
+}
+
 // --- Tambahan Logika Cek Password Default dan Sesi Alert ---
 $show_password_alert = false;
 
@@ -113,12 +133,12 @@ function get_rapat_status($tanggal, $jam) {
   </head>
   <body>
     <section id="sidebar">
-    <a href="../landing/index.php" data-aos="fade-down" class="logo ps-3"><i class='ps-5'></i> Rapatin</a>
-    <a href="../landing/index.php" data-aos="fade-down" class="logo-mini fw-bold"> R</a>
+    <a href="../index.html" data-aos="fade-down" class="logo ps-3"><i class='ps-5'></i> Rapatin</a>
+    <a href="../index.html" data-aos="fade-down" class="logo-mini fw-bold"> R</a>
     <ul class="side-menu" data-aos="fade-right">
       <li><a href="dashboard.php" class="active"><i class="fa-solid fa-calendar-days icon"></i> Agenda Rapat</a></li>
       <li><a href="history.php"><i class="fa-solid fa-clock-rotate-left icon"></i> Riwayat Rapat</a></li>
-      <li><a href="ganti__password.php"><i class="fa-solid fa-gear icon"></i> Ganti Kata Sandi</a></li>
+      <li><a href="ganti_password.php"><i class="fa-solid fa-gear icon"></i> Ganti Kata Sandi</a></li>
       <li><a href="logout.php"><i class="fa-solid fa-right-from-bracket icon"></i> Keluar</a></li>
     </ul>
   </section>
@@ -137,7 +157,7 @@ function get_rapat_status($tanggal, $jam) {
                 <th>No</th>
                 <th>Tanggal Rapat</th>
                 <th>Jam Rapat</th>
-                <th>unit</th>
+                <th>Unit</th>
                 <th>Judul Rapat</th>
                 <th>Ruangan</th>
                 <th>Status</th>
@@ -157,7 +177,7 @@ function get_rapat_status($tanggal, $jam) {
             ?>
                 <tr>
                     <td><?php echo $no++; ?></td>
-                    <td><?php echo $tanggal_indo; ?></td>
+                    <td><?php echo htmlspecialchars(tgl_indo($rapat['tanggal_rapat'])); ?></td>
                     <td><?php echo $jam_wib; ?></td>
                     <td><?php echo htmlspecialchars($rapat['nama_unit']); ?></td>
                     <td><?php echo htmlspecialchars($rapat['judul_rapat']); ?></td>
@@ -215,7 +235,7 @@ function get_rapat_status($tanggal, $jam) {
         }).then((result) => {
             if (result.isConfirmed) {
                 // Arahkan ke halaman ganti password
-                window.location.href = 'ganti__password.php';
+                window.location.href = 'ganti_password.php';
             }
         });
         <?php endif; ?>
