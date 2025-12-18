@@ -1,3 +1,103 @@
+<?php
+include '../php/koneksi.php'; 
+session_start();
+
+if ($_SESSION['status'] != "login") {
+    exit;
+}
+if ($_SESSION['role'] != "Peserta") {
+      exit;
+}
+
+if (isset($_SESSION['id_user'])) {
+    $user_id = $_SESSION['id_user'];
+} else {
+    header("Location: ../login/login.php");
+    exit();
+}
+
+$alert = $_SESSION['alert'] ?? null;
+unset($_SESSION['alert']);
+
+// Proses Ganti Password
+if (isset($_POST['ganti_password'])) {
+    $password_lama = $_POST['password_lama'];
+    $password_baru = $_POST['password_baru'];
+    $konfirmasi_password = $_POST['konfirmasi_password'];
+
+    // Validasi Kolom Kosong
+    if (empty($password_lama) || empty($password_baru) || empty($konfirmasi_password)) {
+        $_SESSION['alert'] = ['icon' => 'warning', 'message' => 'Semua kolom wajib diisi.'];
+        header("Location: ganti_password.php");
+        exit();
+    }
+
+    // Validasi Password Baru dan Konfirmasi
+    if ($password_baru !== $konfirmasi_password) {
+        $_SESSION['alert'] = ['icon' => 'error', 'message' => 'Password Baru dan Konfirmasi Password tidak cocok.'];
+        header("Location: ganti_password.php");
+        exit();
+    }
+    
+    // Verifikasi Password Lama
+    $sql_check = "SELECT password FROM users WHERE id_user = ?";
+    $stmt_check = $koneksi->prepare($sql_check);
+    $stmt_check->bind_param("i", $user_id);
+    $stmt_check->execute();
+    $result_check = $stmt_check->get_result();
+    $user = $result_check->fetch_assoc();
+    $stmt_check->close();
+
+    if (!$user) {
+        $_SESSION['alert'] = ['icon' => 'error', 'message' => 'Sesi pengguna tidak valid. Silakan login ulang.'];
+        header("Location: ganti_password.php");
+        exit();
+    }
+    
+    // Verifikasi Password Lama menggunakan password_verify()
+    if (!password_verify($password_lama, $user['password'])) {
+        $_SESSION['alert'] = ['icon' => 'error', 'message' => 'Password Lama salah.'];
+        header("Location: ganti_password.php");
+        exit();
+    }
+    
+    // Validasi Password Baru sama dengan yang Lama (Tambahan yang diminta)
+    if (password_verify($password_baru, $user['password'])) {
+        $_SESSION['alert'] = ['icon' => 'warning', 'message' => 'Password baru tidak boleh sama dengan password lama.'];
+        header("Location: ganti_password.php");
+        exit();
+    }
+
+    // Update Password Baru
+    // Gunakan password_hash() untuk hash password baru
+    $password_hash_baru = password_hash($password_baru, PASSWORD_DEFAULT); 
+
+    $sql_update = "UPDATE users SET password = ? WHERE id_user = ?";
+    $stmt_update = $koneksi->prepare($sql_update);
+    $stmt_update->bind_param("si", $password_hash_baru, $user_id);
+
+    if ($stmt_update->execute()) {
+        $_SESSION['alert'] = ['icon' => 'success', 'message' => 'Password berhasil diubah!'];
+        // Tutup statement sebelum redirect
+        $stmt_update->close(); 
+        $koneksi->close(); 
+        header("Location: ganti_password.php");
+        exit();
+    } else {
+        $_SESSION['alert'] = ['icon' => 'error', 'message' => 'Gagal mengubah password: ' . $koneksi->error];
+        // Tutup statement sebelum redirect
+        $stmt_update->close(); 
+        $koneksi->close(); 
+        header("Location: ganti_password.php");
+        exit();
+    }
+}
+
+// Tutup koneksi jika tidak ada post (hanya menampilkan halaman)
+if ($koneksi->ping()) {
+    $koneksi->close();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -17,8 +117,8 @@
     />
     <link rel="stylesheet" href="../assets/peserta.css" />
     <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
-    <title>Ganti Sandi | Peserta - Rapatin</title>
-	  <link rel="shortcut icon" href="../assets/logo/logo.png">
+    <link rel="shortcut icon" href="../assets/logo/logo.png">
+    <title>Rapatin</title>
   </head>
   <body>
     <!-- SIDEBAR -->
@@ -35,7 +135,10 @@
       >
       <ul class="side-menu" data-aos="fade-right">
         <li>
-          <a href="dashboard.php"
+          <a href="dashboard.php"><i class="fa-solid fa-home icon"></i> Dasbor</a>
+        </li>
+        <li>
+          <a href="agenda.php"
             ><i class="fa-solid fa-calendar-days icon"></i> Agenda Rapat</a
           >
         </li>
@@ -45,7 +148,7 @@
           >
         </li>
         <li>
-          <a href="ganti__password.php" class="active"
+          <a href="ganti_password.php" class="active"
             ><i class="fa-solid fa-gear icon"></i> Ganti Kata Sandi</a
           >
         </li>
@@ -73,38 +176,20 @@
           <div class="tableheader">
             <h2>Ganti Kata Sandi</h2>
           </div>
-          <form action="">
+          <form action="" method="POST"> 
             <div class="mb-3">
-              <label class="mb-2" for="Kata Sandi">Kata Sandi Lama</label>
-              <input
-                class="form-control"
-                type="Kata Sandi"
-                name="name"
-                id="name"
-                placeholder="Masukkan Kata Sandi Lama Anda..."
-              />
+              <label class="mb-2" for="password_lama">Kata Sandi Lama</label>
+              <input class="form-control" type="password" name="password_lama" id="password_lama" placeholder="Masukkan Password Lama Anda..." required/>
             </div>
             <div class="mb-3">
-              <label class="mb-2" for="Kata Sandi">Kata Sandi Baru</label>
-              <input
-                class="form-control"
-                type="Kata Sandi"
-                name="name"
-                id="name"
-                placeholder="Masukkan Kata Sandi Baru Anda..."
-              />
+              <label class="mb-2" for="password_baru">Kata Sandi Baru</label>
+              <input class="form-control" type="password" name="password_baru" id="password_baru" placeholder="Masukkan Password Baru Anda..." required/>
             </div>
             <div class="mb-3">
-              <label class="mb-2" for="Kata Sandi">Konfirmasi Kata Sandi</label>
-              <input
-                class="form-control"
-                type="Kata Sandi"
-                name="name"
-                id="name"
-                placeholder="Masukkan Kata Sandi..."
-              />
+              <label class="mb-2" for="konfirmasi_password">Konfirmasi Kata Sandi Baru</label>
+              <input class="form-control" type="password" name="konfirmasi_password" id="konfirmasi_password" placeholder="Konfirmasi Password Baru..." required/>
             </div>
-            <button type="button" class="btn btn-primary d-block ms-auto px-3">
+            <button type="submit" name="ganti_password" class="btn btn-primary d-block ms-auto px-3">
               Simpan
             </button>
           </form>
@@ -124,5 +209,18 @@
       AOS.init();
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script type="text/javascript">
+    const alertData = <?= json_encode($alert); ?>;
+    
+    if (alertData) {
+        Swal.fire({
+            title: alertData.icon === 'success' ? "Berhasil!" : "Gagal!",
+            text: alertData.message,
+            icon: alertData.icon
+        });
+    }
+
+    // Fungsi edit() yang lama telah dihapus karena SweetAlert dipicu oleh PHP
+  </script>
   </body>
 </html>
