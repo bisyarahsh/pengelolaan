@@ -19,11 +19,7 @@ if (isset($_SESSION['id_user'])) {
 $alert = $_SESSION['alert'] ?? null;
 unset($_SESSION['alert']);
 
-<<<<<<< HEAD
-// Proses Ganti Password
-=======
 // Proses Ganti Kata Sandi
->>>>>>> b2754235e169f31c59efc31d319a68b212386041
 if (isset($_POST['ganti_password'])) {
     $password_lama = $_POST['password_lama'];
     $password_baru = $_POST['password_baru'];
