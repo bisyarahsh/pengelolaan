@@ -1,1 +1,227 @@
+ <style>
+    /* ===================================
+       GAYA UMUM
+       =================================== */
+    :root {
+      --primary: #0d6efd;
+      --secondary: #0b327c;
+      --accent: #ffc107;
+      --dark: #212529;
+      --light: #f8f9fa;
+    }
+
+    * {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: "Poppins", sans-serif;
+      background: var(--light);
+      color: var(--dark);
+      overflow-x: hidden;
+    }
+
+    /* ===================================
+       NAVBAR
+       =================================== */
+    .navbar {
+      transition: all 0.4s ease;
+      backdrop-filter: blur(10px);
+      background-color: rgba(0, 0, 0, 0.65);
+    }
+
+    .navbar.scrolled {
+      background-color: var(--dark);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    .nav-link {
+      color: #fff !important;
+      margin-left: 1rem;
+      transition: color 0.3s ease;
+    }
+
+    .nav-link:hover {
+      color: var(--accent) !important;
+    }
+
+   /* ===================================
+   HERO SECTION (UPDATED)
+   =================================== */
+
+.hero-section {
+    background: linear-gradient(135deg, #ffffff 0%, #f0f4ff 100%); /* Warna lebih terang agar ilustrasi menyatu */
+    color: var(--dark);
+    padding: 160px 0 100px 0;
+    position: relative;
+    overflow: hidden;
+    text-align: left; /* Berubah jadi rata kiri */
+}
+
+/* Menghapus pseudo-element ::before yang lama agar tidak menabrak gambar */
+.hero-section::before {
+    display: none; 
+}
+
+.hero-image {
+    max-width: 100%;
+    height: auto;
+    /* Memberikan sedikit efek mengapung */
+    animation: floating 3s ease-in-out infinite;
+}
+
+@keyframes floating {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-15px); }
+    100% { transform: translateY(0px); }
+}
+
+.hero-section h1 {
+    font-weight: 700;
+    font-size: 3.5rem;
+    color: var(--secondary);
+    line-height: 1.2;
+}
+
+.hero-section p {
+    color: #555;
+    margin-bottom: 30px;
+}
+
+    /* Tombol yang lebih menarik */
+    .hero-section .btn-warning {
+      background: #ffc107;
+      border: none;
+      padding: 18px 50px;
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      box-shadow: 0 10px 20px rgba(255, 193, 7, 0.3);
+    }
+
+    /* Responsif untuk HP */
+    @media (max-width: 768px) {
+      .hero-section h1 { font-size: 2.5rem; }
+      .hero-section { padding: 100px 20px; }
+    
+    }
+
+    @keyframes move-bg {
+      from { transform: translate(0, 0); }
+      to { transform: translate(50px, 50px); }
+    }
+
+    .hero-section h1 {
+      font-weight: 700;
+      font-size: 3.5rem;
+    }
+
+    .hero-section p {
+      font-size: 1.2rem;
+      opacity: 0.9;
+      margin-bottom: 40px;
+    }
+
+    .hero-section .btn {
+      font-weight: 600;
+      padding: 15px 40px;
+      border-radius: 30px;
+      transition: all 0.3s ease;
+    }
+
+    .hero-section .btn:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(255, 193, 7, 0.5);
+    }
+
+    /* ===================================
+       FITUR SECTION
+       =================================== */
+    #fitur {
+      background: #fff;
+      padding: 100px 0;
+    }
+
+    #fitur .card {
+      border: none;
+      border-radius: 20px;
+      backdrop-filter: blur(8px);
+      background: rgba(255, 255, 255, 0.8);
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+      transition: all 0.4s ease;
+    }
+
+    #fitur .card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 15px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    #fitur i {
+      font-size: 3.5rem;
+      color: var(--primary);
+      margin-bottom: 20px;
+    }
+
+    /* ===================================
+       TENTANG SECTION
+       =================================== */
+    #tentang {
+      background: linear-gradient(135deg, #ffffff, #e9f2ff);
+      padding: 100px 0;
+    }
+
+    #tentang .card {
+      border: none;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    #tentang .card:hover {
+      transform: scale(1.02);
+    }
+
+    /* ===================================
+       FAQ SECTION
+       =================================== */
+    #faq {
+      padding: 100px 0;
+    }
+
+    .accordion-button {
+      font-weight: 600;
+    }
+
+    .accordion-button:not(.collapsed) {
+      background-color: var(--primary);
+      color: #fff;
+    }
+
+    .accordion-body {
+      background-color: #f8f9fc;
+      border-radius: 0 0 10px 10px;
+    }
+
+    /* ===================================
+       FOOTER
+       =================================== */
+    footer {
+      background: var(--dark);
+      color: #ffffff;
+      text-align: center;
+      padding: 30px 0;
+      font-size: 0.9rem;
+    }
+
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
 
