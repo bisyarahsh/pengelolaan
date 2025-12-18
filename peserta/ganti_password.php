@@ -19,7 +19,11 @@ if (isset($_SESSION['id_user'])) {
 $alert = $_SESSION['alert'] ?? null;
 unset($_SESSION['alert']);
 
+<<<<<<< HEAD
 // Proses Ganti Password
+=======
+// Proses Ganti Kata Sandi
+>>>>>>> b2754235e169f31c59efc31d319a68b212386041
 if (isset($_POST['ganti_password'])) {
     $password_lama = $_POST['password_lama'];
     $password_baru = $_POST['password_baru'];
@@ -200,6 +204,7 @@ if ($koneksi->ping()) {
     <!-- End Content -->
 
     <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+<<<<<<< HEAD
     <script src="https://cdn.datatables.net/2.3.4/js/dataTables.js"></script>
     <script src="https://cdn.datatables.net/2.3.4/js/dataTables.bootstrap5.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -210,6 +215,18 @@ if ($koneksi->ping()) {
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script type="text/javascript">
+=======
+<script src="https://cdn.datatables.net/2.3.4/js/dataTables.js"></script>
+<script src="https://cdn.datatables.net/2.3.4/js/dataTables.bootstrap5.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../assets/admin.js"></script>
+<script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script>
+    AOS.init();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script type="text/javascript">
+>>>>>>> b2754235e169f31c59efc31d319a68b212386041
     const alertData = <?= json_encode($alert); ?>;
     
     if (alertData) {
@@ -221,6 +238,10 @@ if ($koneksi->ping()) {
     }
 
     // Fungsi edit() yang lama telah dihapus karena SweetAlert dipicu oleh PHP
+<<<<<<< HEAD
   </script>
+=======
+</script>
+>>>>>>> b2754235e169f31c59efc31d319a68b212386041
   </body>
 </html>
