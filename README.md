@@ -30,28 +30,28 @@ Untuk mencoba aplikasi, gunakan akun berikut sesuai peran:
 ## 🚀 Fitur Utama
 
 * **Manajemen Data Rapat (Agenda):**
-    * Penjadwalan rapat baru (Waktu, Tempat, Peserta).
-    * **Upload Notulen:** Fitur untuk mengunggah hasil rapat (file docx/pdf).
-* **Manajemen Data Pengguna:** Fitur untuk menambah, mengedit, dan menghapus (CRUD) data pengguna. 
-* **Manajemen Unit:** Pengelolaan data unit kerja atau kategori terkait. 
-* **Ekspor Dokumen PDF:** Kemampuan mencetak laporan atau data ke dalam format PDF menggunakan library **DomPDF**. 
-* **Notifikasi Email:** Integrasi dengan **PHPMailer** untuk pengiriman notifikasi via email. 
-* **Halaman Landing:** Halaman muka untuk akses publik atau login. 
+    * Penjadwalan rapat baru (Waktu, Tempat, Peserta).
+    * **Upload Notulen:** Fitur untuk mengunggah hasil rapat (file docx/pdf).
+* **Manajemen Data Pengguna (User Management):** Fitur untuk menambah, mengedit, dan menghapus (CRUD) data pengguna. 
+* **Manajemen Unit:** Pengelolaan data unit kerja atau kategori terkait. 
+* **Ekspor Dokumen PDF:** Kemampuan mencetak laporan atau data ke dalam format PDF menggunakan library **DomPDF**. 
+* **Notifikasi Email:** Integrasi dengan **PHPMailer** untuk pengiriman notifikasi atau verifikasi via email. 
+* **Halaman Landing:** Halaman muka untuk akses publik atau login.
 
 ## 🛠️ Teknologi yang Digunakan
 
-* **Backend:** PHP
+* **Backend:** PHP (Native)
 * **Database:** MySQL
 * **Frontend:** HTML, CSS, JS
 * **Framework:**
-    * Bootstrap 5 - Untuk CSS dan JS.
-    * Fontawesome - Untuk Icons.
-    * SwwetAlert - Untuk popup notifikasi.
-    * AOS - Untuk efek animasi website saat di-scroll.
-    * Flatpickr - Untuk memilih tanggal, waktu, atau rentang tanggal dalam format Indonesia.
+    * Bootstrap 5 - Untuk CSS dan JS.
+    * Fontawesome - Untuk Icons
+    * SwwetAlert - Untuk popup notifikasi.
+    * AOS - Untuk efek animasi website saat di-scroll.
+    * Flatpickr - Untuk memilih tanggal, waktu, atau rentang tanggal dalam format Indonesia.
 * **Library Pihak Ketiga:**
-    * [PHPMailer](https://github.com/PHPMailer/PHPMailer) - Untuk pengiriman email. 
-    * [DomPDF](https://github.com/dompdf/dompdf) - Untuk generate file PDF. 
+    * [PHPMailer](https://github.com/PHPMailer/PHPMailer) - Untuk pengiriman email. 
+    * [DomPDF](https://github.com/dompdf/dompdf) - Untuk generate file PDF.
 
 ## 📂 Struktur Folder
 
