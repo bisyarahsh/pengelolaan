@@ -68,16 +68,16 @@ Untuk mencoba aplikasi, gunakan akun berikut sesuai peran:
 
 Ikuti langkah-langkah berikut untuk menjalankan proyek ini di komputer lokal Anda:
 
-1.  **Clone Repositori**
-    ```bash
-    git clone https://github.com/bisyarahsh/pengelolaan
-    ```
+1.  **Clone Repositori**
+    ```bash
+    git clone [https://github.com/bisyarahsh/pengelolaan.git](https://github.com/bisyarahsh/pengelolaan.git)
+    ```
 
-2.  **Persiapan Database**
-    * Buat database baru di MySQL (misalnya: `db_rapat`).
-    * Impor file database yang bernama `db_rapat.sql`.
+2.  **Persiapan Database**
+    * Buat database baru di phpMyAdmin bernama `db_rapat`.
+    * Impor file `db_rapat.sql` yang ada di folder root proyek.
 
-3.  **Konfigurasi Sistem**
+3.  **Konfigurasi Sistem**
     * **Database:**
         Buka file `php/koneksi.php` (dan `ketua/php/koneksi.php` jika terpisah) lalu sesuaikan:
         ```php
@@ -93,9 +93,9 @@ Ikuti langkah-langkah berikut untuk menjalankan proyek ini di komputer lokal And
         $mail->Password   = 'app_password_google_anda';
         ```
 
-4.  **Jalankan Proyek**
-    * Pindahkan folder proyek ke direktori server lokal (misalnya `htdocs` untuk XAMPP atau `www` untuk Laragon).
-    * Buka browser dan akses: `http://localhost/pengelolaan`
+4.  **Jalankan Proyek**
+    * Pindahkan folder proyek ke `htdocs` (XAMPP) atau `www` (Laragon).
+    * Buka browser dan akses: `http://localhost/pengelolaan`
 
 ---
 ## ⚠️ Catatan Penting
@@ -107,6 +107,6 @@ Ikuti langkah-langkah berikut untuk menjalankan proyek ini di komputer lokal And
 
 Dibuat oleh Mahasiswa Teknik Informatika Politeknik Negeri Batam:
 * **3312501067 - Apri Catur Pramudiansyah** - *Ketua*
-* **3312501064 - Adrian Septiaji** -
-* **3312501065 - Syarifah Bisyarah Shahab** -
-* **3312501066 - M. Fauzi Azhari** -
+* **3312501064 - Adrian Septiaji**
+* **3312501065 - Syarifah Bisyarah Shahab**
+* **3312501066 - M. Fauzi Azhari**
