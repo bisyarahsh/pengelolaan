@@ -59,10 +59,10 @@ Untuk mencoba aplikasi, gunakan akun berikut sesuai peran:
 * `/lib` - Menyimpan library eksternal (DomPDF, PHPMailer).
 * `/php` - Berisi logika backend seperti `delete_user.php`, `delete_unit.php`, dll.
 * `/notulen_files` - Berisi file untuk notulen pada rapat yang telah dibuat.
-* `/login` - Berisi file halaman login untuk menghubungkan pengguna ke folder sesuai dengan rolenya.
-* `/admin` - Berisi file halaman dengan role Tata Usaha.
-* `/ketua` - Berisi file halaman dengan role Ketua Prodi.
-* `/peserta` - Berisi file halaman dengan role Dosen/Labor.
+* `/login` - Berisi file halaman login untuk menghubungkan pengguna ke folder sesuai dengan perannya.
+* `/admin` - Berisi file halaman dengan peran Tata Usaha.
+* `/ketua` - Berisi file halaman dengan peran Ketua Prodi.
+* `/peserta` - Berisi file halaman dengan peran Dosen/Labor.
 
 ## ⚙️ Instalasi dan Penggunaan
 
