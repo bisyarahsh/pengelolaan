@@ -21,7 +21,7 @@ Untuk mencoba aplikasi, gunakan akun berikut sesuai peran:
 | :--- | :--- | :--- |
 | **Tata Usaha** | admin@gmail.com | admin |
 | **Ketua Prodi** | adrian@gmail.com | adrian |
-| **Dosen/Labor** | apri@gmail.com | apri123 |
+| **Dosen/Labor** | agung@gmail.com | 3312501063 |
 
 > **Catatan Keamanan:** Segera ganti password setelah login pertama kali demi keamanan data.
 
