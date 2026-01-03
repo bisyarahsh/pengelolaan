@@ -67,6 +67,36 @@ if (isset($_GET['action']) && $_GET['action'] == 'get_rapat_detail' && isset($_G
 }
 // --- End AJAX Detail Handler ---
 
+// --- 4. DATA USER, FOTO & INISIAL ---
+$id_user_login = $_SESSION['id_user'];
+
+// PERHATIAN: Pastikan 'foto' sesuai dengan nama kolom di database Anda
+$sql_user_info = "SELECT nama_lengkap, profile_pic FROM users WHERE id_user = '$id_user_login'"; 
+$q_user_info = mysqli_query($koneksi, $sql_user_info);
+$d_user_info = mysqli_fetch_assoc($q_user_info);
+
+$nama_user = $d_user_info['nama_lengkap'] ?? "Ketua Prodi";
+$foto_db   = $d_user_info['foto'] ?? null;
+
+$path_foto_target = "../assets/img/profile/" . $foto_db;
+$tampilkan_foto = false;
+
+if (!empty($foto_db) && file_exists($path_foto_target)) {
+    $tampilkan_foto = true;
+}
+
+// Logika Membuat Inisial (Tetap dibuat untuk jaga-jaga jika foto dihapus fisik)
+$words = explode(" ", $nama_user);
+$initials = "";
+if (count($words) >= 1) {
+    $initials .= strtoupper(substr($words[0], 0, 1));
+    if (count($words) > 1) {
+        $initials .= strtoupper(substr(end($words), 0, 1));
+    }
+} else {
+    $initials = "KP";
+}
+
 
 // --- 3. Data Fetching for Main Table (Rapat yang sudah lewat) ---
 $now_datetime = date('Y-m-d H:i:s'); 
@@ -169,8 +199,8 @@ while ($r_read = mysqli_fetch_assoc($q_read)) {
           >
         </li>
         <li>
-          <a href="ganti_password.php"
-            ><i class="fa-solid fa-gear icon"></i> Ganti Kata Sandi</a
+          <a href="pengaturan.php"
+            ><i class="fa-solid fa-gear icon"></i> Pengaturan</a
           >
         </li>
         <li>
@@ -181,9 +211,42 @@ while ($r_read = mysqli_fetch_assoc($q_read)) {
       </ul>
     </section>
     <section id="content">
-      <nav class="atas">
-        <i data-aos="fade-right" class="fa-solid fa-bars toggle-sidebar"></i>
-      </nav>
+      <!-- Navbar -->
+		<nav class="atas mb-4 shadow">
+            <i data-aos="fade-right" class='fa-solid fa-bars toggle-sidebar'></i>
+
+            <div class="d-flex align-items-center" data-aos="fade-left">
+                <div class="dropdown">
+                    <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle hide-arrow" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span class="me-2 d-none d-lg-inline text-gray-600 small fw-bold">
+                            <?php echo $nama_user; ?>
+                        </span>
+
+                        <div class="img-profile-initials">
+                            <?php echo $initials; ?>
+                        </div>
+                    </a>
+
+                    <ul class="dropdown-menu dropdown-menu-end shadow animated--grow-in" aria-labelledby="profileDropdown">
+                        <li>
+                            <a class="dropdown-item" href="pengaturan.php">
+                                <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400 me-2"></i>
+                                Pengaturan
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item" href="logout.php" data-bs-toggle="modal" data-bs-target="#logoutModal">
+                                <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400 me-2"></i>
+                                Keluar
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+		<!-- End Navbar -->
+         
       <main>
         <div data-aos="fade-down" class="rapat bg-light">
           

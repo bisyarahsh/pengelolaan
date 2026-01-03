@@ -26,6 +26,36 @@ function tgl_indo($tanggal){
     return $pecahkan[2] . ' ' . $bulan[ (int)$pecahkan[1] ] . ' ' . $pecahkan[0];
 }
 
+// --- 4. DATA USER, FOTO & INISIAL ---
+$id_user_login = $_SESSION['id_user'];
+
+// PERHATIAN: Pastikan 'foto' sesuai dengan nama kolom di database Anda
+$sql_user_info = "SELECT nama_lengkap, profile_pic FROM users WHERE id_user = '$id_user_login'"; 
+$q_user_info = mysqli_query($koneksi, $sql_user_info);
+$d_user_info = mysqli_fetch_assoc($q_user_info);
+
+$nama_user = $d_user_info['nama_lengkap'] ?? "Dosen/Labor";
+$foto_db   = $d_user_info['foto'] ?? null;
+
+$path_foto_target = "../assets/img/profile/" . $foto_db;
+$tampilkan_foto = false;
+
+if (!empty($foto_db) && file_exists($path_foto_target)) {
+    $tampilkan_foto = true;
+}
+
+// Logika Membuat Inisial (Tetap dibuat untuk jaga-jaga jika foto dihapus fisik)
+$words = explode(" ", $nama_user);
+$initials = "";
+if (count($words) >= 1) {
+    $initials .= strtoupper(substr($words[0], 0, 1));
+    if (count($words) > 1) {
+        $initials .= strtoupper(substr(end($words), 0, 1));
+    }
+} else {
+    $initials = "DL";
+}
+
 // --- 2. LOGIKA FILTER & QUERY ---
 $tgl_awal  = isset($_POST['tgl_awal']) ? $_POST['tgl_awal'] : null;
 $tgl_akhir = isset($_POST['tgl_akhir']) ? $_POST['tgl_akhir'] : null;
@@ -100,10 +130,9 @@ function get_status_display($db_status, $tanggal, $jam) {
     <link rel="shortcut icon" href="../assets/logo/logo.png">
     <style>
     .form-control.flatpickr-input[readonly] { background-color: #fff; }
-    /* Style khusus baris yang dibatalkan (opsional) */
     .row-cancelled { background-color: #ffecec !important; }
     .row-cancelled td { color: #888; text-decoration: line-through; }
-    .row-cancelled td.status-cell { text-decoration: none; } /* Badge jangan dicoret */
+    .row-cancelled td.status-cell { text-decoration: none; }
     </style>
   </head>
   <body>
@@ -114,14 +143,47 @@ function get_status_display($db_status, $tanggal, $jam) {
       <li><a href="dashboard.php"><i class="fa-solid fa-home icon"></i> Dasbor</a></li>
       <li><a href="agenda.php" class="active"><i class="fa-solid fa-calendar-days icon"></i> Agenda Rapat</a></li>
       <li><a href="history.php"><i class="fa-solid fa-clock-rotate-left icon"></i> Riwayat Rapat</a></li>
-      <li><a href="ganti_password.php"><i class="fa-solid fa-gear icon"></i> Ganti Kata Sandi</a></li>
+      <li><a href="pengaturan.php"><i class="fa-solid fa-gear icon"></i> Pengaturan</a></li>
       <li><a href="logout.php"><i class="fa-solid fa-right-from-bracket icon"></i> Keluar</a></li>
     </ul>
   </section>
   <section id="content">
-      <nav class="atas">
-        <i data-aos="fade-right" class='fa-solid fa-bars toggle-sidebar' ></i>
-      </nav>
+      <!-- Navbar -->
+		<nav class="atas mb-4 shadow">
+            <i data-aos="fade-right" class='fa-solid fa-bars toggle-sidebar'></i>
+
+            <div class="d-flex align-items-center" data-aos="fade-left">
+                <div class="dropdown">
+                    <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle hide-arrow" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span class="me-2 d-none d-lg-inline text-gray-600 small fw-bold">
+                            <?php echo $nama_user; ?>
+                        </span>
+
+                        <div class="img-profile-initials">
+                            <?php echo $initials; ?>
+                        </div>
+                    </a>
+
+                    <ul class="dropdown-menu dropdown-menu-end shadow animated--grow-in" aria-labelledby="profileDropdown">
+                        <li>
+                            <a class="dropdown-item" href="pengaturan.php">
+                                <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400 me-2"></i>
+                                Pengaturan
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item" href="logout.php" data-bs-toggle="modal" data-bs-target="#logoutModal">
+                                <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400 me-2"></i>
+                                Keluar
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+		<!-- End Navbar -->
+         
       <main>
         <div data-aos="fade-down" class="rapat bg-light">
           
