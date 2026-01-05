@@ -76,7 +76,7 @@ $q_user_info = mysqli_query($koneksi, $sql_user_info);
 $d_user_info = mysqli_fetch_assoc($q_user_info);
 
 $nama_user = $d_user_info['nama_lengkap'] ?? "Ketua Prodi";
-$foto_db   = $d_user_info['foto'] ?? null;
+$foto_db   = $d_user_info['profile_pic'] ?? null;
 
 $path_foto_target = "../assets/img/profile/" . $foto_db;
 $tampilkan_foto = false;
@@ -222,9 +222,16 @@ while ($r_read = mysqli_fetch_assoc($q_read)) {
                             <?php echo $nama_user; ?>
                         </span>
 
-                        <div class="img-profile-initials">
-                            <?php echo $initials; ?>
-                        </div>
+                        <?php if ($tampilkan_foto): ?>
+                            <img src="../assets/img/profile/<?= $foto_db; ?>" 
+                                 alt="Profile" 
+                                 class="rounded-circle object-fit-cover shadow-sm" 
+                                 style="width: 40px; height: 40px;">
+                        <?php else: ?>
+                            <div class="img-profile-initials">
+                                <?php echo $initials; ?>
+                            </div>
+                        <?php endif; ?>
                     </a>
 
                     <ul class="dropdown-menu dropdown-menu-end shadow animated--grow-in" aria-labelledby="profileDropdown">
