@@ -10,25 +10,6 @@ include("../php/koneksi.php");
 // --- Set Zona Waktu ke WIB ---
 date_default_timezone_set('Asia/Jakarta'); 
 // --- End Set Zona Waktu ---
-function tgl_indo($tanggal){
-	$bulan = array (
-		1 =>   'Januari',
-		'Februari',
-		'Maret',
-		'April',
-		'Mei',
-		'Juni',
-		'Juli',
-		'Agustus',
-		'September',
-		'Oktober',
-		'November',
-		'Desember'
-	);
-	$pecahkan = explode('-', $tanggal);
- 
-	return $pecahkan[2] . ' ' . $bulan[ (int)$pecahkan[1] ] . ' ' . $pecahkan[0];
-}
 
 // --- Cek Sesi dan Akses ---
 if ($_SESSION['status'] != "login" || !isset($_SESSION['id_user'])) {
@@ -44,35 +25,84 @@ if ($current_role != "admin") {
     exit;
 }
 
-// --- Tambahkan Fungsi Ambil Data Rapat berdasarkan ID (AJAX Helper) ---
+// --- Fungsi Ambil Data Rapat berdasarkan ID dan Bulan dalam Format Indo ---
 function get_rapat_detail($koneksi, $id_rapat) {
-    $id_rapat = mysqli_real_escape_string($koneksi, $id_rapat);
-    $sql = "SELECT 
-                r.*, 
-                o.nama_unit 
-            FROM agenda_rapat r
-            JOIN unit o ON r.id_unit = o.id_unit
-            WHERE r.id_rapat = '$id_rapat'";
-    $q = mysqli_query($koneksi, $sql);
-    $rapat_data = mysqli_fetch_assoc($q);
+    $rapat_data = null; 
 
-    if ($rapat_data) {
-        // Ambil Peserta
-        $peserta_arr = [];
-        $sql_peserta = "SELECT id_user FROM peserta_rapat WHERE id_rapat = '$id_rapat'";
-        $q_peserta = mysqli_query($koneksi, $sql_peserta);
-        while ($r_peserta = mysqli_fetch_assoc($q_peserta)) {
-            $peserta_arr[] = $r_peserta['id_user'];
+    try {
+        // Cek koneksi database dulu
+        if (!$koneksi) {
+            throw new Exception("Koneksi database terputus.");
         }
-        $rapat_data['peserta_id'] = $peserta_arr;
+
+        $id_rapat = mysqli_real_escape_string($koneksi, $id_rapat);
+        $sql = "SELECT r.*, o.nama_unit 
+                FROM agenda_rapat r
+                JOIN unit o ON r.id_unit = o.id_unit
+                WHERE r.id_rapat = '$id_rapat'";
+        
+        $q = mysqli_query($koneksi, $sql);
+
+        // Cek jika query gagal dieksekusi (Syntax error dll)
+        if (!$q) {
+            throw new Exception("Error Query Rapat: " . mysqli_error($koneksi));
+        }
+
+        $rapat_data = mysqli_fetch_assoc($q);
+
+        // Jika data rapat ditemukan, baru cari pesertanya
+        if ($rapat_data) {
+            $peserta_arr = [];
+            
+            $sql_peserta = "SELECT id_user FROM peserta_rapat WHERE id_rapat = '$id_rapat'";
+            $q_peserta = mysqli_query($koneksi, $sql_peserta);
+            if (!$q_peserta) {
+                throw new Exception("Error Query Peserta: " . mysqli_error($koneksi));
+            }
+
+            while ($r_peserta = mysqli_fetch_assoc($q_peserta)) {
+                $peserta_arr[] = $r_peserta['id_user'];
+            }
+            $rapat_data['peserta_id'] = $peserta_arr;
+        }
+
+    } catch (Exception $e) {
+        error_log($e->getMessage());
+        return null;
     }
+
     return $rapat_data;
 }
 
-// --- 4. DATA USER, FOTO & INISIAL ---
+function tgl_indo($tanggal){
+    try {
+        if (empty($tanggal) || $tanggal == '0000-00-00') {
+            return '-';
+        }
+        $bulan = array (
+            1 => 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+            'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+        );
+        $pecahkan = explode('-', $tanggal);
+        
+        if (count($pecahkan) < 3) {
+            return $tanggal; 
+        }
+        $bulan_num = (int)$pecahkan[1];
+        if ($bulan_num < 1 || $bulan_num > 12) {
+            return $pecahkan[2] . ' ' . $pecahkan[1] . ' ' . $pecahkan[0];
+        }
+        return $pecahkan[2] . ' ' . $bulan[$bulan_num] . ' ' . $pecahkan[0];
+
+    } catch (Exception $e) {
+        return $tanggal;
+    }
+}
+
+
+// --- DATA USER, FOTO & INISIAL ---
 $id_user_login = $_SESSION['id_user'];
 
-// PERHATIAN: Pastikan 'foto' sesuai dengan nama kolom di database Anda
 $sql_user_info = "SELECT nama_lengkap, profile_pic FROM users WHERE id_user = '$id_user_login'"; 
 $q_user_info = mysqli_query($koneksi, $sql_user_info);
 $d_user_info = mysqli_fetch_assoc($q_user_info);

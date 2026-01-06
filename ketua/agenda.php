@@ -5,11 +5,20 @@ session_start();
 $alert = $_SESSION['alert'] ?? null;
 unset($_SESSION['alert']); 
 
-include("php/koneksi.php");
+include("../php/koneksi.php");
 
 // --- Set Zona Waktu ke WIB ---
 date_default_timezone_set('Asia/Jakarta'); 
 // --- End Set Zona Waktu ---
+
+function tgl_indo($tanggal){
+    $bulan = array (
+        1 =>   'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+    );
+    $pecahkan = explode('-', $tanggal);
+    return $pecahkan[2] . ' ' . $bulan[ (int)$pecahkan[1] ] . ' ' . $pecahkan[0];
+}
 
 // --- Cek Sesi dan Akses ---
 if ($_SESSION['status'] != "login" || !isset($_SESSION['id_user'])) {
@@ -23,6 +32,66 @@ $current_role = isset($_SESSION['role']) ? strtolower($_SESSION['role']) : '';
 if ($current_role != "ketua") {
     header("location:../login/login.php?error=noaccess");
     exit;
+}
+
+// --- [PENTING] AMBIL UNIT ID KETUA TERLEBIH DAHULU ---
+// Kita pindahkan logika ini ke atas agar bisa dipakai untuk memfilter daftar rapat
+$id_unit_ketua = $_SESSION['unit_id'] ?? null; 
+
+// FALLBACK: Jika unit_id belum ada di sesi, ambil dari DB
+if (empty($id_unit_ketua)) {
+    $q_unit = mysqli_query($koneksi, "SELECT unit_id FROM users WHERE id_user = '{$_SESSION['id_user']}'");
+    $r_unit = mysqli_fetch_assoc($q_unit);
+    $id_unit_ketua = $r_unit['unit_id'] ?? null;
+    if ($id_unit_ketua) {
+        $_SESSION['unit_id'] = $id_unit_ketua; // Simpan ke sesi
+    }
+}
+
+// --- 4. DATA USER, FOTO & INISIAL ---
+$id_user_login = $_SESSION['id_user'];
+
+// PERHATIAN: Pastikan 'foto' sesuai dengan nama kolom di database Anda
+$sql_user_info = "SELECT nama_lengkap, profile_pic FROM users WHERE id_user = '$id_user_login'"; 
+$q_user_info = mysqli_query($koneksi, $sql_user_info);
+$d_user_info = mysqli_fetch_assoc($q_user_info);
+
+$nama_user = $d_user_info['nama_lengkap'] ?? "Ketua Prodi";
+$foto_db   = $d_user_info['profile_pic'] ?? null;
+
+$path_foto_target = "../assets/img/profile/" . $foto_db;
+$tampilkan_foto = false;
+
+if (!empty($foto_db) && file_exists($path_foto_target)) {
+    $tampilkan_foto = true;
+}
+
+// Logika Membuat Inisial (Tetap dibuat untuk jaga-jaga jika foto dihapus fisik)
+$words = explode(" ", $nama_user);
+$initials = "";
+if (count($words) >= 1) {
+    $initials .= strtoupper(substr($words[0], 0, 1));
+    if (count($words) > 1) {
+        $initials .= strtoupper(substr(end($words), 0, 1));
+    }
+} else {
+    $initials = "KP";
+}
+
+function get_status_display($db_status, $tanggal, $jam) {
+    // 1. Cek Status Database Dulu (Prioritas Utama)
+    if ($db_status == 'dibatalkan') {
+        return ['text' => 'Dibatalkan', 'class' => 'bg-danger'];
+    }
+
+    // 2. Jika status aktif, cek waktu
+    $datetime_rapat = date('Y-m-d H:i:s', strtotime("$tanggal $jam"));
+    $now = date('Y-m-d H:i:s');
+    
+    if ($datetime_rapat >= $now) {
+        return ['text' => 'Menunggu', 'class' => 'bg-warning text-dark'];
+    } 
+    return ['text' => 'Selesai', 'class' => 'bg-success']; 
 }
 
 // --- Tambahkan Fungsi Ambil Data Rapat berdasarkan ID (AJAX Helper) ---
@@ -56,7 +125,6 @@ if (isset($_GET['action']) && $_GET['action'] == 'get_rapat_detail' && isset($_G
     $id_rapat = $_GET['id'];
     $data = get_rapat_detail($koneksi, $id_rapat);
     
-    // Tambahkan data peserta lengkap (nama, nim) untuk ditampilkan di modal View
     if($data && !empty($data['peserta_id'])) {
         $peserta_details = [];
         $ids = implode("','", $data['peserta_id']);
@@ -71,56 +139,85 @@ if (isset($_GET['action']) && $_GET['action'] == 'get_rapat_detail' && isset($_G
     exit;
 }
 
-$id_pembuat_rapat = $_SESSION['id_user'];
-$list_rapat = [];
-$sql_read = "SELECT 
+// --- MENAMPILKAN DAFTAR RAPAT (LOGIKA BARU) ---
+
+$list_agenda_unit = [];
+$list_undangan_masuk = [];
+$current_user_id = $_SESSION['id_user'];
+
+$tgl_awal  = isset($_POST['tgl_awal']) ? $_POST['tgl_awal'] : null;
+$tgl_akhir = isset($_POST['tgl_akhir']) ? $_POST['tgl_akhir'] : null;
+
+// Base Query (Ambil data dasar)
+$base_sql = "SELECT DISTINCT
                 r.*, 
-                o.nama_unit 
+                o.nama_unit,
+                u.nama_lengkap as nama_pembuat
              FROM agenda_rapat r
              JOIN unit o ON r.id_unit = o.id_unit
-             WHERE r.id_pembuat = '$id_pembuat_rapat' 
-             -- MODIFIKASI: Hanya ambil rapat yang belum berlangsung
-             AND CONCAT(r.tanggal_rapat, ' ', r.jam_rapat) > NOW() 
-             ORDER BY r.tanggal_rapat ASC, r.jam_rapat ASC"; // Diurutkan dari yang paling dekat
-$q_read = mysqli_query($koneksi, $sql_read);
-while ($r_read = mysqli_fetch_assoc($q_read)) {
-    $list_rapat[] = $r_read;
+             LEFT JOIN users u ON r.id_pembuat = u.id_user 
+			 WHERE 1=1 ";
+
+// Filter Tanggal (Jika ada)
+if (!empty($tgl_awal) && !empty($tgl_akhir)) {
+    $base_sql .= " AND r.tanggal_rapat BETWEEN '$tgl_awal' AND '$tgl_akhir'";
 }
 
-// Ambil list unit dan Peserta untuk dropdown modal
-$list_unit = [];
-$q_unit = mysqli_query($koneksi, "SELECT * FROM unit ORDER BY nama_unit");
-while ($r_org = mysqli_fetch_assoc($q_unit)) {
-    $list_unit[] = $r_org;
+// 1. QUERY UNDANGAN MASUK
+$sql_invite = $base_sql . " AND (r.status = 'aktif' OR r.status = 'dibatalkan') 
+                            AND CONCAT(r.tanggal_rapat, ' ', r.jam_rapat) > NOW()
+                            AND r.id_rapat IN (SELECT id_rapat FROM peserta_rapat WHERE id_user = '$current_user_id') 
+                            AND r.id_pembuat != '$current_user_id' 
+                            ORDER BY r.tanggal_rapat ASC, r.jam_rapat ASC";
+
+$q_invite = mysqli_query($koneksi, $sql_invite);
+while ($row = mysqli_fetch_assoc($q_invite)) {
+    $list_undangan_masuk[] = $row;
 }
 
-// Ambil Unit ID Ketua yang sedang login
-$id_unit_ketua = $_SESSION['unit_id'] ?? null; 
+$sql_unit = $base_sql . " AND r.status = 'aktif' 
+                          AND CONCAT(r.tanggal_rapat, ' ', r.jam_rapat) > NOW()
+                          AND r.id_unit = '$id_unit_ketua' 
+                          AND (
+                              r.id_pembuat = '$current_user_id' 
+                              OR 
+                              r.id_rapat NOT IN (SELECT id_rapat FROM peserta_rapat WHERE id_user = '$current_user_id')
+                          )
+                          ORDER BY r.tanggal_rapat ASC, r.jam_rapat ASC";
 
-// FALLBACK: Jika unit_id belum ada di sesi, ambil dari DB
-if (empty($id_unit_ketua)) {
-    $q_unit = mysqli_query($koneksi, "SELECT unit_id FROM users WHERE id_user = '{$_SESSION['id_user']}'");
-    $r_unit = mysqli_fetch_assoc($q_unit);
-    $id_unit_ketua = $r_unit['unit_id'] ?? null;
-    if ($id_unit_ketua) {
-        $_SESSION['unit_id'] = $id_unit_ketua; // Simpan ke sesi
+$q_unit = mysqli_query($koneksi, $sql_unit);
+while ($row = mysqli_fetch_assoc($q_unit)) {
+    $list_agenda_unit[] = $row;
+}
+
+// Hitung jumlah undangan untuk Badge
+$jumlah_undangan = 0;
+foreach ($list_undangan_masuk as $item_undangan) {
+    $status_cek = isset($item_undangan['status']) ? $item_undangan['status'] : 'aktif';
+    if ($status_cek == 'aktif') {
+        $jumlah_undangan++;
     }
 }
 
-// Ambil list Unit untuk dropdown modal Edit (tetap tidak difilter)
+
+// MENAMPILKAN LIST UNIT
 $list_unit = [];
-$q_unit = mysqli_query($koneksi, "SELECT * FROM unit ORDER BY nama_unit");
+$q_unit = mysqli_query($koneksi, "SELECT * FROM unit WHERE id_unit = '$id_unit_ketua' ORDER BY nama_unit");
+
 while ($r_org = mysqli_fetch_assoc($q_unit)) {
     $list_unit[] = $r_org;
 }
 
-// Ambil list Peserta (Difilter berdasarkan Unit Ketua)
+// MENAMPILKAN LIST PESERTA
 $list_peserta = [];
 if (!empty($id_unit_ketua)) {
-    // Query: Ambil semua user di unit yang sama KECUALI Admin.
+    $current_user_id = $_SESSION['id_user'];
+
     $peserta_query = "SELECT id_user, nim, nama_lengkap, role FROM users 
-                      WHERE unit_id = '$id_unit_ketua' AND role != 'Ketua' 
+                      WHERE unit_id = '$id_unit_ketua' 
+                      AND id_user != '$current_user_id'
                       ORDER BY nama_lengkap ASC";
+                      
     $q_peserta = mysqli_query($koneksi, $peserta_query);
     
     if ($q_peserta) {
@@ -136,6 +233,7 @@ if (!empty($id_unit_ketua)) {
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
 	<link rel="stylesheet" href="https://cdn.datatables.net/2.3.4/css/dataTables.bootstrap5.css">
@@ -148,342 +246,523 @@ if (!empty($id_unit_ketua)) {
 	<link rel="stylesheet" href="../assets/admin.css">
 	<title>Agenda | Ketua - Rapatin</title>
 	<link rel="shortcut icon" href="../assets/logo/logo.png">
+	<style>
+    .form-control.flatpickr-input[readonly] {
+        background-color: #fff; 
+    }
+	</style>
 </head>
 <body>
 	
 	<!-- SIDEBAR -->
 	<section id="sidebar">
-		<a href="../landing/index.html" data-aos="fade-down" class="logo ps-3"><i class='ps-5'></i> Rapatin</a>
-		<a href="../landing/index.html" data-aos="fade-down" class="logo-mini fw-bold"> R</a>
+		<a href="../index.html" data-aos="fade-down" class="logo ps-3"><i class='ps-5'></i> Rapatin</a>
+		<a href="../index.html" data-aos="fade-down" class="logo-mini fw-bold"> R</a>
 		<ul class="side-menu" data-aos="fade-right">
+			<li><a href="dashboard.php"><i class="fa-solid fa-home icon"></i> Dasbor</a></li>
 			<li><a href="agenda.php" class="active"><i class="fa-solid fa-calendar-days icon"></i> Agenda Rapat</a></li>
 			<li><a href="riwayat.php"><i class="fa-solid fa-clock-rotate-left icon"></i> Riwayat Rapat</a></li>
-			<li><a href="manage_user.php"><i class="fa-solid fa-user icon"></i> Pengguna</a></li>
-			<li><a href="pengaturan.php"><i class="fa-solid fa-gear icon"></i> Ganti Kata Sandi</a></li>
-			<li><a href="logout.php"><i class="fa-solid fa-right-from-bracket icon"></i> Logout</a></li>
+			<li><a href="manage_user.php"><i class="fa-solid fa-user icon"></i> Anggota</a></li>
+			<li><a href="pengaturan.php"><i class="fa-solid fa-gear icon"></i> Pengaturan</a></li>
+			<li><a href="logout.php"><i class="fa-solid fa-right-from-bracket icon"></i> Keluar</a></li>
 		</ul>
 	</section>
 	<!-- SIDEBAR -->
 
 	<!-- Content -->
 	<section id="content">
-		<!-- Toggle Sidebar -->
-		<nav class="atas">
-			<i data-aos="fade-right" class='fa-solid fa-bars toggle-sidebar' ></i>
-		</nav>
-		<!-- End Toggle Sidebar -->
+		<!-- Navbar -->
+		<nav class="atas mb-4 shadow">
+            <i data-aos="fade-right" class='fa-solid fa-bars toggle-sidebar'></i>
+
+            <div class="d-flex align-items-center" data-aos="fade-left">
+                <div class="dropdown">
+                    <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle hide-arrow" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span class="me-2 d-none d-lg-inline text-gray-600 small fw-bold">
+                            <?php echo $nama_user; ?>
+                        </span>
+
+                        <?php if ($tampilkan_foto): ?>
+                            <img src="../assets/img/profile/<?= $foto_db; ?>" 
+                                 alt="Profile" 
+                                 class="rounded-circle object-fit-cover shadow-sm" 
+                                 style="width: 40px; height: 40px;">
+                        <?php else: ?>
+                            <div class="img-profile-initials">
+                                <?php echo $initials; ?>
+                            </div>
+                        <?php endif; ?>
+                    </a>
+
+                    <ul class="dropdown-menu dropdown-menu-end shadow animated--grow-in" aria-labelledby="profileDropdown">
+                        <li>
+                            <a class="dropdown-item" href="pengaturan.php">
+                                <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400 me-2"></i>
+                                Pengaturan
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item" href="logout.php" data-bs-toggle="modal" data-bs-target="#logoutModal">
+                                <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400 me-2"></i>
+                                Keluar
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+		<!-- End Navbar -->
 
 		<!-- Main -->
 		<main>
 			<div data-aos="fade-down" class="rapat bg-light">
-				<div class="tableheader">
-					<h2>Agenda Rapat</h2>
-					<button type="button" class="btn btn-primary tambah" data-bs-toggle="modal" data-bs-target="#exampleModal">Tambah</button>
-				</div>
-				<table id="tabel-rapat" class="table table-striped">
-        			<thead>
-        			    <tr>
-        			        <th class="text-center">No</th>
-        			        <th>Tanggal Rapat</th>
-        			        <th>Jam Rapat</th>
-        			        <th>Unit</th>
-        			        <th>Judul Rapat</th>
-        			        <th class="text-center">Aksi</th>
-        			    </tr>
-        			</thead>
-        			<tbody>
-    				    <?php $no = 1; foreach ($list_rapat as $rapat) : ?>
-    				    <tr>
-    				        <td class="text-center"><?php echo $no++; ?></td>
-    				        <td><?php echo htmlspecialchars(date('d-m-Y', strtotime($rapat['tanggal_rapat']))); ?></td>
-    				        <td><?php echo htmlspecialchars(date('H:i', strtotime($rapat['jam_rapat'])) . ' WIB'); ?></td>
-    				        <td><?php echo htmlspecialchars($rapat['nama_unit']); ?></td>
-    				        <td><?php echo htmlspecialchars($rapat['judul_rapat']); ?></td>
-    				        <td class="text-center">
-    				            <button type="button" class="btn btn-warning aksi view-rapat-btn" data-bs-toggle="modal" data-bs-target="#viewModal" data-id="<?php echo $rapat['id_rapat']; ?>"><i class="fa-solid fa-eye"></i></button>
-    				            <button type="button" class="btn btn-primary aksi" 
-								data-bs-toggle="modal" 
-								data-bs-target="#editModal" 
-								data-id="<?php echo $rapat['id_rapat']; ?>"
-								data-tanggal="<?php echo $rapat['tanggal_rapat']; ?>"
-    							data-jam="<?php echo $rapat['jam_rapat']; ?>"
-								data-judul="<?php echo htmlspecialchars($rapat['judul_rapat']); ?>"
-								data-ruangan="<?php echo htmlspecialchars($rapat['ruang_rapat']); ?>"
-								data-keterangan="<?php echo htmlspecialchars($rapat['keterangan']); ?>"
-								data-unitid="<?php echo $rapat['id_unit']; ?>"
-								data-notulen="<?php echo htmlspecialchars($rapat['notulen_file']); ?>"
-								<?php
-    							    $peserta_arr_ids = [];
-    							    $q_p = mysqli_query($koneksi, "SELECT id_user FROM peserta_rapat WHERE id_rapat = '{$rapat['id_rapat']}'");
-    							    while ($r_p = mysqli_fetch_assoc($q_p)) {
-    							        $peserta_arr_ids[] = $r_p['id_user'];
-    							    }
-    							    $peserta_json = json_encode($peserta_arr_ids); 
-    							?>
-    							data-peserta='<?php echo htmlspecialchars($peserta_json, ENT_QUOTES, 'UTF-8'); ?>'
-								>
-								<i class="fa-solid fa-pen-to-square"></i></button>
-    				            <button type="button" class="btn btn-danger aksi" data-bs-toggle="modal" data-bs-target="#deletemodal" data-id="<?php echo $rapat['id_rapat']; ?>"><i class="fa-solid fa-trash"></i></i></button>
-    				            <button type="button" class="btn btn-success aksi" data-bs-toggle="modal" data-bs-target="#notifmodal" data-id="<?php echo $rapat['id_rapat']; ?>"><i class="fa-solid fa-bell"></i></i></button>
-    				        </td>
-    				    </tr>
-    				    <?php endforeach; ?>
-    				</tbody>
-    			</table>
+				<div class="card border-0 shadow-sm mb-4">
+    			    <div class="card-body p-3">
+						<h5 class="text-primary">Saring berdasarkan tanggal</h5>
+    			        <form action="" method="POST">
+    			            <div class="row align-items-end g-2">
+    			                <div class="col-md-4">
+								    <label class="form-label small fw-bold text-muted mb-1"><i class="fa-solid fa-calendar-days me-1"></i> Dari Tanggal</label>
+								    <input type="text" name="tgl_awal" class="form-control form-control-sm input-tanggal" value="<?php echo $tgl_awal; ?>" placeholder="Pilih Tanggal..." autocomplete="off">
+								</div>
+								<div class="col-md-4">
+								    <label class="form-label small fw-bold text-muted mb-1"><i class="fa-solid fa-calendar-check me-1"></i> Sampai Tanggal</label>
+								    <input type="text" name="tgl_akhir" class="form-control form-control-sm input-tanggal" value="<?php echo $tgl_akhir; ?>" placeholder="Pilih Tanggal..." autocomplete="off">
+								</div>
+    			                <div class="col-md-4 d-flex gap-2">
+    			                    <button type="submit" class="btn btn-primary btn-sm flex-grow-1">
+    			                        <i class="fa-solid fa-filter me-1"></i> Terapkan
+    			                    </button>
+    			                    <?php if(!empty($tgl_awal)): ?>
+    			                        <a href="agenda.php" class="btn btn-outline-secondary btn-sm" title="Reset Filter">
+    			                            <i class="fa-solid fa-arrows-rotate"></i> Reset
+    			                        </a>
+    			                    <?php endif; ?>
+    			                </div>
+    			            </div>
+    			        </form>
+    			    </div>
+    			</div>
+				
+				<div class="d-flex justify-content-center justify-content-lg-start mb-4">
+                    <ul class="nav nav-pills nav-pills-custom" id="pills-tab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="pills-unit-tab" data-bs-toggle="pill" data-bs-target="#pills-unit" type="button" role="tab" aria-controls="pills-unit" aria-selected="true">
+                                <i class="fa-solid fa-calendar-days me-2"></i>Agenda Unit
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="pills-invite-tab" data-bs-toggle="pill" data-bs-target="#pills-invite" type="button" role="tab" aria-controls="pills-invite" aria-selected="false">
+                                <i class="fa-solid fa-envelope-open-text me-2"></i>Undangan Masuk
+                                <?php if($jumlah_undangan > 0): ?>
+                                    <span class="badge-counter"><?php echo $jumlah_undangan; ?></span>
+                                <?php endif; ?>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="tab-content" id="pills-tabContent">
+                    <div class="tab-pane fade show active" id="pills-unit" role="tabpanel" aria-labelledby="pills-unit-tab">
+						<div class="d-flex justify-content-between align-items-center mb-3 page-header-mobile">
+						    <h2 class="text-primary fw-bold m-0 fs-3">Agenda Unit</h2>
+						    <button type="button" class="btn btn-primary shadow-sm rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#exampleModal">
+						        <i class="fa-solid fa-plus me-2"></i>Tambah Agenda
+						    </button>
+						</div>
+                        <table id="tabel-rapat" class="table table-striped table-hover nowrap" style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">No</th>
+                                    <th>Tanggal Rapat</th>
+                                    <th>Jam Rapat</th>
+                                    <th>Unit</th>
+                                    <th>Judul Rapat</th>
+                                    <th class="text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php $no = 1; foreach ($list_agenda_unit as $rapat) : ?>
+                                <tr>
+                                    <td class="text-center"><?php echo $no++; ?></td>
+                                    <td><?php echo htmlspecialchars(tgl_indo($rapat['tanggal_rapat'])); ?></td>
+                                    <td><?php echo htmlspecialchars(date('H:i', strtotime($rapat['jam_rapat'])) . ' WIB'); ?></td>
+                                    <td><?php echo htmlspecialchars($rapat['nama_unit']); ?></td>
+                                    <td><?php echo htmlspecialchars($rapat['judul_rapat']); ?></td>
+                                    <td class="text-center">
+                                        <button type="button" class="btn btn-warning aksi view-rapat-btn" data-bs-toggle="modal" data-bs-target="#viewModal" data-id="<?php echo $rapat['id_rapat']; ?>" title="Lihat Detail"><i class="fa-solid fa-eye"></i></button>
+                                            <button type="button" class="btn btn-primary aksi" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#editModal" 
+                                            data-id="<?php echo $rapat['id_rapat']; ?>"
+                                            data-tanggal="<?php echo $rapat['tanggal_rapat']; ?>"
+                                            data-jam="<?php echo $rapat['jam_rapat']; ?>"
+                                            data-judul="<?php echo htmlspecialchars($rapat['judul_rapat']); ?>"
+                                            data-ruangan="<?php echo htmlspecialchars($rapat['ruang_rapat']); ?>"
+                                            data-keterangan="<?php echo htmlspecialchars($rapat['keterangan']); ?>"
+                                            data-unitid="<?php echo $rapat['id_unit']; ?>"
+                                            data-notulen="<?php echo htmlspecialchars($rapat['notulen_file']); ?>"
+                                            <?php
+                                                $peserta_arr_ids = [];
+                                                $q_p = mysqli_query($koneksi, "SELECT id_user FROM peserta_rapat WHERE id_rapat = '{$rapat['id_rapat']}'");
+                                                while ($r_p = mysqli_fetch_assoc($q_p)) { $peserta_arr_ids[] = $r_p['id_user']; }
+                                                $peserta_json = json_encode($peserta_arr_ids); 
+                                            ?>
+                                            data-peserta='<?php echo htmlspecialchars($peserta_json, ENT_QUOTES, 'UTF-8'); ?>'
+                                            title="Edit Rapat">
+                                            <i class="fa-solid fa-pen-to-square"></i></button>
+                                            
+                                            <button type="button" class="btn btn-danger aksi" data-bs-toggle="modal" data-bs-target="#deletemodal" data-id="<?php echo $rapat['id_rapat']; ?>" title="Hapus Rapat"><i class="fa-solid fa-trash"></i></button>
+                                            <button type="button" class="btn btn-success aksi" data-bs-toggle="modal" data-bs-target="#notifmodal" data-id="<?php echo $rapat['id_rapat']; ?>" title="Kirim Notifikasi"><i class="fa-solid fa-bell"></i></button>
+                                    </td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="tab-pane fade" id="pills-invite" role="tabpanel" aria-labelledby="pills-invite-tab">
+						<div class="d-flex justify-content-between align-items-center mb-3 page-header-mobile">
+						    <h2 class="text-primary fw-bold m-0 fs-3">Rapat Undangan</h2>
+						</div>
+                        <table id="tabel-undangan" class="table table-striped table-hover nowrap" style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">No</th>
+                                    <th>Tanggal Rapat</th>
+                                    <th>Jam Rapat</th>
+                                    <th>Unit</th>
+                                    <th>Judul Rapat</th>
+                                    <th class="text-center">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php $no = 1; foreach ($list_undangan_masuk as $rapat) : 
+								$db_status = isset($rapat['status']) ? $rapat['status'] : 'aktif';
+
+								$row_class = ($db_status == 'dibatalkan') ? 'row-cancelled' : '';
+                    
+                    			// Panggil fungsi status display baru
+                    			$status_display = get_status_display($db_status, $rapat['tanggal_rapat'], $rapat['jam_rapat']);?>
+                                <tr class="<?php echo $row_class; ?>">
+                                    <td class="text-center"><?php echo $no++; ?></td>
+                                    <td><?php echo htmlspecialchars(tgl_indo($rapat['tanggal_rapat'])); ?></td>
+                                    <td><?php echo htmlspecialchars(date('H:i', strtotime($rapat['jam_rapat'])) . ' WIB'); ?></td>
+                                    <td><?php echo htmlspecialchars($rapat['nama_unit']); ?></span></td>
+                                    <td><?php echo htmlspecialchars($rapat['judul_rapat']); ?></td>
+                                     <td class="text-center status-cell">
+                    				    <span class="badge <?php echo $status_display['class']; ?> rounded-pill px-3 shadow-sm">
+                    				        <?php echo $status_display['text']; ?>
+                    				    </span>
+                    				</td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
 			
-			<!-- Modal Tambah Rapat -->
-			<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="viewModalLabel" aria-hidden="true">
-				<div class="modal-dialog modal-lg">
-					<div class="modal-content">
-						<div class="modal-header">
-							<h5 class="modal-title" id="exampleModalLabel">Tambah Agenda Rapat</h5>
-							<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-						</div>
-						<div class="modal-body">
-							<form action="php/ketua_add_rapat.php" method="POST" enctype="multipart/form-data">
-								<div class="mb-3">
-                                    <div class="row">
-                                    	<div class="col-md-6">
-                                    		<label class="mb-2">Tanggal Rapat</label>
-                                    	    <input class="form-control" type="date" name="date" id="date" required>
-                                    	</div>
-                                    	<div class="col-md-6">
-                                    		<label class="mb-2">Jam Rapat</label>
-                                    	    <input class="form-control" type="time" name="time" id="time" required>
-                                        </div>
-                                    </div>
-                                </div>
-        					    <div class="mb-3">
-        					        <label class="mb-2" for="judul">Judul Rapat</label>
-        					        <input class="form-control" type="text" name="judul" id="judul" placeholder="Masukkan Judul Rapat..." required>
-        					    </div>
-        					    <div class="mb-3">
-        					        <label class="mb-2" for="ruangan">Ruang Rapat</label>
-        					        <input class="form-control" type="text" name="ruangan" id="ruangan" placeholder="Masukkan Ruang Rapat...">
-        					    </div>
-        					    <div class="mb-3">
-								    <label class="mb-2" for="multiple-select-field">Peserta Rapat (Unit Anda)</label>
+				<!-- Modal Tambah Rapat -->
+				<div class="modal fade modal-compact" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+				    <div class="modal-dialog modal-xl modal-dialog-centered"> <div class="modal-content">
+				            <div class="modal-header">
+				                <h5 class="modal-title" id="exampleModalLabel"><i class="fa-solid fa-calendar-plus me-2"></i>Tambah Agenda Baru</h5>
+				                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				            </div>
+				            <form class="needs-validation" novalidate action="php/ketua_add_rapat.php" method="POST" enctype="multipart/form-data">
+				                <div class="modal-body">
+				                    <div class="row g-3"> <div class="col-lg-5 border-end">
+				                            <h6 class="text-primary fw-bold mb-3 small text-uppercase">Informasi Dasar</h6>
 
-								    <div class="d-flex mb-2">
-								        <button type="button" class="btn btn-sm btn-outline-primary me-2" id="select_all_peserta">
-								            <i class="fa-solid fa-check-double"></i> Pilih Semua
-								        </button>
-								        <a href="manage_user.php" target="_blank" class="btn btn-sm btn-outline-success" title="Buka di tab baru untuk menambah pengguna baru">
-								            <i class="fa-solid fa-user-plus"></i> Tambah Peserta Baru
-								        </a>
-								    </div>
+				                            <div class="row g-2 mb-2">
+				                                <div class="col-6">
+												    <label>Tanggal</label>
+												    <input class="form-control form-control-sm input-tanggal" type="text" name="date" id="date" placeholder="Pilih Tanggal..." required>
+													<div class="invalid-feedback">Tanggal wajib diisi.</div>
+												</div>
+												<div class="col-6">
+												    <label>Jam</label>
+												    <input class="form-control form-control-sm input-jam" type="text" name="time" id="time" placeholder="Pilih Jam..." required>
+													<div class="invalid-feedback">Jam wajib diisi.</div>
+												</div>
+				                            </div>
 
-								    <select class="form-select" id="multiple-select-field" name="peserta_rapat[]" data-placeholder="Pilih Peserta" multiple required>
-								        <?php if (empty($list_peserta)): ?>
-								            <option disabled>Tidak ada anggota di unit Anda.</option>
-								        <?php else: ?>
-								            <?php foreach ($list_peserta as $peserta) : 
-								                // Tampilkan NIM - Nama (Role)
-								                $label = $peserta['nim'] . ' - ' . $peserta['nama_lengkap'] . ' (' . $peserta['role'] . ')';
-								            ?>
-								                <option value="<?php echo $peserta['id_user']; ?>"><?php echo htmlspecialchars($label); ?></option>
-								            <?php endforeach; ?>
-								        <?php endif; ?>
-								    </select>
-								    <small class="form-text text-muted">Hanya menampilkan anggota dari unit yang sama dengan Anda.</small>
-								</div>
-        					    <div class="mb-3">
-        					        <label class="mb-2" for="keterangan">Keterangan</label>
-        					        <textarea class="form-control" name="keterangan" id="keterangan" placeholder="Masukkan Keterangan..."></textarea>
-        					    </div>
-        					    <div class="mb-3">
-        					        <label class="mb-2" for="file">Upload Notulen</label>
-        					        <input class="form-control" type="file" id="myFile" name="filename" accept=".pdf,.doc,.docx,.jpg">
-        					    </div>
-        					    <div class="modal-footer">
-        					        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-        					        <button type="submit" name="tambah_rapat" class="btn btn-primary">Tambah Rapat</button> 
-								</div>
-        					</form>
-						</div>
+				                            <div class="mb-2">
+				                                <label>Judul Rapat</label>
+				                                <input class="form-control form-control-sm" type="text" name="judul" id="judul" placeholder="Contoh: Rapat Evaluasi Bulanan" required>
+												<div class="invalid-feedback">Judul rapat tidak boleh kosong.</div>
+				                            </div>
+
+				                            <div class="mb-2">
+				                                <label>Ruangan</label>
+				                                <div class="input-group input-group-sm">
+				                                    <span class="input-group-text"><i class="fa-solid fa-door-open"></i></span>
+				                                    <input class="form-control form-control-sm" type="text" name="ruangan" id="ruangan" placeholder="Nama Ruang" required>
+													<div class="invalid-feedback">Ruangan wajib diisi.</div>
+				                                </div>
+				                            </div>
+														
+				                            <div class="mb-2">
+				                                <label>Upload Notulen (Opsional)</label>
+				                                <input class="form-control form-control-sm" type="file" id="myFile" name="filename" accept=".pdf,.doc,.docx">
+				                            </div>
+				                        </div>
+														
+				                        <div class="col-lg-7">
+				                            <div class="participant-area">
+				                                <h6 class="text-primary fw-bold mb-2 small text-uppercase">Peserta & Detail</h6>
+														
+				                                <div class="d-flex justify-content-between align-items-center mb-2">
+				                                    <label class="mb-0">Pilih Peserta</label>
+				                                    <div class="btn-group btn-group-sm">
+				                                        <button type="button" class="btn btn-secondary" id="select_all_peserta" title="Pilih Semua">Pilih Semua Peserta</button>
+				                                    </div>
+				                                </div>
+														
+				                                <div class="mb-3">
+				                                    <select class="form-select" id="multiple-select-field" name="peserta_rapat[]" multiple required style="width: 100%;">
+				                                        <?php foreach ($list_peserta as $peserta) : ?>
+				                                            <option value="<?php echo $peserta['id_user']; ?>"><?php echo htmlspecialchars($peserta['nim'] . ' - ' . $peserta['nama_lengkap']); ?></option>
+				                                        <?php endforeach; ?>
+				                                    </select> 
+													<div class="invalid-feedback">Pilih minimal satu peserta rapat.</div>
+				                                </div>
+														
+				                                <div class="mb-0">
+				                                    <label>Keterangan / Catatan</label>
+				                                    <textarea class="form-control form-control-sm" name="keterangan" id="keterangan" rows="3" placeholder="Tambahkan catatan singkat agenda rapat..." required></textarea>
+													<div class="invalid-feedback">Keterangan / Catatan Wajib diisi.</div>
+				                                </div>
+				                            </div>
+				                        </div>
+														
+				                    </div> </div>
+				                <div class="modal-footer py-1 bg-light">
+				                    <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Batal</button>
+				                    <button type="submit" name="tambah_rapat" class="btn btn-sm btn-primary px-4"><i class="fa-solid fa-save me-1"></i> Simpan Agenda</button> 
+				                </div>
+				            </form>
+				        </div>
 				    </div>
 				</div>
-			</div>
+				<!-- End Modal Tambah Rapat -->
+												
+				<!-- Modal View Detail Agenda Rapat -->
+				<div class="modal fade modal-compact" id="viewModal" tabindex="-1" aria-labelledby="viewModalLabel" aria-hidden="true">
+				    <div class="modal-dialog modal-lg modal-dialog-centered"> <div class="modal-content">
+				            <div class="modal-header header-primary text-white" style="background: linear-gradient(135deg, #1cc88a 0%, #13855c 100%);">
+				                <h5 class="modal-title" id="viewModalLabel"><i class="fa-solid fa-circle-info me-2"></i>Detail Agenda</h5>
+				                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				            </div>
 
-			<!-- Modal View Detail Agenda Rapat -->
-			<div class="modal fade" id="viewModal" tabindex="-1" aria-labelledby="viewModalLabel" aria-hidden="true">
-			    <div class="modal-dialog">
-			        <div class="modal-content">
-			            <div class="modal-header">
-			                <h5 class="modal-title" id="viewModalLabel">Detail Agenda Rapat</h5>
-			                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-			            </div>
-			            <div class="modal-body">
-			                <table class="table table-bordered table-striped" id="view_rapat_modal">
-			                    <tbody>
-			                        <tr>
-			                            <th style="width: 30%;">Tanggal Rapat</th>
-			                            <td id="view_tanggal"></td>
-			                        </tr>
-			                        <tr>
-			                            <th>Jam Rapat</th>
-			                            <td id="view_jam"></td>
-			                        </tr>
-			                        <tr>
-			                            <th>Judul Rapat</th>
-			                            <td id="view_judul"></td>
-			                        </tr>
-			                        <tr>
-			                            <th>Ruang Rapat</th>
-			                            <td id="view_ruangan"></td>
-			                        </tr>
-			                        <tr>
-			                            <th>Unit</th>
-			                            <td id="view_unit"></td>
-			                        </tr>
-			                        <tr>
-			                            <th>Keterangan</th>
-			                            <td id="view_keterangan"></td>
-			                        </tr>
-			                        <tr>
-			                            <th>File Notulen</th>
-			                            <td id="view_notulen_file"></td>
-			                        </tr>
-			                        <tr>
-			                            <th>Peserta Rapat</th>
-			                            <td id="view_peserta"></td>
-			                        </tr>
-			                    </tbody>
-			                </table>
-			            </div>
-			        </div>
-			    </div>
-			</div>
-			<!-- End Modal View Detail Agenda Rapat -->
+				            <div class="modal-body p-4">
+				                <div class="row g-4">
 
-			<!-- Modal Edit Agenda Rapat -->
-			<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
-			    <div class="modal-dialog modal-lg">
-			        <div class="modal-content">
-			            <div class="modal-header">
-			                <h5 class="modal-title" id="editModalLabel">Edit Agenda Rapat</h5>
-			                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-			            </div>
-			            <div class="modal-body">
-			                <form action="php/ketua_edit_rapat.php" method="POST" enctype="multipart/form-data" id="form-edit-rapat">
-			                    <input type="hidden" name="edit_id_rapat" id="edit_rapat_id_unik">
-			                    <input type="hidden" name="notulen_file_lama" id="notulen_file_lama">
-			                    <div class="mb-3">
-                                    <div class="row">
-                                    	<div class="col-md-6">
-                                    		<label class="mb-2">Tanggal Rapat</label>
-                                    	    <input class="form-control" type="date" name="edit_date" id="edit_date" required>
-                                    	</div>
-                                    	<div class="col-md-6">
-                                    		<label class="mb-2">Jam Rapat</label>
-                                    	    <input class="form-control" type="time" name="edit_time" id="edit_time" required>
-                                        </div>
-                                    </div>
-                                </div>
-			                    <div class="mb-3">
-			                        <label class="mb-2" for="edit_judul">Judul Rapat</label>
-			                        <input class="form-control" type="text" name="edit_judul" id="edit_judul" placeholder="Masukkan Judul Rapat..." required>
-			                    </div>
-			                    <div class="mb-3">
-			                        <label class="mb-2" for="edit_ruangan">Ruang Rapat</label>
-			                        <input class="form-control" type="text" name="edit_ruangan" id="edit_ruangan" placeholder="Masukkan Ruang Rapat...">
-			                    </div>
-			                    <div class="mb-3">
-								    <label class="mb-2" for="multiple-select-field">Peserta Rapat (Unit Anda)</label>
+				                    <div class="col-md-7 border-end">
 
-								    <div class="d-flex mb-2">
-								        <button type="button" class="btn btn-sm btn-outline-primary me-2" id="select_edit_all_peserta">
-								            <i class="fa-solid fa-check-double"></i> Pilih Semua
-								        </button>
-								        <a href="manage_user.php" target="_blank" class="btn btn-sm btn-outline-success" title="Buka di tab baru untuk menambah pengguna baru">
-								            <i class="fa-solid fa-user-plus"></i> Tambah Peserta Baru
-								        </a>
-								    </div>
+				                        <div class="d-flex align-items-center mb-4">
+				                            <div class="view-date-box me-3" style="min-width: 80px;">
+				                                <div class="day" id="view_tanggal_day">--</div> 
+				                                <div class="month-year" id="view_tanggal_month">--</div>
+				                            </div>
+				                            <div>
+				                                <div class="detail-label">Waktu Pelaksanaan</div>
+				                                <div class="h5 fw-bold text-dark mb-0"><i class="fa-regular fa-clock me-2 text-warning"></i><span id="view_jam"></span></div>
+				                                <small class="text-muted" id="view_tanggal_full"></small> </div>
+				                        </div>
 
-								    <select class="form-select select2-edit" id="edit-multiple-select-field" name="edit_peserta_rapat[]" multiple required>
-								        <?php if (empty($list_peserta)): ?>
-								            <option disabled>Tidak ada anggota di unit Anda.</option>
-								        <?php else: ?>
-								            <?php foreach ($list_peserta as $peserta) : 
-								                // Tampilkan NIM - Nama (Role)
-								                $label = $peserta['nim'] . ' - ' . $peserta['nama_lengkap'] . ' (' . $peserta['role'] . ')';
-								            ?>
-								                <option value="<?php echo $peserta['id_user']; ?>"><?php echo htmlspecialchars($label); ?></option>
-								            <?php endforeach; ?>
-								        <?php endif; ?>
-								    </select>
-								    <small class="form-text text-muted">Hanya menampilkan anggota dari unit yang sama dengan Anda.</small>
-								</div>
-			                    <div class="mb-3">
-			                        <label class="mb-2" for="edit_keterangan">Keterangan</label>
-			                        <textarea class="form-control" name="edit_keterangan" id="edit_keterangan" placeholder="Masukkan Keterangan..."></textarea>
-			                    </div>
-			                    <div class="mb-3">
-			                        <label class="mb-2">File Notulen Saat Ini:</label>
-			                        <div id="current_file_info"></div>
-			                    </div>
-			                    <div class="mb-3">
-			                        <label class="mb-2" for="edit_file">Upload Notulen Baru (Kosongkan jika tidak diubah)</label>
-			                        <input class="form-control" type="file" id="edit_file" name="edit_filename" accept=".pdf,.doc,.docx,.jpg">
-			                    </div>
-										
-			                    <div class="modal-footer">
-			                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-			                        <button type="submit" name="edit_rapat" class="btn btn-primary">Simpan Perubahan</button>
-			                    </div>
-			                </form>
-			            </div>
-			        </div>
-			    </div>
-			</div>
-			<!-- End Modal Edit Agenda Rapat -->
+				                        <div class="mb-3">
+				                            <div class="detail-label">Judul Rapat</div>
+				                            <div class="h5 fw-bold text-primary" id="view_judul"></div>
+				                        </div>
 
-			<!-- Modal Delete Agenda Rapat -->
-			<div class="modal fade" id="deletemodal" tabindex="-1" aria-labelledby="deletemodalLabel" aria-hidden="true">
-			    <div class="modal-dialog">
-			        <div class="modal-content">
-			            <div class="modal-header">
-			                <h5 class="modal-title" id="exampleModalLabel">Hapus Agenda Rapat</h5>
-			                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-			            </div>
-			            <form method="POST" action="php/ketua_delete_rapat.php">
-			                <div class="modal-body">
-			                    <input type="hidden" name="hapus_id_rapat" id="hapus_id_rapat_modal"> 
-			                    <p class="h5">Apakah anda yakin ingin menghapus agenda rapat ini?</p>
-			                </div>
-			                <div class="modal-footer">
-			                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-			                    <button type="submit" name="hapus_rapat" class="btn btn-danger">Hapus</button> 
-			                </div>
-			            </form>
-			        </div>
-			    </div>
-			</div>
-			<!-- End Modal Delete Riwayat Rapat -->
+				                        <div class="row mb-3">
+				                            <div class="col-6">
+				                                <div class="detail-label">Ruangan</div>
+				                                <div class="detail-value"><i class="fa-solid fa-location-dot me-1 text-danger"></i> <span id="view_ruangan"></span></div>
+				                            </div>
+				                            <div class="col-6">
+				                                <div class="detail-label">Unit Penyelenggara</div>
+				                                <div class="detail-value"><i class="fa-solid fa-users-gear me-1 text-info"></i> <span id="view_unit"></span></div>
+				                            </div>
+				                        </div>
 
-			<!-- Modal Notifikasi -->
-			<div class="modal fade" id="notifmodal" tabindex="-1" aria-labelledby="notifmodalLabel" aria-hidden="true">
-			    <div class="modal-dialog">
-			        <div class="modal-content">
-			            <div class="modal-header">
-			                <h5 class="modal-title" id="notifmodalLabel">Kirim Notifikasi Rapat</h5>
-			                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-			            </div>
-			            <form method="POST" action="php/ketua_send_notification.php"> 
-			                <div class="modal-body">
-			                    <input type="hidden" name="notif_id_rapat" id="notif_id_rapat"> 
-			                    <p class="h5">Anda akan mengirimkan notifikasi rapat ini melalui email kepada semua peserta yang terdaftar.</p>
-			                    <p>Lanjutkan?</p>
-			                </div>
-			                <div class="modal-footer">
-			                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-			                    <button type="submit" name="send_notification" class="btn btn-success">Kirim Notifikasi</button> 
-			                </div>
-			            </form>
-			        </div>
-			    </div>
-			</div>
-			 <!-- End Modal Notifikasi -->
+				                        <div class="mb-3">
+										    <div class="detail-label">Keterangan</div>
+										    <div class="description-box" id="view_keterangan">
+										        </div>
+										</div>
+
+				                        <div>
+				                            <div class="detail-label mb-2">Dokumen Notulen</div>
+				                            <div id="view_notulen_container">
+				                                <span id="view_notulen_file"></span>
+				                            </div>
+				                        </div>
+				                    </div>
+
+				                    <div class="col-md-5">
+				                        <div class="d-flex justify-content-between align-items-center mb-2">
+				                            <h6 class="fw-bold text-primary m-0"><i class="fa-solid fa-users me-2"></i>Daftar Peserta</h6>
+				                            <span class="badge bg-secondary rounded-pill" id="view_peserta_count">0 Orang</span>
+				                        </div>
+
+				                        <div class="participant-list-container" id="view_peserta_list_box">
+				                            <div class="text-center text-muted mt-5">
+				                                <i class="fa-solid fa-spinner fa-spin"></i> Memuat...
+				                             </div>
+				                        </div>
+				                        <span id="view_peserta" style="display:none;"></span> 
+				                    </div>
+
+				                </div>
+				            </div>
+
+				            <div class="modal-footer bg-light py-2">
+				                <button type="button" class="btn btn-secondary btn-sm px-4" data-bs-dismiss="modal">Tutup</button>
+				            </div>
+				        </div>
+				    </div>
+				</div>
+				<!-- End Modal View Detail Agenda Rapat -->
+												
+				<!-- Modal Edit Agenda Rapat -->
+				<div class="modal fade modal-compact" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+				    <div class="modal-dialog modal-xl modal-dialog-centered">
+				        <div class="modal-content">
+				            <div class="modal-header header-warning"> <h5 class="modal-title" id="editModalLabel"><i class="fa-solid fa-pen-to-square me-2"></i>Edit Agenda</h5>
+				                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				            </div>
+				            <form action="php/ketua_edit_rapat.php" method="POST" enctype="multipart/form-data" id="form-edit-rapat">
+				                <input type="hidden" name="edit_id_rapat" id="edit_rapat_id_unik">
+				                <input type="hidden" name="notulen_file_lama" id="notulen_file_lama">
+
+				                <div class="modal-body">
+				                    <div class="row g-3">
+
+				                        <div class="col-lg-5 border-end">
+				                            <h6 class="text-primary fw-bold mb-3 small text-uppercase">Informasi Dasar</h6>
+				                            <div class="row g-2 mb-2">
+												<div class="col-6">
+												    <label>Tanggal</label>
+												    <input class="form-control form-control-sm input-tanggal" type="text" name="edit_date" id="edit_date" placeholder="Pilih Tanggal..." required>
+												</div>
+												<div class="col-6">
+												    <label>Jam</label>
+												    <input class="form-control form-control-sm input-jam" type="text" name="edit_time" id="edit_time" placeholder="Pilih Jam..." required>
+												</div>
+				                            </div>
+
+				                            <div class="mb-2">
+				                                <label>Judul Rapat</label>
+				                                <input class="form-control form-control-sm" type="text" name="edit_judul" id="edit_judul" required>
+				                            </div>
+
+				                            <div class="mb-2">
+				                                <label>Ruangan</label>
+												<div class="input-group input-group-sm">
+													<span class="input-group-text"><i class="fa-solid fa-door-open"></i></span>
+				                                	<input class="form-control form-control-sm" type="text" name="edit_ruangan" id="edit_ruangan">
+												</div>
+				                            </div>
+														
+				                            <div class="mb-2 p-2 bg-light border rounded">
+				                                <label class="text-muted small">File Saat Ini:</label>
+				                                <div id="current_file_info" class="text-truncate fw-bold text-dark small mb-1"></div>
+				                                <label class="mt-1">Ganti File (Opsional)</label>
+				                                <input class="form-control form-control-sm" type="file" id="edit_file" name="edit_filename" accept=".pdf,.doc,.docx">
+				                            </div>
+				                        </div>
+														
+				                        <div class="col-lg-7">
+				                            <div class="participant-area">
+				                                <h6 class="text-primary fw-bold mb-2 small text-uppercase">Peserta & Detail</h6>
+														
+				                                <div class="d-flex justify-content-between align-items-center mb-2">
+				                                    <label class="mb-0">Peserta Rapat</label>
+				                                    <div class="btn-group btn-group-sm">
+				                                        <button type="button" class="btn btn-secondary" id="select_edit_all_peserta">Pilih Semua Peserta</button>
+				                                    </div>
+				                                </div>
+														
+				                                <div class="mb-3">
+				                                    <select class="form-select select2-edit" id="edit-multiple-select-field" name="edit_peserta_rapat[]" multiple required style="width: 100%;">
+				                                        <?php foreach ($list_peserta as $peserta) : ?>
+				                                            <option value="<?php echo $peserta['id_user']; ?>"><?php echo htmlspecialchars($peserta['nim'] . ' - ' . $peserta['nama_lengkap']); ?></option>
+				                                        <?php endforeach; ?>
+				                                    </select>
+				                                </div>
+														
+				                                <div class="mb-0">
+				                                    <label>Keterangan</label>
+				                                    <textarea class="form-control form-control-sm" name="edit_keterangan" id="edit_keterangan" rows="3"></textarea>
+				                                </div>
+				                            </div>
+				                        </div>
+				                    </div>
+				                </div>
+				                <div class="modal-footer py-1 bg-light">
+				                    <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Tutup</button>
+				                    <button type="submit" name="edit_rapat" class="btn btn-sm btn-primary px-4"><i class="fa-solid fa-check me-1"></i> Simpan Perubahan</button>
+				                </div>
+				            </form>
+				        </div>
+				    </div>
+				</div>
+				<!-- End Modal Edit Agenda Rapat -->
+
+				<!-- Modal Delete Agenda Rapat -->
+				<div class="modal fade" id="deletemodal" tabindex="-1" aria-hidden="true">
+				    	<div class="modal-dialog modal-dialog-centered modal-sm"> <div class="modal-content text-center">
+				            <div class="modal-body pt-5 pb-4">
+				                <form method="POST" action="php/ketua_delete_rapat.php">
+				                    <input type="hidden" name="hapus_id_rapat" id="hapus_id_rapat_modal"> 
+															
+				                    <div class="modal-icon-wrapper">
+				                        <i class="fa-solid fa-triangle-exclamation"></i>
+				                    </div>
+															
+				                    <h4 class="fw-bold mb-2">Hapus Agenda?</h4>
+				                    <p class="text-muted mb-4 text-small">Tindakan ini tidak dapat dibatalkan. Data rapat akan hilang permanen.</p>
+															
+				                    <div class="d-grid gap-2">
+				                        <button type="submit" name="hapus_rapat" class="btn btn-danger btn-lg shadow-sm">Ya, Hapus Sekarang</button> 
+				                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batalkan</button>
+				                    </div>
+				                </form>
+				            </div>
+				        </div>
+				    </div>
+				</div>
+				<!-- End Modal Delete Riwayat Rapat -->
+															
+				<!-- Modal Notifikasi -->
+				<div class="modal fade" id="notifmodal" tabindex="-1" aria-hidden="true">
+				    <div class="modal-dialog modal-dialog-centered">
+				        <div class="modal-content">
+				            <div class="modal-header header-primary">
+				                <h5 class="modal-title"><i class="fa-solid fa-paper-plane me-2"></i> Broadcast Notifikasi</h5>
+				                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				            </div>
+				            <form method="POST" action="php/ketua_send_notification.php"> 
+				                <div class="modal-body text-center py-4">
+				                    <input type="hidden" name="notif_id_rapat" id="notif_id_rapat"> 
+				                    <img src="../assets/illustrations/email_send.svg" alt="Email Icon" style="width: 120px; margin-bottom: 20px;" onerror="this.style.display='none'">
+				                    <div class="mb-3"><i class="fa-solid fa-envelope-open-text fa-3x text-primary"></i></div>
+															
+				                    <h5 class="fw-bold">Kirim Undangan via Email?</h5>
+				                    <p class="text-muted">Sistem akan mengirimkan detail rapat ini ke email semua peserta yang terdaftar.</p>
+				                </div>
+				                <div class="modal-footer justify-content-center">
+				                    <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Batal</button>
+				                    <button type="submit" name="send_notification" class="btn btn-primary px-4 shadow-sm"><i class="fa-solid fa-paper-plane me-2"></i> Kirim</button> 
+				                </div>
+				            </form>
+				        </div>
+				    </div>
+				</div>
+				 <!-- End Modal Notifikasi -->
 			</div>
 		</main>
 		<!-- End Main -->
@@ -495,86 +774,104 @@ if (!empty($id_unit_ketua)) {
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.datatables.net/2.3.4/js/dataTables.js"></script>
 <script src="https://cdn.datatables.net/2.3.4/js/dataTables.bootstrap5.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.3.4/js/dataTables.responsive.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.3.4/js/responsive.bootstrap5.js"></script>
 <script src="../assets/admin.js"></script>
 <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://npmcdn.com/flatpickr/dist/l10n/id.js"></script>
 <script>
   AOS.init();
 </script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="../assets/agenda_handlers.js"></script>
+<script>
+(function () {
+  'use strict'
+
+  var forms = document.querySelectorAll('.needs-validation')
+
+  Array.prototype.slice.call(forms)
+    .forEach(function (form) {
+      form.addEventListener('submit', function (event) {
+        if (!form.checkValidity()) {
+          event.preventDefault()
+          event.stopPropagation()
+        }
+
+        form.classList.add('was-validated')
+      }, false)
+    })
+})()
+</script>
 <script type="text/javascript">
+
 $(document).ready(function() {
-	$('#tabel-rapat').DataTable({
-	    "language": {
-	        "emptyTable": "Tidak ada agenda rapat",
-	        "info": "Menampilkan _START_ sampai _END_ dari _TOTAL_ agenda",
-	        "infoEmpty": "Menampilkan 0 sampai 0 dari 0 agenda",
-	        "infoFiltered": "(difilter dari total _MAX_ agenda)",
-	        "lengthMenu": "Tampilkan _MENU_ agenda",
-	        "search": "Cari:",
-	        "zeroRecords": "Tidak ditemukan agenda rapat yang cocok"
-	    }
-	});
-});
+   var tableOptions = {
+        responsive: false, 
+        scrollX: true,
+        scrollCollapse: true,
 
-
-$( document ).ready(function() {
-    
-    // Inisialisasi Select2 untuk modal Tambah
-    $( '#multiple-select-field' ).select2( {
-        theme: "bootstrap-5",
-        width: '100%',
-        placeholder: 'Pilih Peserta',
-        dropdownParent: $('#exampleModal'), 
-        closeOnSelect: false,
-    } );
-    
-    // Inisialisasi Select2 untuk modal Edit
-    $( '.select2-edit' ).select2( {
-        theme: "bootstrap-5",
-        width: '100%',
-        placeholder: 'Pilih Peserta',
-        dropdownParent: $('#editModal'), 
-        closeOnSelect: false,
-    } );
-
-    // --- LOGIKA BARU: Pilih Semua Peserta di Modal Tambah ---
-    $('#select_all_peserta').on('click', function() {
-        var selectElement = $('#multiple-select-field');
-        
-        // Kumpulkan ID semua opsi yang tersedia dan tidak disabled
-        var allOptions = [];
-        selectElement.find('option').each(function() {
-            if (!$(this).prop('disabled')) {
-                allOptions.push($(this).val());
+        columnDefs: [
+            { className: "text-center", targets: [0, 5] },
+            { className: "align-middle", targets: "_all" },
+            
+            // Atur lebar minimum agar tabel 'terpaksa' melebar dan scroll muncul
+            { width: "50px", targets: 0 },   // No
+            { width: "150px", targets: 1 },  // Tanggal (biar gak turun baris)
+            { width: "100px", targets: 2 },  // Jam
+            { width: "200px", targets: 3 },  // Unit
+            { width: "200px", targets: 4 },  // Judul Rapat (paling lebar)
+            { width: "150px", targets: 5 }   // Aksi
+        ],
+        "language": {
+            "emptyTable": "Tidak ada agenda rapat",
+            "info": "Menampilkan _START_ sampai _END_ dari _TOTAL_ agenda",
+            "infoEmpty": "Menampilkan 0 sampai 0 dari 0 agenda",
+            "infoFiltered": "(difilter dari total _MAX_ agenda)",
+            "lengthMenu": "Tampilkan _MENU_ agenda",
+            "search": "Cari:",
+            "zeroRecords": "Tidak ditemukan agenda rapat yang cocok",
+            "paginate": {
+                "previous": "<",
+                "next": ">"
             }
-        });
-        
-        // Set nilai Select2 dan panggil trigger 'change' agar Select2 me-render pilihan
-        selectElement.val(allOptions);
-        selectElement.trigger('change');
+        }
+    };
+
+	var tableUnit = $('#tabel-rapat').DataTable(tableOptions);
+
+    // Inisialisasi Tabel Undangan Masuk (Gunakan options yang sama)
+    var tableInvite = $('#tabel-undangan').DataTable(tableOptions);
+    
+    // Perbaikan bug DataTables saat berada di dalam Tabs tersembunyi
+    $('button[data-bs-toggle="pill"]').on('shown.bs.tab', function (e) {
+        tableUnit.columns.adjust();
+        tableInvite.columns.adjust();
     });
 
-	$('#select_edit_all_peserta').on('click', function() {
-        var selectElement = $('#edit-multiple-select-field');
-        
-        // Kumpulkan ID semua opsi yang tersedia dan tidak disabled
-        var allOptions = [];
-        selectElement.find('option').each(function() {
-            if (!$(this).prop('disabled')) {
-                allOptions.push($(this).val());
-            }
-        });
-        
-        // Set nilai Select2 dan panggil trigger 'change' agar Select2 me-render pilihan
-        selectElement.val(allOptions);
-        selectElement.trigger('change');
+	flatpickr(".input-tanggal", {
+        locale: "id",
+        altInput: true,
+        altFormat: "j F Y",
+        dateFormat: "Y-m-d",
+        allowInput: true,
+        disableMobile: "true"
     });
-    // --- END LOGIKA BARU ---
 
+    flatpickr(".input-jam", {
+        enableTime: true,
+        noCalendar: true,
+        dateFormat: "H:i",
+        time_24hr: true,
+        locale: "id",
+        allowInput: true,
+        disableMobile: "true"
+    });
 });
 
-// Handler SweetAlert dari PHP Session
+// Handler SweetAlert dari PHP Session harus tetap di sini
 <?php if (isset($_GET['status']) && $_GET['status'] == 'sukses_tambah') : ?>
     Swal.fire({
         title: "Selamat!",
@@ -594,138 +891,6 @@ $( document ).ready(function() {
         icon: "error"
     });
 <?php endif; ?>
-
-// Modal Delete Handler menggunakan delegasi
-$(document).on('click', 'button[data-bs-target="#deletemodal"]', function (event) {
-    var id_rapat = $(this).data('id'); 
-    $('#hapus_id_rapat_modal').val(id_rapat); 
-    // Biarkan Bootstrap menampilkan modal
-});
-
-// Modal Edit Handler menggunakan delegasi
-$(document).on('click', 'button[data-bs-target="#editModal"]', function (event) {
-    var button = $(this);
-    
-    // 1. AMBIL SEMUA DATA DARI DATA ATTRIBUTE TOMBOL (Menggunakan var)
-    var id_rapat_terpilih = $(this).data('id'); 
-    var tanggal = button.data('tanggal');
-    var jam = button.data('jam');
-    var judul = button.data('judul');
-    var ruangan = button.data('ruangan');
-    var keterangan = button.data('keterangan');
-    var unit_id = button.data('unitid');
-    var notulen_file = button.data('notulen');
-    var peserta_data = button.data('peserta'); // Ini akan berupa array jika berhasil di-parse
-    
-    // 2. RESET/BERSIHKAN FIELD UTAMA
-    
-    // Bersihkan Select2 (penting)
-    $('#edit-multiple-select-field').val(null).trigger('change');
-    $('#current_file_info').html(''); // Bersihkan info file lama
-
-    // 3. ISI DATA KE INPUT MODAL
-    
-    // ID Rapat (Penting!)
-    $('#edit_rapat_id_unik').val(id_rapat_terpilih); 
-    
-    // Data Dasar
-    $('#edit_date').val(tanggal);
-    $('#edit_time').val(jam);
-    $('#edit_judul').val(judul);
-    $('#edit_ruangan').val(ruangan);
-    $('#edit_keterangan').val(keterangan);
-    
-    // Select unit
-    $('#edit_unit').val(unit_id).trigger('change');
-
-    // Peserta (Select2)
-    if (peserta_data && peserta_data.length > 0) {
-        $('#edit-multiple-select-field').val(peserta_data).trigger('change');
-    }
-
-    // File Notulen
-    $('#notulen_file_lama').val(notulen_file);
-    
-    var notulenHtml = 'Tidak ada file notulen saat ini. ';
-    if (notulen_file) {
-        var fileUrl = '../notulen_files/' + notulen_file;
-        notulenHtml = 'File: <strong>' + notulen_file + '</strong>. (<a href="' + fileUrl + '" target="_blank">Lihat</a>) <br>Centang untuk menghapus: <input type="checkbox" name="hapus_file_lama" value="yes">';
-    }
-    $('#current_file_info').html(notulenHtml);
-    
-    // Catatan: Karena Anda menggunakan data-bs-toggle="modal", modal akan otomatis muncul.
-});
-
-// Modal View Handler menggunakan delegasi dan AJAX
-$(document).on('click', '.view-rapat-btn', function (event) { // <--- Targeting Class Baru
-    var id_rapat = $(this).data('id');
-	$('#view_rapat_modal').val(id_rapat);
-    
-    $('#view_tanggal').html('Memuat...');
-    $('#view_jam').html('Memuat...');
-    $('#view_judul').html('Memuat...');
-    $('#view_ruangan').html('Memuat...');
-    $('#view_unit').html('Memuat...');
-    $('#view_keterangan').html('Memuat...');
-    $('#view_peserta').html('Memuat...');
-    $('#view_notulen_file').html('Memuat...');
-    
-    // 2. Panggil AJAX untuk mengambil detail lengkap
-    $.ajax({
-        // URL menggunakan ID Rapat yang sudah dipastikan ada
-        url: '../php/ajax_detail.php?id=' + id_rapat,
-        method: 'GET',
-        dataType: 'json',
-        success: function(data) {
-            // ... (Kode mengisi data ke #view_tanggal, #view_judul, dst. tetap sama) ...
-
-            if (data && !data.error) {
-                // Konversi tanggal (contoh: 24-November-2025)
-                var tanggalFormatted = data.tanggal_rapat ? new Date(data.tanggal_rapat + 'T00:00:00').toLocaleDateString('id-ID', {day: '2-digit', month: 'long', year: 'numeric'}) : '-';
-				var jamFormatted = data.jam_rapat ? data.jam_rapat.substring(0, 5) + ' WIB' : '-';
-                
-                // Isi data ke dalam sel tabel (<td>)
-                $('#view_tanggal').html(tanggalFormatted);
-                $('#view_jam').html(jamFormatted);
-                $('#view_judul').html(data.judul_rapat || '-');
-                $('#view_ruangan').html(data.ruang_rapat || '-'); 
-                $('#view_unit').html(data.nama_unit || '-'); 
-                $('#view_keterangan').html(data.keterangan || '-');
-
-                // Tampilkan daftar peserta
-                var pesertaHtml = 'Tidak ada peserta.';
-                if (data.peserta_details && data.peserta_details.length > 0) {
-                    pesertaHtml = data.peserta_details.join(', ');
-                }
-                $('#view_peserta').html(pesertaHtml);
-
-                // Tampilkan file notulen
-                var fileHtml = 'Tidak ada file notulen.';
-                if (data.notulen_file) {
-                    var fileUrl = '../notulen_files/' + data.notulen_file;
-                    fileHtml = '<a href="' + fileUrl + '" target="_blank" class="btn btn-sm btn-info"><i class="fa-solid fa-file-alt"></i> Lihat File Notulen</a>';
-                }
-                $('#view_notulen_file').html(fileHtml);
-
-            } else {
-                 // Menangani error dari PHP (misalnya: Data rapat tidak ditemukan untuk ID ini.)
-                $('#view_tanggal').html('ERROR: ' + (data.error || 'Data rapat tidak ditemukan.'));
-                console.error("Respon Server Error:", data.error);
-            }
-        },
-        error: function(jqXHR, textStatus, errorThrown) {
-            // Jika koneksi AJAX gagal
-            $('#view_tanggal').html('Kesalahan Server/Koneksi. Status: ' + jqXHR.status);
-            console.error("AJAX GAGAL:", textStatus, errorThrown);
-        }
-    });
-});
-
-$(document).on('click', 'button[data-bs-target="#notifmodal"]', function (event) {
-    var id_rapat = $(this).data('id'); 
-    $('#notif_id_rapat').val(id_rapat); 
-    // Biarkan Bootstrap menampilkan modal
-});
 </script>
 </body>
 </html>

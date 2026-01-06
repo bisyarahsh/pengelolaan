@@ -10,9 +10,9 @@ use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\SMTP;
 
 // Sesuaikan path ini dengan lokasi PHPMailer Anda
-require '../lib/PHPMailer/src/Exception.php';
-require '../lib/PHPMailer/src/PHPMailer.php';
-require '../lib/PHPMailer/src/SMTP.php';
+require '../../lib/PHPMailer/src/Exception.php';
+require '../../lib/PHPMailer/src/PHPMailer.php';
+require '../../lib/PHPMailer/src/SMTP.php';
 
 // Pastikan path koneksi.php benar
 // include 'koneksi.php'; // Sudah di-include di awal, hapus duplikasi ini
@@ -147,7 +147,7 @@ try {
 } catch (Exception $e) {
     // Jika ada masalah pada konfigurasi PHPMailer atau koneksi
     $_SESSION['alert'] = ['type' => 'error', 'message' => "Gagal mengirim notifikasi email. PHPMailer Error: {$mail->ErrorInfo}"];
-    header("location:../admin/agenda.php");
+    header("location:../agenda.php");
     exit;
 }
 
@@ -168,6 +168,6 @@ if ($success_count > 0) {
     $_SESSION['alert'] = ['type' => 'error', 'message' => 'Gagal mengirim notifikasi ke semua peserta. Cek kembali App Password dan koneksi SMTP.'];
 }
 
-header("location:../admin/agenda.php");
+header("location:../agenda.php");
 exit;
 ?>
