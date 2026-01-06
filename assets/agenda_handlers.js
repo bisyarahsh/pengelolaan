@@ -213,9 +213,9 @@ $(document).ready(function() {
         var button = $(this);
         
         // 1. AMBIL SEMUA DATA DARI DATA ATTRIBUTE TOMBOL
-        var id_rapat_terpilih = $(this).data('id'); 
-        var tanggal = button.data('tanggal');
-        var jam = button.data('jam');
+        var id_rapat_terpilih = button.data('id'); 
+        var tanggal = button.data('tanggal'); // Format: YYYY-MM-DD
+        var jam = button.data('jam');         // Format: HH:mm:ss
         var judul = button.data('judul');
         var ruangan = button.data('ruangan');
         var keterangan = button.data('keterangan');
@@ -229,19 +229,37 @@ $(document).ready(function() {
 
         // 3. ISI DATA KE INPUT MODAL
         $('#edit_rapat_id_unik').val(id_rapat_terpilih); 
-        $('#edit_date').val(tanggal);
-        $('#edit_time').val(jam);
         $('#edit_judul').val(judul);
         $('#edit_ruangan').val(ruangan);
         $('#edit_keterangan').val(keterangan);
         $('#edit_unit').val(unit_id).trigger('change');
 
-        // Peserta (Select2)
+        // --- PERBAIKAN: SET TANGGAL & JAM UNTUK FLATPICKR ---
+        
+        // Isi nilai input asli (untuk form submission)
+        $('#edit_date').val(tanggal);
+        $('#edit_time').val(jam);
+
+        // Update Tampilan Visual Flatpickr (Jika ada)
+        var dateInput = document.querySelector("#edit_date");
+        var timeInput = document.querySelector("#edit_time");
+
+        // Cek apakah flatpickr sudah terload di element tersebut
+        if (dateInput && dateInput._flatpickr) {
+            dateInput._flatpickr.setDate(tanggal);
+        }
+        
+        if (timeInput && timeInput._flatpickr) {
+            timeInput._flatpickr.setDate(jam);
+        }
+        // ----------------------------------------------------
+
+        // 4. Peserta (Select2)
         if (peserta_data && peserta_data.length > 0) {
             $('#edit-multiple-select-field').val(peserta_data).trigger('change');
         }
 
-        // File Notulen
+        // 5. File Notulen
         $('#notulen_file_lama').val(notulen_file);
         
         var notulenHtml = 'Tidak ada file notulen saat ini. ';
@@ -252,67 +270,134 @@ $(document).ready(function() {
         $('#current_file_info').html(notulenHtml);
     });
 
-    // Modal View Handler menggunakan delegasi dan AJAX
-    $(document).on('click', '.view-rapat-btn', function (event) { 
-        var id_rapat = $(this).data('id');
-        $('#view_rapat_modal').val(id_rapat);
-        
-        // Reset/loading state
-        $('#view_tanggal').html('Memuat...');
-        $('#view_jam').html('Memuat...');
-        $('#view_judul').html('Memuat...');
-        $('#view_ruangan').html('Memuat...');
-        $('#view_unit').html('Memuat...');
-        $('#view_keterangan').html('Memuat...');
-        $('#view_peserta').html('Memuat...');
-        $('#view_notulen_file').html('Memuat...');
-        
-        // Panggil AJAX untuk mengambil detail lengkap
-        $.ajax({
-            url: '../php/ajax_detail.php?id=' + id_rapat,
-            method: 'GET',
-            dataType: 'json',
-            success: function(data) {
-                if (data && !data.error) {
-                    var tanggalFormatted = data.tanggal_rapat ? new Date(data.tanggal_rapat + 'T00:00:00').toLocaleDateString('id-ID', {day: '2-digit', month: 'long', year: 'numeric'}) : '-';
-                    var jamFormatted = data.jam_rapat ? data.jam_rapat.substring(0, 5) + ' WIB' : '-';
-                    
-                    $('#view_tanggal').html(tanggalFormatted);
-                    $('#view_jam').html(jamFormatted);
-                    $('#view_judul').html(data.judul_rapat || '-');
-                    $('#view_ruangan').html(data.ruang_rapat || '-'); 
-                    $('#view_unit').html(data.nama_unit || '-'); 
-                    $('#view_keterangan').html(data.keterangan || '-');
-
-                    var pesertaHtml = 'Tidak ada peserta.';
-                    if (data.peserta_details && data.peserta_details.length > 0) {
-                        pesertaHtml = data.peserta_details.join(', ');
-                    }
-                    $('#view_peserta').html(pesertaHtml);
-
-                    var fileHtml = 'Tidak ada file notulen.';
-                    if (data.notulen_file) {
-                        var fileUrl = '../notulen_files/' + data.notulen_file;
-                        fileHtml = '<a href="' + fileUrl + '" target="_blank" class="btn btn-sm btn-info"><i class="fa-solid fa-file-alt"></i> Lihat File Notulen</a>';
-                    }
-                    $('#view_notulen_file').html(fileHtml);
-
-                } else {
-                    $('#view_tanggal').html('ERROR: ' + (data.error || 'Data rapat tidak ditemukan.'));
-                    console.error("Respon Server Error:", data.error);
-                }
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-                $('#view_tanggal').html('Kesalahan Server/Koneksi. Status: ' + jqXHR.status);
-                console.error("AJAX GAGAL:", textStatus, errorThrown);
-            }
-        });
-    });
-
     // Handler Notifikasi
     $(document).on('click', 'button[data-bs-target="#notifmodal"]', function (event) {
         var id_rapat = $(this).data('id'); 
         $('#notif_id_rapat').val(id_rapat); 
     });
 
+    // Handler untuk Form Tambah Rapat
+    $('#formTambahRapat').on('submit', function() {
+        // Ambil elemen tombol submit
+        var btn = $(this).find('button[type="submit"]');
+
+        // Ubah tombol menjadi disable dan ganti teksnya
+        // Menggunakan fa-spinner untuk ikon loading
+        btn.prop('disabled', true);
+        btn.html('<i class="fa-solid fa-spinner fa-spin me-2"></i>Menunggu...');
+
+        // PENTING:
+        // Karena tombol di-disable, atribut name="tambah_rapat" pada tombol tidak akan terkirim ke PHP.
+        // Kita perlu menyuntikkan input hidden dengan nama yang sama agar logika PHP (if isset) tetap jalan.
+        if ($(this).find('input[name="tambah_rapat"]').length === 0) {
+            $(this).append('<input type="hidden" name="tambah_rapat" value="1">');
+        }
+        
+        // Biarkan form melakukan submit secara normal
+        return true;
+    });
+
+});
+
+// Script Tambahan untuk Mempercantik Tampilan View Modal
+$(document).ready(function() {
+    
+    // Override/Update logika saat tombol view diklik
+    $('.view-rapat-btn').on('click', function() {
+        var id_rapat = $(this).data('id');
+        
+        // Reset tampilan peserta
+        $('#view_peserta_list_box').html('<div class="text-center text-muted mt-5"><i class="fa-solid fa-spinner fa-spin"></i> Memuat...</div>');
+        
+        $.ajax({
+            url: 'agenda.php', // Pastikan url ini benar sesuai file php Anda
+            type: 'GET',
+            data: { action: 'get_rapat_detail', id: id_rapat },
+            dataType: 'json',
+            success: function(data) {
+                if(data) {
+                    // 1. Set Info Utama (Sesuai ID HTML Baru)
+                    $('#view_judul').text(data.judul_rapat);
+                    var jamClean = data.jam_rapat ? data.jam_rapat.substring(0, 5) : '--:--';
+                    $('#view_jam').text(jamClean + ' WIB');
+                    $('#view_ruangan').text(data.ruang_rapat ? data.ruang_rapat : '-');
+                    $('#view_unit').text(data.nama_unit);
+                    $('#view_keterangan').text(data.keterangan ? data.keterangan : '-');
+                    
+                    // 2. Format Tanggal Cantik (Kotak)
+                    if (data.tanggal_rapat) {
+                        const dateObj = new Date(data.tanggal_rapat);
+                        const days = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+                        const months = ["JAN", "FEB", "MAR", "APR", "MEI", "JUN", "JUL", "AGU", "SEP", "OKT", "NOV", "DES"];
+                        
+                        $('#view_tanggal_day').text(dateObj.getDate());
+                        $('#view_tanggal_month').text(months[dateObj.getMonth()]);
+                        
+                        // Set tanggal lengkap text kecil di bawah jam
+                        const fullDate = days[dateObj.getDay()] + ', ' + dateObj.getDate() + ' ' + months[dateObj.getMonth()] + ' ' + dateObj.getFullYear();
+                        $('#view_tanggal_full').text(fullDate);
+                    }
+
+                    // 3. Format File Notulen
+                    // 3. Format File Notulen (Dinamis: Word vs PDF vs Image)
+                    if (data.notulen_file) {
+                        var fileName = data.notulen_file;
+                        var fileExt = fileName.split('.').pop().toLowerCase(); // Ambil ekstensi file
+                        
+                        // Tentukan Icon dan Warna berdasarkan ekstensi
+                        var iconClass = 'fa-file'; // Default icon
+                        var colorClass = 'text-secondary'; // Default warna abu-abu
+
+                        if (fileExt === 'pdf') {
+                            iconClass = 'fa-file-pdf';
+                            colorClass = 'text-danger'; // Merah
+                        } else if (fileExt === 'doc' || fileExt === 'docx') {
+                            iconClass = 'fa-file-word';
+                            colorClass = 'text-primary'; // Biru
+                        } else if (fileExt === 'jpg' || fileExt === 'jpeg' || fileExt === 'png') {
+                            iconClass = 'fa-file-image';
+                            colorClass = 'text-success'; // Hijau
+                        }
+
+                        $('#view_notulen_container').html(`
+                            <div class="file-attachment-box">
+                                <div class="d-flex align-items-center" style="overflow: hidden;">
+                                    <i class="fa-solid ${iconClass} ${colorClass} fa-xl me-3"></i>
+                                    <div class="d-flex flex-column" style="overflow: hidden;">
+                                        <span class="fw-bold small text-truncate" style="max-width: 100%;" title="${fileName}">${fileName}</span>
+                                        <span class="text-muted" style="font-size: 0.7rem;">Format: ${fileExt.toUpperCase()}</span>
+                                    </div>
+                                </div>
+                                <a href="../notulen_files/${fileName}" target="_blank" class="btn btn-sm btn-outline-dark ms-2" title="Download File">
+                                    <i class="fa-solid fa-download"></i>
+                                </a>
+                            </div>
+                        `);
+                    } else {
+                        $('#view_notulen_container').html('<span class="text-muted small"><i>Tidak ada file notulen yang diunggah.</i></span>');
+                    }
+
+                    // 4. Format Daftar Peserta (Looping)
+                    var pesertaHtml = '';
+                    if (data.peserta_details && data.peserta_details.length > 0) {
+                        $('#view_peserta_count').text(data.peserta_details.length + ' Orang');
+                        
+                        $.each(data.peserta_details, function(index, value) {
+                            // Value format: "NIM - Nama"
+                            pesertaHtml += `
+                                <div class="participant-item">
+                                    <i class="fa-solid fa-user-circle fa-lg"></i>
+                                    <div>${value}</div>
+                                </div>
+                            `;
+                        });
+                    } else {
+                        $('#view_peserta_count').text('0 Orang');
+                        pesertaHtml = '<div class="text-center text-muted mt-4"><small>Belum ada peserta yang ditambahkan.</small></div>';
+                    }
+                    $('#view_peserta_list_box').html(pesertaHtml);
+                }
+            }
+        });
+    });
 });

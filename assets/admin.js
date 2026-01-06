@@ -81,6 +81,7 @@ allMenu.forEach(item=> {
 	})
 })
 
+
 // Table
 new DataTable('#example');
 // Table
