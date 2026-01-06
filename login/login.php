@@ -6,10 +6,13 @@ include("../php/koneksi.php");
 if(isset($_SESSION['role'])){
     $user_role = $_SESSION['role'];
     if ($user_role == "admin") {
-        header("location:../admin/agenda.php");
+        header("location:../admin/dashboard.php");
         exit();
     } else if ($user_role == "peserta") {
         header("location:../peserta/dashboard.php");
+        exit();
+    } else if ($user_role == "ketua") {
+      header("location:../ketua/dashboard.php");
         exit();
     }
 }
@@ -63,13 +66,13 @@ if(isset($_POST['login'])){
         unset($_SESSION['temp_email']);
 
         if ($user_role == "Ketua") {
-            header("location:../ketua/agenda.php");
+            header("location:../ketua/dashboard.php");
             exit();
         } else if ($user_role == "Peserta") {
             header("location:../peserta/dashboard.php");
             exit();
         } else if ($user_role == "Admin") {
-            header("location:../admin/agenda.php");
+            header("location:../admin/dashboard.php");
             exit();
         }
     } else {
@@ -96,6 +99,7 @@ if(isset($_SESSION['temp_email']) && !isset($_POST['login'])){
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style1.css">
 </head>
 <body>
@@ -123,6 +127,11 @@ if(isset($_SESSION['temp_email']) && !isset($_POST['login'])){
     <!-- form panel -->
     <div class="form-panel col-lg-7">
       <div class="p-3 p-md-4">
+        <div class="mb-4 stagger-anim delay-100">
+            <a href="../index.html" class="btn-back-home">
+                <i class="bi bi-arrow-left me-2"></i> Kembali ke Beranda
+            </a>
+        </div>
         <div class="d-flex justify-content-between align-items-center mb-3">
           <div class="d-flex align-items-center gap-3">
             <div class="brand-logo d-lg-none bg-primary text-white"><i class="bi bi-calendar-check-fill"></i></div>
@@ -136,17 +145,21 @@ if(isset($_SESSION['temp_email']) && !isset($_POST['login'])){
         <form action="" method="post" id="loginForm" class="needs-validation" novalidate>
           <div class="mb-3">
                 <label for="email" class="form-label">Email</label>
-                <input name="email" type="email" class="form-control <?php echo !empty($email_err) ? 'is-invalid' : ''; ?>" 
-                       id="email" placeholder="Masukkan email" required 
-                       value="<?php echo htmlspecialchars($email_value); ?>">
-                <div class="invalid-feedback">
-                    <?php echo !empty($email_err) ? $email_err : 'Masukkan email yang valid.'; ?>
+                <div class="input-group">
+                  <span class="input-group-text bg-light"><i class="fa-solid fa-envelope"></i></span>
+                  <input name="email" type="email" class="form-control <?php echo !empty($email_err) ? 'is-invalid' : ''; ?>" 
+                         id="email" placeholder="Masukkan email" required 
+                         value="<?php echo htmlspecialchars($email_value); ?>">
+                  <div class="invalid-feedback">
+                      <?php echo !empty($email_err) ? $email_err : 'Masukkan email yang valid.'; ?>
+                  </div>
                 </div>
           </div>
 
           <div class="mb-3">
                 <label for="password" class="form-label">Kata Sandi</label>
                 <div class="input-group">
+                    <span class="input-group-text bg-light"><i class="fa-solid fa-lock"></i></span>
                     <input type="password" name="password" class="form-control <?php echo !empty($password_err) ? 'is-invalid' : ''; ?>" 
                            id="password" placeholder="Masukkan kata sandi" required>
                     <span class="input-group-text show-pass" id="togglePassword" title="Tampilkan / sembunyikan"><i class="bi bi-eye"></i></span>
@@ -155,7 +168,7 @@ if(isset($_SESSION['temp_email']) && !isset($_POST['login'])){
                     </div>
                 </div>
           </div>
-          <button type="submit" name="login" class="btn btn-primary w-100 mb-3" value="Login">Masuk</button>
+          <button type="submit" name="login" class="btn btn-primary-custom text-white w-100 mb-3" value="Login">Masuk <i class="bi bi-arrow-right"></i></button>
         </form>
       </div>
     </div>

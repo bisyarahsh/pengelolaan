@@ -1,20 +1,28 @@
     :root{
-      --blue-1: #0d6efd; /* primary */
+      --blue-1: #0b327c; /* primary */
       --blue-2: #0652c5;
-      --blue-3: #0b5ed7;
+      --blue-3: #0b327c;
       --glass: rgba(255,255,255,0.08);
     }
 
     body{
       min-height: 100vh;
-      background: radial-gradient(1000px 400px at 10% 10%, rgba(11,94,215,0.12), transparent),
-                  linear-gradient(180deg, rgba(6,82,197,0.08) 0%, rgba(13,110,253,0.06) 50%),
-                  #e9f2ff; /* soft blue background */
+      background: linear-gradient(rgba(0, 0, 0, 0.65)), 
+                  url('../assets/img/poltek.jpeg'); 
+      background-size: cover;
       display:flex;
       align-items:center;
       justify-content:center;
       font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
       padding: 2rem;
+    }
+
+    .btn-primary-custom{
+      background: linear-gradient(90deg, var(--blue-2), var(--blue-3));
+    }
+
+    .btn-primary-custom:hover{
+      background: linear-gradient(90deg, var(--blue-2), var(--blue-2));
     }
 
     .login-card{
@@ -63,9 +71,10 @@
       transform: rotate(25deg);
     }
 
-    .form-panel{
+    .form-panel {
       padding: 2.5rem 2rem;
-      background: transparent;
+      background-color: white;
+      position: relative;
     }
 
     .social-btn{
@@ -75,6 +84,39 @@
     }
 
     .input-group .form-control:focus{box-shadow: none; border-color: var(--blue-1)}
+
+    .input-group-text { 
+      border-top-left-radius: 10px; 
+      border-bottom-left-radius: 10px; 
+      background-color: #f8f9fc; 
+      border-color: #e3e6f0; 
+    }
+
+    .btn-back-home {
+        position: absolute;
+        top: 25px;
+        left: 30px;
+        text-decoration: none;
+        color: #6c757d;
+        font-weight: 500;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        z-index: 10;
+    }
+
+    .btn-back-home i {
+        transition: transform 0.3s;
+    }
+
+    .btn-back-home:hover {
+        color: #0d6efd;
+    }
+
+    .btn-back-home:hover i {
+        transform: translateX(-3px);
+    }
 
     .show-pass{
       cursor:pointer;
