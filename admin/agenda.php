@@ -34,22 +34,17 @@ function get_rapat_detail($koneksi, $id_rapat) {
         if (!$koneksi) {
             throw new Exception("Koneksi database terputus.");
         }
-
         $id_rapat = mysqli_real_escape_string($koneksi, $id_rapat);
         $sql = "SELECT r.*, o.nama_unit 
                 FROM agenda_rapat r
                 JOIN unit o ON r.id_unit = o.id_unit
                 WHERE r.id_rapat = '$id_rapat'";
-        
         $q = mysqli_query($koneksi, $sql);
-
         // Cek jika query gagal dieksekusi (Syntax error dll)
         if (!$q) {
             throw new Exception("Error Query Rapat: " . mysqli_error($koneksi));
         }
-
         $rapat_data = mysqli_fetch_assoc($q);
-
         // Jika data rapat ditemukan, baru cari pesertanya
         if ($rapat_data) {
             $peserta_arr = [];
@@ -198,12 +193,36 @@ while ($r_peserta = mysqli_fetch_assoc($q_peserta)) {
     $list_peserta[] = $r_peserta;
 }
 
-// Query untuk mengambil daftar unit
-$q_unit = mysqli_query($koneksi, "SELECT id_unit, nama_unit FROM unit ORDER BY nama_unit ASC");
-$units = [];
-while($r_unit = mysqli_fetch_assoc($q_unit)) {
-    $units[] = $r_unit;
+
+// Kueri mengambil daftar unit
+function get_all_units(mysqli $koneksi): array {
+    $unit_list = [];
+
+    try {
+        if (!$koneksi) {
+            throw new Exception("Koneksi database tidak valid.");
+        }
+
+        $sql = "SELECT id_unit, nama_unit FROM unit ORDER BY nama_unit ASC";
+        
+        $result = mysqli_query($koneksi, $sql);
+
+        if (!$result) {
+            throw new Exception("Gagal mengambil data unit: " . mysqli_error($koneksi));
+        }
+        while ($row = mysqli_fetch_assoc($result)) {
+            $unit_list[] = $row;
+        }
+
+    } catch (Exception $e) {
+        error_log("[Database Error] get_all_units: " . $e->getMessage());
+        return [];
+    }
+
+    return $unit_list;
 }
+
+$list_unit = get_all_units($koneksi);
 
 ?>
 <!DOCTYPE html>
