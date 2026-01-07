@@ -87,9 +87,7 @@ $sql_agenda = "SELECT COUNT(DISTINCT r.id_rapat) as total
                WHERE r.status = 'aktif'
                AND CONCAT(r.tanggal_rapat, ' ', r.jam_rapat) > NOW()
                AND (
-                   r.id_unit = '$id_unit_ketua' 
-                   OR 
-                   r.id_rapat IN (SELECT id_rapat FROM peserta_rapat WHERE id_user = '$current_user_id')
+                   r.id_unit = '$id_unit_ketua'
                )";
 $q_agenda = mysqli_query($koneksi, $sql_agenda);
 $total_agenda = mysqli_fetch_assoc($q_agenda)['total'];
@@ -100,9 +98,7 @@ $sql_riwayat = "SELECT COUNT(DISTINCT r.id_rapat) as total
                 WHERE r.status = 'aktif'
                 AND CONCAT(r.tanggal_rapat, ' ', r.jam_rapat) <= NOW()
                 AND (
-                    r.id_unit = '$id_unit_ketua' 
-                    OR 
-                    r.id_rapat IN (SELECT id_rapat FROM peserta_rapat WHERE id_user = '$current_user_id')
+                    r.id_unit = '$id_unit_ketua'
                 )";
 $q_riwayat = mysqli_query($koneksi, $sql_riwayat);
 $total_riwayat = mysqli_fetch_assoc($q_riwayat)['total'];
@@ -131,9 +127,7 @@ for ($m = 1; $m <= 12; $m++) {
 // List Agenda
 $sql_next = "SELECT * FROM agenda_rapat 
             WHERE (
-                id_unit = '$id_unit_ketua' 
-                OR 
-                id_rapat IN (SELECT id_rapat FROM peserta_rapat WHERE id_user = '$current_user_id')
+                id_unit = '$id_unit_ketua'
             )
              AND CONCAT(tanggal_rapat, ' ', jam_rapat) > NOW() AND status = 'aktif' 
              ORDER BY tanggal_rapat ASC, jam_rapat ASC LIMIT 3";
@@ -257,7 +251,7 @@ function tgl_indo_short($tanggal){
                             <div class="card-body">
                                 <div class="row no-gutters align-items-center">
                                     <div class="col mr-2">
-                                        <div class="stat-label text-primary mb-1">Agenda Rapat</div>
+                                        <div class="stat-label text-primary mb-1">Agenda Unit</div>
                                         <div class="h3 mb-0 fw-bold text-gray-800"><?php echo $total_agenda; ?></div>
                                         <a href="agenda.php" class="text-decoration-none small text-muted mt-2 d-inline-block">Lihat Detail &rarr;</a>
                                     </div>
@@ -274,7 +268,7 @@ function tgl_indo_short($tanggal){
                             <div class="card-body">
                                 <div class="row no-gutters align-items-center">
                                     <div class="col mr-2">
-                                        <div class="stat-label text-success mb-1">Riwayat Rapat</div>
+                                        <div class="stat-label text-success mb-1">Riwayat Unit</div>
                                         <div class="h3 mb-0 fw-bold text-gray-800"><?php echo $total_riwayat; ?></div>
                                         <a href="riwayat.php" class="text-decoration-none small text-muted mt-2 d-inline-block">Lihat Detail &rarr;</a>
                                     </div>

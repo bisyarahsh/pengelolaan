@@ -346,7 +346,7 @@ while ($row = mysqli_fetch_assoc($q_invite)) {
                                     <td><?php echo htmlspecialchars($rapat['judul_rapat']); ?></td>
                                      <td class="text-center status-cell">
                     				    <button type="button" class="btn btn-warning aksi view-rapat-btn" data-bs-toggle="modal" data-bs-target="#viewModal" data-id="<?php echo $rapat['id_rapat']; ?>"><i class="fa-solid fa-eye"></i></button>
-                                        <button type="button" class="btn btn-success aksi print-rapat-detail-btn" title="Download Detail Rapat PDF" data-id="<?php echo $rapat['id_rapat']; ?>"><i class="fa-solid fa-arrow-down"></i></button>
+                                        <button type="button" class="btn btn-success aksi print-rapat-detail-btn" data-id="<?php echo $rapat['id_rapat']; ?>"><i class="fa-solid fa-arrow-down"></i></button>
                     				</td>
                                 </tr>
                                 <?php endforeach; ?>
@@ -574,8 +574,8 @@ $(document).on('click', '.print-rapat-detail-btn', function (e) {
     var id_rapat = $(this).data('id');
     
     Swal.fire({
-        title: "Memproses Download",
-        text: "Mohon tunggu sebentar, file PDF sedang disiapkan...",
+        title: "Memproses Unduh",
+        text: "Mohon tunggu sebentar, berkas PDF sedang disiapkan...",
         icon: "info",
         allowOutsideClick: false,
         showConfirmButton: false,

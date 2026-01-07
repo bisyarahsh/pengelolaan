@@ -95,7 +95,7 @@ if (isset($_POST['update_profil'])) {
                 $_SESSION['alert'] = ['icon' => 'error', 'message' => 'Format file harus JPG, JPEG, atau PNG!'];
                 $upload_ok = false;
             } elseif ($_FILES["foto"]["size"] > 2000000) {
-                $_SESSION['alert'] = ['icon' => 'error', 'message' => 'Ukuran file terlalu besar (Max 2MB)!'];
+                $_SESSION['alert'] = ['icon' => 'error', 'message' => 'Ukuran file terlalu besar (Maksimal 2MB)!'];
                 $upload_ok = false;
             } else {
                 $new_filename = time() . '_' . uniqid() . '.' . $file_extension;
@@ -333,11 +333,11 @@ if ($koneksi->ping()) { $koneksi->close(); }
                                                 </div>
                                                 <div class="col">
                                                     <label for="foto" class="btn btn-outline-primary btn-upload mb-2 shadow-sm">
-                                                        <i class="fa-solid fa-cloud-arrow-up me-2"></i>Upload Foto
+                                                        <i class="fa-solid fa-cloud-arrow-up me-2"></i>Unggah Foto
                                                     </label>
                                                     <input type="file" name="foto" id="foto" class="d-none" accept="image/png, image/jpeg, image/jpg">
                                                     <div class="text-muted small" style="font-size: 0.8rem;">
-                                                        JPG/PNG, Max 2MB. Foto persegi direkomendasikan.
+                                                        JPG/PNG, Maksimal 2MB. Foto persegi direkomendasikan.
                                                     </div>
                                                     <div id="fotoFeedback" class="text-danger small mt-1 fw-bold" style="display: none;"></div>
                                                 </div>
@@ -400,7 +400,7 @@ if ($koneksi->ping()) { $koneksi->close(); }
                             
                                             <div class="d-flex justify-content-end pt-3">
                                                 <button type="submit" name="ganti_password" class="btn btn-custom-primary">
-                                                    Update Kata Sandi
+                                                    Perbarui Kata Sandi
                                                 </button>
                                             </div>
                                         </form>

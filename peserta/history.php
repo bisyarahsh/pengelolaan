@@ -274,7 +274,7 @@ while ($r_read = mysqli_fetch_assoc($q_read)) {
                             <td><?php echo htmlspecialchars($rapat['ruang_rapat']); ?></td>
                             <td class="text-center">
                               <button type="button" class="btn btn-warning aksi view-rapat-btn" data-bs-toggle="modal" data-bs-target="#viewModal" data-id="<?php echo htmlspecialchars($rapat['id_rapat']); ?>" title="Lihat Detail Rapat"><i class="fa-solid fa-eye"></i></button>
-                              <button type="button" class="btn btn-success aksi print-rapat-detail-btn" title="Download Detail Rapat PDF" data-id="<?php echo $rapat['id_rapat']; ?>"><i class="fa-solid fa-arrow-down"></i></button>
+                              <button type="button" class="btn btn-success aksi print-rapat-detail-btn" data-id="<?php echo $rapat['id_rapat']; ?>"><i class="fa-solid fa-arrow-down"></i></button>
                             </td>
                           </tr>
                         <?php endforeach; ?>
@@ -393,13 +393,17 @@ while ($r_read = mysqli_fetch_assoc($q_read)) {
                 { width: "100px", targets: 6 }
             ],
             "language": {
-                "emptyTable": "Tidak ada agenda rapat",
-                "info": "Menampilkan _START_ sampai _END_ dari _TOTAL_ agenda",
-                "infoEmpty": "Menampilkan 0 sampai 0 dari 0 agenda",
-                "infoFiltered": "(difilter dari total _MAX_ agenda)",
-                "lengthMenu": "Tampilkan _MENU_ agenda",
+                "emptyTable": "Tidak ada riwayat rapat",
+                "info": "Menampilkan _START_ sampai _END_ dari _TOTAL_ riwayat",
+                "infoEmpty": "Menampilkan 0 sampai 0 dari 0 riwayat",
+                "infoFiltered": "(difilter dari total _MAX_ riwayat)",
+                "lengthMenu": "Tampilkan _MENU_ riwayat",
                 "search": "Cari:",
-                "zeroRecords": "Tidak ditemukan agenda rapat yang cocok"
+                "zeroRecords": "Tidak ditemukan riwayat rapat yang cocok",
+                "paginate": {
+                    "previous": "<",
+                    "next": ">"
+                }
             }
         });
         flatpickr(".input-tanggal", {
@@ -467,7 +471,7 @@ while ($r_read = mysqli_fetch_assoc($q_read)) {
                                 </div>
                             `);
                         } else {
-                            $('#view_notulen_container').html('<span class="text-muted small"><i>Tidak ada file notulen yang diunggah.</i></span>');
+                            $('#view_notulen_container').html('<span class="text-muted small"><i>Tidak ada berkas notulen yang diunggah.</i></span>');
                         }
 
                         // Daftar Peserta
@@ -498,8 +502,8 @@ while ($r_read = mysqli_fetch_assoc($q_read)) {
             var id_rapat = $(this).data('id');
             
             Swal.fire({
-                title: "Memproses Download",
-                text: "Mohon tunggu sebentar, file PDF sedang disiapkan...",
+                title: "Memproses Unduh",
+                text: "Mohon tunggu sebentar, berkas PDF sedang disiapkan...",
                 icon: "info",
                 allowOutsideClick: false,
                 showConfirmButton: false,

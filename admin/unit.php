@@ -205,7 +205,7 @@ unset($_SESSION['alert']); // Hapus setelah diambil
                                         </div>
                                     </div>
 									<div class="modal-footer">
-										<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+										<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
                                     <button type="submit" name="tambah_unit" class="btn btn-primary">Tambah</button>
                                     </div>
                                 </form>
@@ -231,7 +231,7 @@ unset($_SESSION['alert']); // Hapus setelah diambil
                                         </div>
                                     </div>
 									<div class="modal-footer">
-										<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+										<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
 										<button type="submit" name="edit_unit" class="btn btn-primary">Simpan</button>
                                     </div>
                                 </form>

@@ -87,6 +87,13 @@ $total_riwayat = mysqli_fetch_assoc(mysqli_query($koneksi, $sql_riwayat))['total
 // Rapat Bulan Ini
 $current_month = date('m');
 $current_year = date('Y');
+$list_bulan = array(
+    '01' => 'Januari', '02' => 'Februari', '03' => 'Maret', 
+    '04' => 'April', '05' => 'Mei', '06' => 'Juni', 
+    '07' => 'Juli', '08' => 'Agustus', '09' => 'September', 
+    '10' => 'Oktober', '11' => 'November', '12' => 'Desember'
+);
+$bulan_indo = $list_bulan[$current_month];
 $sql_month_now = "SELECT COUNT(*) as total 
                   FROM agenda_rapat ar
                   JOIN peserta_rapat pr ON ar.id_rapat = pr.id_rapat
@@ -303,7 +310,7 @@ function tgl_indo_short($tanggal){
                                     <div class="col mr-2">
                                         <div class="stat-label text-success mb-1">Riwayat Rapat</div>
                                         <div class="h3 mb-0 fw-bold text-gray-800"><?php echo $total_riwayat; ?></div>
-                                        <a href="history.php" class="text-decoration-none small text-muted mt-2 d-inline-block">Lihat History &rarr;</a>
+                                        <a href="history.php" class="text-decoration-none small text-muted mt-2 d-inline-block">Lihat Riwayat &rarr;</a>
                                     </div>
                                     <div class="col-auto">
                                         <i class="fas fa-clock-rotate-left fa-2x text-gray-300 stat-icon text-success"></i>
@@ -320,7 +327,7 @@ function tgl_indo_short($tanggal){
                                     <div class="col mr-2">
                                         <div class="stat-label text-warning mb-1">Rapat Bulan Ini</div>
                                         <div class="h3 mb-0 fw-bold text-gray-800"><?php echo $total_month; ?></div>
-                                        <small class="text-muted">Aktivitas bulan <?php echo date('F'); ?></small>
+                                        <small class="text-muted">Aktivitas bulan <?php echo $bulan_indo; ?></small>
                                     </div>
                                     <div class="col-auto">
                                         <i class="fas fa-chart-line fa-2x text-gray-300 stat-icon text-warning"></i>
