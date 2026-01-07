@@ -441,7 +441,7 @@ while ($row = mysqli_fetch_assoc($q_invite)) {
                     <div class="modal-dialog modal-dialog-centered modal-sm"> 
                         <div class="modal-content text-center">
                             <div class="modal-body pt-5 pb-4">
-                                <form method="POST" action="../php/delete_rapat.php">
+                                <form method="POST" action="../php/delete_rapatv.1.php">
                                     <input type="hidden" name="hapus_id_rapat" id="hapus_id_rapat_modal"> 
 
                                     <div class="modal-icon-wrapper">
