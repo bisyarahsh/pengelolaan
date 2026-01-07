@@ -217,8 +217,8 @@ function tgl_indo_short($tanggal){
         <a href="../index.html" data-aos="fade-down" class="logo ps-3"><i class='ps-5'></i> Rapatin</a>
         <a href="../index.html" data-aos="fade-down" class="logo-mini fw-bold"> R</a>
         <ul class="side-menu" data-aos="fade-right">
-            <li><a href="dashboard.php"><i class="fa-solid fa-home icon"></i> Dasbor</a></li>
-            <li><a href="agenda.php" class="active"><i class="fa-solid fa-calendar-days icon"></i> Agenda Rapat</a></li>
+            <li><a href="dashboard.php" class="active"><i class="fa-solid fa-home icon"></i> Dasbor</a></li>
+            <li><a href="agenda.php"><i class="fa-solid fa-calendar-days icon"></i> Agenda Rapat</a></li>
             <li><a href="history.php"><i class="fa-solid fa-clock-rotate-left icon"></i> Riwayat Rapat</a></li>
             <li><a href="pengaturan.php"><i class="fa-solid fa-gear icon"></i> Pengaturan</a></li>
             <li><a href="logout.php"><i class="fa-solid fa-right-from-bracket icon"></i> Keluar</a></li>

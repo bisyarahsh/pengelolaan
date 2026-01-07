@@ -507,7 +507,7 @@ if (!empty($id_unit_ketua)) {
 				                            </div>
 														
 				                            <div class="mb-2">
-				                                <label>Upload Notulen (Opsional)</label>
+				                                <label>Unggah Notulen (Opsional)</label>
 				                                <input class="form-control form-control-sm" type="file" id="myFile" name="filename" accept=".pdf,.doc,.docx">
 				                            </div>
 				                        </div>
@@ -671,9 +671,9 @@ if (!empty($id_unit_ketua)) {
 				                            </div>
 														
 				                            <div class="mb-2 p-2 bg-light border rounded">
-				                                <label class="text-muted small">File Saat Ini:</label>
+				                                <label class="text-muted small">Berkas Saat Ini:</label>
 				                                <div id="current_file_info" class="text-truncate fw-bold text-dark small mb-1"></div>
-				                                <label class="mt-1">Ganti File (Opsional)</label>
+				                                <label class="mt-1">Ganti Berkas (Opsional)</label>
 				                                <input class="form-control form-control-sm" type="file" id="edit_file" name="edit_filename" accept=".pdf,.doc,.docx">
 				                            </div>
 				                        </div>

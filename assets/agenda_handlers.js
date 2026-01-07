@@ -237,7 +237,7 @@ $(document).ready(function() {
 
         $('#notulen_file_lama').val(notulen_file);
         
-        var notulenHtml = 'Tidak ada file notulen saat ini. ';
+        var notulenHtml = 'Tidak ada berkas notulen saat ini. ';
         if (notulen_file) {
             var fileUrl = '../notulen_files/' + notulen_file;
             notulenHtml = 'File: <strong>' + notulen_file + '</strong>. (<a href="' + fileUrl + '" target="_blank">Lihat</a>) <br>Centang untuk menghapus: <input type="checkbox" name="hapus_file_lama" value="yes">';
@@ -322,7 +322,7 @@ $(document).ready(function() {
                             </div>
                         `);
                     } else {
-                        $('#view_notulen_container').html('<span class="text-muted small"><i>Tidak ada file notulen yang diunggah.</i></span>');
+                        $('#view_notulen_container').html('<span class="text-muted small"><i>Tidak ada berkas notulen yang diunggah.</i></span>');
                     }
 
                     var pesertaHtml = '';

@@ -170,8 +170,8 @@ while ($row = mysqli_fetch_assoc($q_invite)) {
         <ul class="side-menu" data-aos="fade-right">
             <li><a href="dashboard.php"><i class="fa-solid fa-home icon"></i> Dasbor</a></li>
             <li><a href="agenda.php"><i class="fa-solid fa-calendar-days icon"></i> Agenda Rapat</a></li>
-            <li><a href="riwayat.php"><i class="fa-solid fa-clock-rotate-left icon"></i> Riwayat Rapat</a></li>
-            <li><a href="manage_user.php" class="active"><i class="fa-solid fa-user icon"></i> Anggota</a></li>
+            <li><a href="riwayat.php" class="active"><i class="fa-solid fa-clock-rotate-left icon"></i> Riwayat Rapat</a></li>
+            <li><a href="manage_user.php"><i class="fa-solid fa-user icon"></i> Anggota</a></li>
             <li><a href="pengaturan.php"><i class="fa-solid fa-gear icon"></i> Pengaturan</a></li>
             <li><a href="logout.php"><i class="fa-solid fa-right-from-bracket icon"></i> Keluar</a></li>
         </ul>
@@ -504,13 +504,13 @@ $(document).ready(function() {
             { width: "150px", targets: 5 }   // Aksi
         ],
         "language": {
-            "emptyTable": "Tidak ada agenda rapat",
-            "info": "Menampilkan _START_ sampai _END_ dari _TOTAL_ agenda",
-            "infoEmpty": "Menampilkan 0 sampai 0 dari 0 agenda",
-            "infoFiltered": "(difilter dari total _MAX_ agenda)",
-            "lengthMenu": "Tampilkan _MENU_ agenda",
+            "emptyTable": "Tidak ada riwayat rapat",
+            "info": "Menampilkan _START_ sampai _END_ dari _TOTAL_ riwayat",
+            "infoEmpty": "Menampilkan 0 sampai 0 dari 0 riwayat",
+            "infoFiltered": "(difilter dari total _MAX_ riwayat)",
+            "lengthMenu": "Tampilkan _MENU_ riwayat",
             "search": "Cari:",
-            "zeroRecords": "Tidak ditemukan agenda rapat yang cocok",
+            "zeroRecords": "Tidak ditemukan riwayat rapat yang cocok",
             "paginate": {
                 "previous": "<",
                 "next": ">"
