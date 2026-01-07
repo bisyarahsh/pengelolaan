@@ -84,14 +84,14 @@ $(document).ready(function() {
                         
                         Swal.fire({
                             title: "Berhasil!",
-                            text: "Berhasil memilih " + participantIds.length + " peserta dengan peran peserta dari unit yang dipilih.",
+                            text: "Berhasil memilih " + participantIds.length + " peserta dengan dari unit yang dipilih.",
                             icon: "success"
                         });
                         
                     } else {
                         Swal.fire({
                             title: "Informasi",
-                            text: "Tidak ada peserta dengan peran peserta di unit tersebut.",
+                            text: "Tidak ada peserta dengan di unit tersebut.",
                             icon: "info"
                         });
                     }
@@ -153,14 +153,14 @@ $(document).ready(function() {
                         
                         Swal.fire({
                             title: "Berhasil!",
-                            text: "Berhasil memilih " + participantIds.length + " peserta dengan peran peserta dari unit yang dipilih.",
+                            text: "Berhasil memilih " + participantIds.length + " peserta dengan dari unit yang dipilih.",
                             icon: "success"
                         });
                         
                     } else {
                         Swal.fire({
                             title: "Informasi",
-                            text: "Tidak ada peserta dengan peran peserta di unit tersebut.",
+                            text: "Tidak ada peserta dengan di unit tersebut.",
                             icon: "info"
                         });
                     }
