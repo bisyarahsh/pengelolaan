@@ -37,9 +37,6 @@ toggleSidebar.addEventListener('click', function () {
 	}
 })
 
-
-
-
 sidebar.addEventListener('mouseleave', function () {
 	if(this.classList.contains('hide')) {
 		allDropdown.forEach(item=> {
@@ -52,8 +49,6 @@ sidebar.addEventListener('mouseleave', function () {
 		})
 	}
 })
-
-
 
 sidebar.addEventListener('mouseenter', function () {
 	if(this.classList.contains('hide')) {
@@ -85,4 +80,3 @@ allMenu.forEach(item=> {
 // Table
 new DataTable('#example');
 // Table
-
