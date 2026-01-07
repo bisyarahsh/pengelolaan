@@ -220,7 +220,7 @@ function get_all_units(mysqli $koneksi): array {
     return $unit_list;
 }
 
-$list_unit = get_all_units($koneksi);
+$units = get_all_units($koneksi);
 
 ?>
 <!DOCTYPE html>
