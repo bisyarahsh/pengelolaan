@@ -2,7 +2,7 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-include 'koneksi.php'; // Pastikan path ini benar
+include 'koneksi.php';
 
 // Tambah unit
 if (isset($_POST['tambah_unit'])) {

@@ -4,12 +4,11 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 include 'koneksi.php'; 
 
-// Edit Pengguna
 if (isset($_POST['edit_pengguna'])) {
     $id_user = $_POST['edit_id_user'];
     $nim = trim($_POST['edit_nim']);
     $nama_lengkap = trim($_POST['edit_nama_lengkap']);
-    $password_raw = $_POST['edit_password']; // Opsional, hanya jika diisi
+    $password_raw = $_POST['edit_password'];
     $email = trim($_POST['edit_email']);
     $role = $_POST['edit_role'];
     $unit_id = $_POST['edit_unit_id'];
@@ -18,7 +17,7 @@ if (isset($_POST['edit_pengguna'])) {
         $message = "Semua kolom harus diisi!";
         $icon = "warning";
     } else {
-        // Cek duplikasi NIM atau Email (kecuali milik user ini)
+        // Cek duplikasi NIK atau Email
         $check_sql = "SELECT id_user FROM users WHERE (nim = ? OR email = ?) AND id_user != ?";
         $check_stmt = $koneksi->prepare($check_sql);
         $check_stmt->bind_param("ssi", $nim, $email, $id_user);
@@ -27,15 +26,13 @@ if (isset($_POST['edit_pengguna'])) {
 
         if ($check_stmt->num_rows > 0) {
             $message = "NIM atau Email sudah terdaftar pada pengguna lain!";
-            $icon = "warning"; // SweetAlert Warning untuk duplikasi
+            $icon = "warning";
         } else {
-            // Bangun Query Update
             $update_sql = "UPDATE users SET nim = ?, nama_lengkap = ?, email = ?, role = ?, unit_id = ?";
             $params = [$nim, $nama_lengkap, $email, $role, $unit_id];
             $types = "ssssi";
 
             if (!empty($password_raw)) {
-                // Jika password diisi, update password juga
                 $password_hash = password_hash($password_raw, PASSWORD_DEFAULT);
                 $update_sql .= ", password = ?";
                 array_splice($params, 3, 0, [$password_hash]);

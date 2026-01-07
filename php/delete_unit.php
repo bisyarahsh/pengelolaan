@@ -2,7 +2,7 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-include 'koneksi.php'; // Pastikan path ini benar
+include 'koneksi.php';
 
 // Hapus unit
 if (isset($_POST['hapus_unit'])) {

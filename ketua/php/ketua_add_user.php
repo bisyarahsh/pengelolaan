@@ -7,16 +7,13 @@ include 'koneksi.php';
 // Tambah Pengguna
 if (isset($_POST['tambah_pengguna'])) {
     
-    // 1. Ambil unit_id Ketua yang sedang login
     $current_user_id = $_SESSION['id_user'] ?? null;
     $unit_id_ketua = null; 
 
-    // Verifikasi bahwa ID pengguna ada di sesi
     if (empty($current_user_id)) {
         $message = "Kesalahan sesi: ID pengguna tidak ditemukan.";
         $icon = "error";
     } else {
-        // Query untuk mendapatkan unit_id Ketua menggunakan prepared statement
         $unit_sql = "SELECT unit_id FROM users WHERE id_user = ?";
         $unit_stmt = $koneksi->prepare($unit_sql);
         $unit_stmt->bind_param("i", $current_user_id);
@@ -36,12 +33,8 @@ if (isset($_POST['tambah_pengguna'])) {
     $email = trim($_POST['email']);
     $role = "peserta"; 
     
-    // PENTING: Unit ID otomatis mengikuti unit Ketua ($unit_id_ketua).
-    // Nilai dari $_POST['unit_id'] diabaikan.
     $unit_id = $unit_id_ketua; 
 
-    // Validasi input
-    // Cek jika unit_id Ketua tidak valid atau kolom utama kosong
     if (empty($unit_id)) {
         $message = "Kesalahan sistem: Anda (Ketua) tidak terasosiasi dengan Unit mana pun. Gagal menambahkan pengguna.";
         $icon = "error";
@@ -60,12 +53,10 @@ if (isset($_POST['tambah_pengguna'])) {
 
         if ($check_stmt->num_rows > 0) {
             $message = "NIM atau Email sudah terdaftar!";
-            $icon = "warning"; // SweetAlert Warning untuk duplikasi
+            $icon = "warning";
         } else {
-            // Insert data
             $insert_sql = "INSERT INTO users (nim, nama_lengkap, email, password, role, unit_id) VALUES (?, ?, ?, ?, ?, ?)";
             $insert_stmt = $koneksi->prepare($insert_sql);
-            // $unit_id sudah berisi unit_id Ketua
             $insert_stmt->bind_param("sssssi", $nim, $nama_lengkap, $email, $password_hash, $role, $unit_id);
             if ($insert_stmt->execute()) {
                 $message = "Pengguna Berhasil ditambahkan ke unit Anda!";

@@ -1,11 +1,9 @@
 <?php
-// Pastikan path ke file Dompdf yang benar
 require '../lib/dompdf/autoload.inc.php'; 
 
 use Dompdf\Dompdf;
 use Dompdf\Options;
 
-// 1. Ambil ID Rapat dan Koneksi
 include 'koneksi.php';
 
 $id_rapat = $_GET['id'] ?? null;
@@ -14,11 +12,10 @@ if (!$id_rapat) {
     die("ID Rapat tidak ditemukan.");
 }
 
-// 2. Ambil Data Rapat (Query tetap)
 $sql = "SELECT 
             r.*, 
             o.nama_unit,
-            GROUP_CONCAT(u.nama_lengkap SEPARATOR '|||') AS peserta_details
+            GROUP_CONCAT(CONCAT(IFNULL(u.nim, ''), ' - ', u.nama_lengkap) SEPARATOR '|||') AS peserta_details
         FROM agenda_rapat r
         LEFT JOIN unit o ON r.id_unit = o.id_unit
         LEFT JOIN peserta_rapat pr ON r.id_rapat = pr.id_rapat
@@ -33,25 +30,15 @@ if (!$data) {
     die("Data rapat tidak ditemukan.");
 }
 
-// 3. Persiapan Data (MODIFIKASI PENTING DI BAGIAN INI)
-// =======================================================
-
-// A. SETEL ZONA WAKTU PHP ke WIB
-// 'Asia/Jakarta' mencakup Waktu Indonesia Barat (WIB)
+// ZONA WAKTU WIB
 date_default_timezone_set('Asia/Jakarta');
-
-// B. FORMAT TANGGAL
 $tanggalFormatted = date('d F Y', strtotime($data['tanggal_rapat']));
 
-// C. FORMAT JAM (Jam:Menit, tanpa Detik, + WIB)
-// Menggunakan 'H:i' untuk format 24 jam (tanpa detik)
 $jamRapatFormatted = date('H:i', strtotime($data['jam_rapat'])) . ' WIB'; 
 
-// D. DATA LAIN
 $judulRapat = htmlspecialchars($data['judul_rapat']);
 $namaFilePDF = 'Detail_Rapat_' . str_replace([' ', '/', '\\'], '_', $judulRapat) . '_' . date('Ymd') . '.pdf';
 
-// Bangun BASE URL ABSOLUT untuk Tautan File (Logika tetap sama)
 $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http";
 $host = $_SERVER['HTTP_HOST'];
 $script_uri = $_SERVER['SCRIPT_NAME'];
@@ -60,22 +47,41 @@ $root_path_uri = implode('/', array_slice(explode('/', $script_uri), 0, $admin_i
 $base_uri = $protocol . '://' . $host . $root_path_uri;
 $notulen_files_base = rtrim($base_uri, '/') . '/pengelolaan/notulen_files'; 
 
-// Peserta
 $pesertaArray = [];
 if (!empty($data['peserta_details'])) {
     $pesertaArray = explode('|||', $data['peserta_details']);
 }
-$pesertaHtml = '<ul>';
+
+$pesertaHtml = '<div style="font-size: 0;">';
+
 if (count($pesertaArray) > 0) {
-    foreach ($pesertaArray as $peserta) {
-        $pesertaHtml .= '<li>' . htmlspecialchars(trim($peserta)) . '</li>';
+    foreach ($pesertaArray as $index => $pesertaString) {
+        $parts = explode(' - ', trim($pesertaString), 2);
+        
+        if (count($parts) == 2) {
+            $nimTampil = $parts[0];
+            $namaTampil = $parts[1];
+        } else {
+            $nimTampil = ''; 
+            $namaTampil = $pesertaString;
+        }
+
+        $pesertaHtml .= '
+        <div style="display: inline-block; width: 48%; vertical-align: top; margin-bottom: 6px; padding: 6px 0; border-bottom: 1px solid #eee; margin-right: 2%; font-size: 13px;">
+            <span style="color: #1a237e; margin-right: 4px;">&#8226;</span> 
+            
+            <span style="color: #333;">' . htmlspecialchars($nimTampil) . '</span>
+            
+            <span style="color: #ccc; margin: 0 3px;">-</span>
+            
+            <span style="color: #333;">' . htmlspecialchars($namaTampil) . '</span>
+        </div>';
     }
 } else {
-    $pesertaHtml .= '<li>Tidak ada peserta.</li>';
+    $pesertaHtml .= '<div style="font-size: 13px; color: #999; padding: 10px 0;">Tidak ada peserta.</div>';
 }
-$pesertaHtml .= '</ul>';
+$pesertaHtml .= '</div>';
 
-// File Notulen
 $notulenHtml = 'Tidak ada file notulen.';
 if (!empty($data['notulen_file'])) {
     $fileName = htmlspecialchars($data['notulen_file']);
@@ -83,10 +89,6 @@ if (!empty($data['notulen_file'])) {
     $notulenHtml = '<a href="' . $fileUrl . '" style="color: #007bff; text-decoration: underline;">' . $fileName . '</a>';
 }
 
-// =======================================================
-
-
-// 4. Buat Konten HTML untuk PDF (Menggunakan variabel $jamRapatFormatted yang baru)
 $html = '
 <!DOCTYPE html>
 <html>
@@ -94,34 +96,177 @@ $html = '
     <meta charset="UTF-8">
     <title>' . $judulRapat . '</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
-        h1 { color: #333; border-bottom: 2px solid #ccc; padding-bottom: 10px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; font-size: 12px; }
-        th { background-color: #f2f2f2; width: 30%; font-weight: bold; }
-        ul { margin: 0; padding-left: 0px; list-style: none; }
-        li { margin-bottom: 5px; }
+        /* Mengatur Margin Halaman agar Header bisa Full Width */
+        @page { margin: 0px; }
+        
+        body {
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            color: #444;
+            line-height: 1.5;
+            margin: 0;
+            padding: 0;
+            background-color: #fff;
+        }
+
+        .header-banner {
+            background-color: #1a237e; /* Deep Blue Professional */
+            color: #fff;
+            padding: 40px 50px;
+            border-bottom: 5px solid #ffab00; /* Gold Accent */
+        }
+        
+        .header-table { width: 100%; }
+        .brand-text { font-size: 14px; text-transform: uppercase; letter-spacing: 2px; opacity: 0.8; }
+        .doc-title { font-size: 28px; font-weight: bold; margin: 10px 0 5px 0; }
+        .doc-subtitle { font-size: 16px; font-weight: 300; opacity: 0.9; }
+
+        /* MAIN CONTENT CONTAINER */
+        .container {
+            padding: 40px 50px;
+        }
+
+        /* SECTION STYLING */
+        .section-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #1a237e;
+            text-transform: uppercase;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 8px;
+            margin-bottom: 15px;
+            margin-top: 10px;
+            letter-spacing: 1px;
+        }
+
+        /* INFO GRID (Menggunakan Table) */
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 25px;
+        }
+        .info-table td {
+            padding: 8px 0;
+            vertical-align: top;
+        }
+        .label {
+            width: 140px;
+            color: #888;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .value {
+            color: #333;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* CONTENT BOX (Keterangan) */
+        .content-box {
+            background-color: #f8f9fa;
+            border-left: 4px solid #1a237e;
+            padding: 15px 20px;
+            text-align: justify;
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 30px;
+        }
+
+        /* BADGES */
+        .badge {
+            display: inline-block;
+            background-color: #e8eaf6;
+            color: #1a237e;
+            padding: 6px 12px;
+            border-radius: 20px; /* Fully Rounded */
+            font-size: 11px;
+            font-weight: bold;
+            margin-right: 5px;
+            margin-bottom: 8px;
+            border: 1px solid #c5cae9;
+        }
+        .empty-state { font-style: italic; color: #999; font-size: 13px; }
+
+        /* FOOTER */
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 40px;
+            background-color: #f4f4f4;
+            color: #777;
+            text-align: center;
+            line-height: 40px;
+            font-size: 10px;
+            border-top: 1px solid #ddd;
+        }
+        
+        /* Utility */
+        .icon { font-family: sans-serif; margin-right: 5px; }
+        .highlight { color: #d32f2f; font-weight: bold; }
     </style>
 </head>
 <body>
-    <h1>Detail Rapat: ' . $judulRapat . '</h1>
-    
-    <table>
-        <tbody>
-            <tr><th>Tanggal Rapat</th><td>' . $tanggalFormatted . '</td></tr>
-            <tr><th>Jam Rapat</th><td>' . $jamRapatFormatted . '</td></tr>
-            <tr><th>Judul Rapat</th><td>' . $judulRapat . '</td></tr>
-            <tr><th>Ruang Rapat</th><td>' . htmlspecialchars($data['ruang_rapat']) . '</td></tr>
-            <tr><th>unit</th><td>' . htmlspecialchars($data['nama_unit']) . '</td></tr>
-            <tr><th>Keterangan</th><td>' . nl2br(htmlspecialchars($data['keterangan'])) . '</td></tr>
-            <tr><th>File Notulen</th><td>' . $notulenHtml . '</td></tr>
-            <tr><th>Peserta Rapat</th><td>' . $pesertaHtml . '</td></tr>
-        </tbody>
-    </table>
+
+    <div class="header-banner">
+        <table class="header-table">
+            <tr>
+                <td>
+                    <div class="brand-text">RAPATIN</div>
+                    <div class="doc-title">DETAIL RAPAT</div>
+                </td>
+                <td align="right" style="vertical-align: middle;">
+                    <div style="border: 2px solid rgba(255,255,255,0.3); padding: 10px 20px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 10px; opacity: 0.7;">TANGGAL CETAK</div>
+                        <div style="font-size: 14px; font-weight: bold;">' . date('d M Y') . '</div>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="container">
+
+        <div class="section-title">Informasi Utama</div>
+        <table class="info-table">
+            <tr>
+                <td class="label">Judul Rapat</td>
+                <td class="value" style="font-size: 14px; font-weight: 500; color: #333;">' . $judulRapat . '</td>
+            </tr>
+            <tr>
+                <td class="label">Waktu</td>
+                <td class="value">
+                    ' . $tanggalFormatted . ' &nbsp;|&nbsp; ' . $jamRapatFormatted . '
+                </td>
+            </tr>
+            <tr>
+                <td class="label">Ruang Rapat</td>
+                <td class="value">' . htmlspecialchars($data['ruang_rapat']) . '</td>
+            </tr>
+            <tr>
+                <td class="label">Dokumen</td>
+                <td class="value">' . $notulenHtml . '</td>
+            </tr>
+        </table>
+
+        <div class="section-title">Agenda & Pembahasan</div>
+        <div class="content-box">
+            ' . nl2br(htmlspecialchars($data['keterangan'])) . '
+        </div>
+
+        <div class="section-title">
+            Daftar Peserta <span style="font-size: 11px; color: #888; font-weight: normal; text-transform: none;">(Total: ' . count($pesertaArray) . ' Orang)</span>
+        </div>
+        <div style="margin-top: 10px;">
+            ' . $pesertaHtml . '
+        </div>
+
+    </div>
+
 </body>
 </html>';
 
-// 5. Konfigurasi dan Generasi PDF (Dompdf)
 $options = new Options();
 $options->set('defaultFont', 'Arial');
 $options->set('isHtml5ParserEnabled', true);
@@ -134,7 +279,6 @@ $dompdf->loadHtml($html);
 $dompdf->setPaper('A4', 'portrait');
 $dompdf->render();
 
-// Stream (Unduh) file yang dihasilkan ke browser
 $dompdf->stream($namaFilePDF, ["Attachment" => true]);
 
 exit;

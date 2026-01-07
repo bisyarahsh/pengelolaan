@@ -2,15 +2,13 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-include 'koneksi.php'; // Pastikan path ini benar
+include 'koneksi.php';
 
-// Edit unit
 if (isset($_POST['edit_unit'])) {
     $id = $_POST['edit_id_unit'];
     $nama_baru = trim($_POST['edit_nama_unit']);
 
     if (!empty($nama_baru) && !empty($id)) {
-        // Cek duplikasi, kecuali untuk ID yang sedang diedit
         $check_sql = "SELECT id_unit FROM unit WHERE nama_unit = ? AND id_unit != ?";
         $check_stmt = $koneksi->prepare($check_sql);
         $check_stmt->bind_param("si", $nama_baru, $id);
@@ -21,7 +19,6 @@ if (isset($_POST['edit_unit'])) {
             $message = "Nama unit sudah ada!";
             $icon = "warning";
         } else {
-            // Update data
             $update_sql = "UPDATE unit SET nama_unit = ? WHERE id_unit = ?";
             $update_stmt = $koneksi->prepare($update_sql);
             $update_stmt->bind_param("si", $nama_baru, $id);
@@ -39,7 +36,6 @@ if (isset($_POST['edit_unit'])) {
         $message = "Nama unit atau ID tidak valid!";
         $icon = "warning";
     }
-    // Set session flash message
     $_SESSION['alert'] = ['icon' => $icon, 'message' => $message];
     header("Location: ../admin/unit.php");
     exit();

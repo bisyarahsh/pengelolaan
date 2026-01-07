@@ -4,7 +4,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 include 'koneksi.php'; 
 
-// 3. Hapus Pengguna
+// Hapus Pengguna
 if (isset($_POST['hapus_pengguna'])) {
     $id_user = $_POST['hapus_id_user']; 
 
