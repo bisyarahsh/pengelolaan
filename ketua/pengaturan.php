@@ -2,6 +2,7 @@
 include '../php/koneksi.php'; 
 session_start();
 
+// Cek Sesi
 if ($_SESSION['status'] != "login") {
     exit;
 }
@@ -19,7 +20,7 @@ if (isset($_SESSION['id_user'])) {
 $alert = $_SESSION['alert'] ?? null;
 unset($_SESSION['alert']);
 
-// 2. Ambil Data User Saat Ini
+// Ambil Data User Saat Ini
 $sql_user = "SELECT u.*, o.nama_unit FROM users u LEFT JOIN unit o ON u.unit_id = o.id_unit
              WHERE u.id_user = ?";
 $stmt_user = $koneksi->prepare($sql_user);
@@ -27,7 +28,7 @@ $stmt_user->bind_param("i", $user_id);
 $stmt_user->execute();
 $current_user = $stmt_user->get_result()->fetch_assoc();
 
-// --- LOGIKA MENENTUKAN GAMBAR PROFIL ---
+// Gambar Profil
 $nama_user = $current_user['nama_lengkap'];
 $file_foto = $current_user['profile_pic'];
 $path_foto = "../assets/img/profile/" . $file_foto;
@@ -38,10 +39,9 @@ if (!empty($file_foto) && file_exists($path_foto)) {
     $profile_img_src = "https://ui-avatars.com/api/?name=" . urlencode($nama_user) . "&background=4e73df&color=fff&size=512&font-size=0.4&bold=true";
 }
 
-// --- 4. DATA USER, FOTO & INISIAL ---
+// DATA USER, FOTO & INISIAL
 $id_user_login = $_SESSION['id_user'];
 
-// PERHATIAN: Pastikan 'foto' sesuai dengan nama kolom di database Anda
 $sql_user_info = "SELECT nama_lengkap, profile_pic FROM users WHERE id_user = '$id_user_login'"; 
 $q_user_info = mysqli_query($koneksi, $sql_user_info);
 $d_user_info = mysqli_fetch_assoc($q_user_info);
@@ -56,7 +56,7 @@ if (!empty($foto_db) && file_exists($path_foto_target)) {
     $tampilkan_foto = true;
 }
 
-// Logika Membuat Inisial (Tetap dibuat untuk jaga-jaga jika foto dihapus fisik)
+// Membuat Profil Inisial
 $words = explode(" ", $nama_user);
 $initials = "";
 if (count($words) >= 1) {
@@ -68,16 +68,11 @@ if (count($words) >= 1) {
     $initials = "KP";
 }
 
-// Setup Alert
-$alert = $_SESSION['alert'] ?? null;
-unset($_SESSION['alert']);
-
-// --- LOGIKA 1: UPDATE PROFIL ---
+// Update Profil
 if (isset($_POST['update_profil'])) {
-    $email_baru = trim($_POST['email']); // Trim spasi
+    $email_baru = trim($_POST['email']);
     $upload_ok = true;
     
-    // VALIDASI PHP (Backend Security)
     if (empty($email_baru)) {
         $_SESSION['alert'] = ['icon' => 'error', 'message' => 'Email tidak boleh kosong!'];
         $upload_ok = false;
@@ -86,11 +81,9 @@ if (isset($_POST['update_profil'])) {
         $upload_ok = false;
     }
 
-    // Jika Email Valid, Lanjut Proses Gambar
     if ($upload_ok) {
         $img_name = $current_user['profile_pic']; 
 
-        // Cek file gambar
         if (!empty($_FILES['foto']['name'])) {
             $target_dir = "../assets/img/profile/";
             if (!is_dir($target_dir)) { mkdir($target_dir, 0777, true); }
@@ -120,7 +113,6 @@ if (isset($_POST['update_profil'])) {
         }
     }
 
-    // Eksekusi Update Database jika semua OK
     if ($upload_ok) {
         $sql_update_profile = "UPDATE users SET email = ?, profile_pic = ? WHERE id_user = ?";
         $stmt_update = $koneksi->prepare($sql_update_profile);
@@ -136,7 +128,7 @@ if (isset($_POST['update_profil'])) {
     }
 }
 
-// --- LOGIKA 2: GANTI PASSWORD ---
+// Ganti Kata Sandi
 if (isset($_POST['ganti_password'])) {
     $password_lama = $_POST['password_lama'];
     $password_baru = $_POST['password_baru'];
@@ -189,18 +181,21 @@ if ($koneksi->ping()) { $koneksi->close(); }
     </style>
 </head>
 <body>
+    <!-- Sidebar -->
     <section id="sidebar">
-      <a href="../index.html" data-aos="fade-down" class="logo ps-3"><i class="ps-5"></i> Rapatin</a>
-      <a href="../index.html" data-aos="fade-down" class="logo-mini fw-bold"> R</a>
-      <ul class="side-menu" data-aos="fade-right">
-        <li><a href="dashboard.php"><i class="fa-solid fa-home icon"></i> Dasbor</a></li>
-        <li><a href="agenda.php"><i class="fa-solid fa-calendar-days icon"></i> Agenda Rapat</a></li>
-        <li><a href="riwayat.php"><i class="fa-solid fa-clock-rotate-left icon"></i> Riwayat Rapat</a></li>
-        <li><a href="manage_user.php"><i class="fa-solid fa-user icon"></i> Anggota</a></li>
-        <li><a href="pengaturan.php" class="active"><i class="fa-solid fa-gear icon"></i> Pengaturan</a></li>
-        <li><a href="logout.php"><i class="fa-solid fa-right-from-bracket icon"></i> Keluar</a></li>
-      </ul>
+        <a href="../index.html" data-aos="fade-down" class="logo ps-3"><i class="ps-5"></i> Rapatin</a>
+        <a href="../index.html" data-aos="fade-down" class="logo-mini fw-bold"> R</a>
+        <ul class="side-menu" data-aos="fade-right">
+            <li><a href="dashboard.php"><i class="fa-solid fa-home icon"></i> Dasbor</a></li>
+            <li><a href="agenda.php"><i class="fa-solid fa-calendar-days icon"></i> Agenda Rapat</a></li>
+            <li><a href="riwayat.php"><i class="fa-solid fa-clock-rotate-left icon"></i> Riwayat Rapat</a></li>
+            <li><a href="manage_user.php"><i class="fa-solid fa-user icon"></i> Anggota</a></li>
+            <li><a href="pengaturan.php" class="active"><i class="fa-solid fa-gear icon"></i> Pengaturan</a></li>
+            <li><a href="logout.php"><i class="fa-solid fa-right-from-bracket icon"></i> Keluar</a></li>
+        </ul>
     </section>
+    <!-- End Sidebar -->
+
     <section id="content">
       <!-- Navbar -->
 		<nav class="atas mb-4 shadow">
@@ -244,169 +239,181 @@ if ($koneksi->ping()) { $koneksi->close(); }
             </div>
         </nav>
 		<!-- End Navbar -->
-
-      <main>
-        <div data-aos="fade-down" class="container-fluid py-2">
-            <div class="row g-4">
-                <div class="col-lg-4">
-                    <div class="card card-custom text-center h-100">
-                        <div class="profile-banner"></div>
-                        <div class="card-body pt-0">
-                            <div class="profile-pic-container">
-                                <div class="profile-pic-wrapper">
-                                    <img src="<?= $profile_img_src; ?>" id="sidebarProfilePic" alt="Profile">
-                                </div>
-                            </div>
-                            
-                            <h5 class="fw-bold mt-3 text-dark"><?= htmlspecialchars($current_user['nama_lengkap']); ?></h5>
-                            
-                            <div class="d-flex justify-content-center align-items-center gap-2 mb-3">
-                                <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill">
-                                    <i class="fa-solid fa-user-tag me-1"></i> 
-                                    <?= ($current_user['role'] == 'Ketua') ? 'Ketua Prodi' : $current_user['role']; ?>
-                                </span>
-                            </div>
-
-                            <hr class="my-4" style="opacity: 0.1;">
-
-                            <div class="row text-start px-3">
-                                <div class="col-12 mb-3">
-                                    <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem; letter-spacing: 1px;">Unit Kerja</small>
-                                    <div class="d-flex align-items-center mt-1">
-                                        <div class="bg-light rounded-circle p-2 me-3 text-primary">
-                                            <i class="fa-solid fa-building"></i>
-                                        </div>
-                                        <span class="fw-semibold text-dark"><?= htmlspecialchars($current_user['nama_unit'] ?? '-'); ?></span>
+        
+        <!-- Main -->
+        <main>
+            <div data-aos="fade-down" class="container-fluid py-2">
+                <div class="row g-4">
+                    <!-- Preview -->
+                    <div class="col-lg-4">
+                        <div class="card card-custom text-center h-100">
+                            <div class="profile-banner"></div>
+                            <div class="card-body pt-0">
+                                <div class="profile-pic-container">
+                                    <div class="profile-pic-wrapper">
+                                        <img src="<?= $profile_img_src; ?>" id="sidebarProfilePic" alt="Profile">
                                     </div>
                                 </div>
-                                <div class="col-12">
-                                    <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem; letter-spacing: 1px;">Email Terdaftar</small>
-                                    <div class="d-flex align-items-center mt-1">
-                                        <div class="bg-light rounded-circle p-2 me-3 text-success">
-                                            <i class="fa-solid fa-envelope"></i>
+
+                                <h5 class="fw-bold mt-3 text-dark"><?= htmlspecialchars($current_user['nama_lengkap']); ?></h5>
+
+                                <div class="d-flex justify-content-center align-items-center gap-2 mb-3">
+                                    <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill">
+                                        <i class="fa-solid fa-user-tag me-1"></i> 
+                                        <?= ($current_user['role'] == 'Ketua') ? 'Ketua Prodi' : $current_user['role']; ?>
+                                    </span>
+                                </div>
+
+                                <hr class="my-4" style="opacity: 0.1;">
+
+                                <div class="row text-start px-3">
+                                    <div class="col-12 mb-3">
+                                        <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem; letter-spacing: 1px;">Unit Kerja</small>
+                                        <div class="d-flex align-items-center mt-1">
+                                            <div class="bg-light rounded-circle p-2 me-3 text-primary">
+                                                <i class="fa-solid fa-building"></i>
+                                            </div>
+                                            <span class="fw-semibold text-dark"><?= htmlspecialchars($current_user['nama_unit'] ?? '-'); ?></span>
                                         </div>
-                                        <span class="fw-semibold text-dark text-truncate"><?= htmlspecialchars($current_user['email']); ?></span>
+                                    </div>
+                                    <div class="col-12">
+                                        <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem; letter-spacing: 1px;">Email Terdaftar</small>
+                                        <div class="d-flex align-items-center mt-1">
+                                            <div class="bg-light rounded-circle p-2 me-3 text-success">
+                                                <i class="fa-solid fa-envelope"></i>
+                                            </div>
+                                            <span class="fw-semibold text-dark text-truncate"><?= htmlspecialchars($current_user['email']); ?></span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                    <!-- End Preview -->
 
-                <div class="col-lg-8">
-                    <div class="card card-custom h-100">
-                        <div class="card-header bg-white border-0 py-4 px-4">
-                            <ul class="nav nav-pills" id="settingTabs" role="tablist">
-                                <li class="nav-item me-2">
-                                    <button class="nav-link <?= $active_tab == 'profile' ? 'active' : ''; ?>" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile" type="button" role="tab">
-                                        <i class="fa-solid fa-user-pen me-2"></i>Edit Profil
-                                    </button>
-                                </li>
-                                <li class="nav-item">
-                                    <button class="nav-link <?= $active_tab == 'password' ? 'active' : ''; ?>" id="password-tab" data-bs-toggle="tab" data-bs-target="#password" type="button" role="tab">
-                                        <i class="fa-solid fa-shield-halved me-2"></i>Keamanan
-                                    </button>
-                                </li>
-                            </ul>
-                        </div>
-                        
-                        <div class="card-body px-4 pb-4">
-                            <div class="tab-content" id="settingTabsContent">
-                                
-                                <div class="tab-pane fade <?= $active_tab == 'profile' ? 'show active' : ''; ?>" id="profile" role="tabpanel">
-                                    <form action="" method="POST" enctype="multipart/form-data" class="needs-validation" id="formProfil" novalidate>
-                                        <h6 class="text-uppercase text-muted small fw-bold mb-4">Informasi Dasar</h6>
-                                        
-                                        <div class="row align-items-center mb-5">
-                                            <div class="col-auto">
-                                                <div class="position-relative" style="width: 100px; height: 100px;">
-                                                    <img src="<?= $profile_img_src; ?>" id="previewImg" class="rounded-circle w-100 h-100 shadow-sm object-fit-cover" alt="Preview">
-                                                    <div class="loading-overlay rounded-circle" id="imgLoading">
-                                                        <div class="loading-spinner"></div>
+                    <!-- Content Tab -->
+                    <div class="col-lg-8">
+                        <div class="card card-custom h-100">
+                            <!-- Tab Switch Profil dan Keamanan -->
+                            <div class="card-header bg-white border-0 py-4 px-4">
+                                <ul class="nav nav-pills" id="settingTabs" role="tablist">
+                                    <li class="nav-item me-2">
+                                        <button class="nav-link <?= $active_tab == 'profile' ? 'active' : ''; ?>" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile" type="button" role="tab">
+                                            <i class="fa-solid fa-user-pen me-2"></i>Edit Profil
+                                        </button>
+                                    </li>
+                                    <li class="nav-item">
+                                        <button class="nav-link <?= $active_tab == 'password' ? 'active' : ''; ?>" id="password-tab" data-bs-toggle="tab" data-bs-target="#password" type="button" role="tab">
+                                            <i class="fa-solid fa-shield-halved me-2"></i>Keamanan
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
+                            <!-- End Tab Switch Profil dan Keamanan -->
+                            
+                            <!-- Tab Profil dan Keamanan -->
+                            <div class="card-body px-4 pb-4">
+                                <div class="tab-content" id="settingTabsContent">
+                                    <!-- Tab Profil -->
+                                    <div class="tab-pane fade <?= $active_tab == 'profile' ? 'show active' : ''; ?>" id="profile" role="tabpanel">
+                                        <form action="" method="POST" enctype="multipart/form-data" class="needs-validation" id="formProfil" novalidate>
+                                            <h6 class="text-uppercase text-muted small fw-bold mb-4">Informasi Dasar</h6>
+
+                                            <div class="row align-items-center mb-5">
+                                                <div class="col-auto">
+                                                    <div class="position-relative" style="width: 100px; height: 100px;">
+                                                        <img src="<?= $profile_img_src; ?>" id="previewImg" class="rounded-circle w-100 h-100 shadow-sm object-fit-cover" alt="Preview">
+                                                        <div class="loading-overlay rounded-circle" id="imgLoading">
+                                                            <div class="loading-spinner"></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col">
+                                                    <label for="foto" class="btn btn-outline-primary btn-upload mb-2 shadow-sm">
+                                                        <i class="fa-solid fa-cloud-arrow-up me-2"></i>Upload Foto
+                                                    </label>
+                                                    <input type="file" name="foto" id="foto" class="d-none" accept="image/png, image/jpeg, image/jpg">
+                                                    <div class="text-muted small" style="font-size: 0.8rem;">
+                                                        JPG/PNG, Max 2MB. Foto persegi direkomendasikan.
+                                                    </div>
+                                                    <div id="fotoFeedback" class="text-danger small mt-1 fw-bold" style="display: none;"></div>
+                                                </div>
+                                            </div>
+
+                                            <div class="mb-4">
+                                                <label class="form-label fw-semibold text-dark">Alamat Email</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text"><i class="fa-solid fa-at text-muted"></i></span>
+                                                    <input type="email" class="form-control" name="email" value="<?= htmlspecialchars($current_user['email']); ?>" required placeholder="contoh@email.com">
+                                                    <div class="invalid-feedback">Email tidak boleh kosong dan harus format email yang benar.</div>
+                                                </div>
+                                            </div>
+
+                                            <div class="d-flex justify-content-end pt-3">
+                                                <button type="submit" name="update_profil" class="btn btn-custom-primary">
+                                                    Simpan Perubahan
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <!-- End Tab Profil -->
+
+                                    <!-- Tab Keamanan -->
+                                    <div class="tab-pane fade <?= $active_tab == 'password' ? 'show active' : ''; ?>" id="password" role="tabpanel">
+                                        <form action="" method="POST" class="needs-validation" id="formGantiPassword" novalidate>
+                                            <h6 class="text-uppercase text-muted small fw-bold mb-4">Ganti Kata Sandi</h6>
+
+                                            <div class="mb-4">
+                                                <label class="form-label fw-semibold text-dark">Kata Sandi Lama</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text"><i class="fa-solid fa-lock-open text-muted"></i></span>
+                                                    <input type="password" class="form-control" name="password_lama" id="password_lama" required placeholder="••••••••">
+                                                    <div class="invalid-feedback">Kata sandi lama wajib diisi.</div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-3 mb-4">
+                                                <div class="col-md-6">
+                                                    <label class="form-label fw-semibold text-dark">Kata Sandi Baru</label>
+                                                    <div class="input-group">
+                                                        <span class="input-group-text"><i class="fa-solid fa-key text-muted"></i></span>
+                                                        <input type="password" class="form-control" name="password_baru" id="password_baru" required placeholder="••••••••">
+                                                        <div class="invalid-feedback">Wajib diisi.</div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label fw-semibold text-dark">Konfirmasi Sandi</label>
+                                                    <div class="input-group">
+                                                        <span class="input-group-text"><i class="fa-solid fa-check-double text-muted"></i></span>
+                                                        <input type="password" class="form-control" name="konfirmasi_password" id="konfirmasi_password" required placeholder="••••••••">
+                                                        <div class="invalid-feedback" id="konfirmasiFeedback">Konfirmasi wajib diisi.</div>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="col">
-                                                <label for="foto" class="btn btn-outline-primary btn-upload mb-2 shadow-sm">
-                                                    <i class="fa-solid fa-cloud-arrow-up me-2"></i>Upload Foto
-                                                </label>
-                                                <input type="file" name="foto" id="foto" class="d-none" accept="image/png, image/jpeg, image/jpg">
-                                                <div class="text-muted small" style="font-size: 0.8rem;">
-                                                    JPG/PNG, Max 2MB. Foto persegi direkomendasikan.
-                                                </div>
-                                                <div id="fotoFeedback" class="text-danger small mt-1 fw-bold" style="display: none;"></div>
+
+                                            <div class="alert alert-info py-2 small">
+                                                <i class="fa-solid fa-circle-info me-1"></i> Pastikan kata sandi baru Anda kuat.
                                             </div>
-                                        </div>
 
-                                        <div class="mb-4">
-                                            <label class="form-label fw-semibold text-dark">Alamat Email</label>
-                                            <div class="input-group">
-                                                <span class="input-group-text"><i class="fa-solid fa-at text-muted"></i></span>
-                                                <input type="email" class="form-control" name="email" value="<?= htmlspecialchars($current_user['email']); ?>" required placeholder="contoh@email.com">
-                                                <div class="invalid-feedback">Email tidak boleh kosong dan harus format email yang benar.</div>
+                                            <div class="d-flex justify-content-end pt-3">
+                                                <button type="submit" name="ganti_password" class="btn btn-custom-primary">
+                                                    Update Kata Sandi
+                                                </button>
                                             </div>
-                                        </div>
-
-                                        <div class="d-flex justify-content-end pt-3">
-                                            <button type="submit" name="update_profil" class="btn btn-custom-primary">
-                                                Simpan Perubahan
-                                            </button>
-                                        </div>
-                                    </form>
-                                </div>
-
-                                <div class="tab-pane fade <?= $active_tab == 'password' ? 'show active' : ''; ?>" id="password" role="tabpanel">
-                                    <form action="" method="POST" class="needs-validation" id="formGantiPassword" novalidate>
-                                        <h6 class="text-uppercase text-muted small fw-bold mb-4">Ganti Kata Sandi</h6>
-                                        
-                                        <div class="mb-4">
-                                            <label class="form-label fw-semibold text-dark">Kata Sandi Lama</label>
-                                            <div class="input-group">
-                                                <span class="input-group-text"><i class="fa-solid fa-lock-open text-muted"></i></span>
-                                                <input type="password" class="form-control" name="password_lama" id="password_lama" required placeholder="••••••••">
-                                                <div class="invalid-feedback">Kata sandi lama wajib diisi.</div>
-                                            </div>
-                                        </div>
-
-                                        <div class="row g-3 mb-4">
-                                            <div class="col-md-6">
-                                                <label class="form-label fw-semibold text-dark">Kata Sandi Baru</label>
-                                                <div class="input-group">
-                                                    <span class="input-group-text"><i class="fa-solid fa-key text-muted"></i></span>
-                                                    <input type="password" class="form-control" name="password_baru" id="password_baru" required placeholder="••••••••">
-                                                    <div class="invalid-feedback">Wajib diisi.</div>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label fw-semibold text-dark">Konfirmasi Sandi</label>
-                                                <div class="input-group">
-                                                    <span class="input-group-text"><i class="fa-solid fa-check-double text-muted"></i></span>
-                                                    <input type="password" class="form-control" name="konfirmasi_password" id="konfirmasi_password" required placeholder="••••••••">
-                                                    <div class="invalid-feedback" id="konfirmasiFeedback">Konfirmasi wajib diisi.</div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="alert alert-info py-2 small">
-                                            <i class="fa-solid fa-circle-info me-1"></i> Pastikan kata sandi baru Anda kuat.
-                                        </div>
-
-                                        <div class="d-flex justify-content-end pt-3">
-                                            <button type="submit" name="ganti_password" class="btn btn-custom-primary">
-                                                Update Kata Sandi
-                                            </button>
-                                        </div>
-                                    </form>
+                                        </form>
+                                    </div>
+                                    <!-- End Tab Keamanan -->
                                 </div>
                             </div>
+                            <!-- End Tab Profil dan Keamanan -->
                         </div>
                     </div>
+                    <!-- End Content Tab -->
                 </div>
             </div>
-        </div>
-      </main>
+        </main>
+        <!-- End Main -->
     </section>
-
 
 <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
 <script src="https://cdn.datatables.net/2.3.4/js/dataTables.js"></script>
@@ -417,7 +424,8 @@ if ($koneksi->ping()) { $koneksi->close(); }
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
   AOS.init();
-  
+
+  // Validasi Foto dan Preview
   const fotoInput = document.getElementById('foto');
   const previewImg = document.getElementById('previewImg');
   const imgLoading = document.getElementById('imgLoading');
@@ -452,11 +460,12 @@ if ($koneksi->ping()) { $koneksi->close(); }
           }
       });
   }
-  // --- VALIDASI FORM (PROFILE & PASSWORD) ---
+  
+  // Validasi Form
   (function () {
     'use strict'
     
-    // 1. Validasi Form Profil (Email & File) - PERBAIKAN BUG DISINI
+    // Validasi Form Profil
     var formProfil = document.getElementById('formProfil');
     if(formProfil) {
         formProfil.addEventListener('submit', function (event) {
@@ -467,7 +476,8 @@ if ($koneksi->ping()) { $koneksi->close(); }
             formProfil.classList.add('was-validated');
         }, false);
     }
-    // 2. Validasi Form Password (Sama seperti sebelumnya)
+
+    // Validasi Form Password
     var formPass = document.getElementById('formGantiPassword');
     if(formPass) {
         var passwordLama = document.getElementById('password_lama');
@@ -516,6 +526,8 @@ if ($koneksi->ping()) { $koneksi->close(); }
         }, false);
     }
   })();
+
+  //  Alert
   const alertData = <?= json_encode($alert); ?>;
   if (alertData) {
     Swal.fire({

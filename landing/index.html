@@ -15,16 +15,10 @@
   <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet" />
 
   <style>
-    /* ===================================
-       GAYA UMUM & VARIABEL
-       =================================== */
+    /* Style Umum */
     :root {
       --primary: #0d6efd;
-<<<<<<< Updated upstream
       --secondary: #0b327c;
-=======
-      --secondary: #343352;
->>>>>>> Stashed changes
       --accent: #ffc107;
       --dark: #121416;
       --light: #f8f9fa;
@@ -44,9 +38,7 @@
       line-height: 1.7;
     }
 
-    /* ===================================
-       NAVBAR MODERN
-       =================================== */
+    /* Navbar */
     .navbar {
       transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
       padding: 20px 0;
@@ -80,72 +72,6 @@
       color: var(--accent) !important;
     }
 
-<<<<<<< HEAD
-   /* ===================================
-   HERO SECTION (UPDATED)
-   =================================== */
-
-.hero-section {
-    background: linear-gradient(135deg, #ffffff 0%, #f0f4ff 100%); /* Warna lebih terang agar ilustrasi menyatu */
-    color: var(--dark);
-    padding: 160px 0 100px 0;
-    position: relative;
-    overflow: hidden;
-    text-align: left; /* Berubah jadi rata kiri */
-}
-
-/* Menghapus pseudo-element ::before yang lama agar tidak menabrak gambar */
-.hero-section::before {
-    display: none; 
-}
-
-.hero-image {
-    max-width: 100%;
-    height: auto;
-    /* Memberikan sedikit efek mengapung */
-    animation: floating 3s ease-in-out infinite;
-}
-
-@keyframes floating {
-    0% { transform: translateY(0px); }
-    50% { transform: translateY(-15px); }
-    100% { transform: translateY(0px); }
-}
-
-.hero-section h1 {
-    font-weight: 700;
-    font-size: 3.5rem;
-    color: var(--secondary);
-    line-height: 1.2;
-}
-
-.hero-section p {
-    color: #555;
-    margin-bottom: 30px;
-}
-
-    /* Tombol yang lebih menarik */
-    .hero-section .btn-warning {
-      background: #ffc107;
-      border: none;
-      padding: 18px 50px;
-      font-size: 1.1rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      box-shadow: 0 10px 20px rgba(255, 193, 7, 0.3);
-    }
-
-    /* Responsif untuk HP */
-    @media (max-width: 768px) {
-      .hero-section h1 { font-size: 2.5rem; }
-      .hero-section { padding: 100px 20px; }
-    
-    }
-
-    @keyframes move-bg {
-      from { transform: translate(0, 0); }
-      to { transform: translate(50px, 50px); }
-=======
     .nav-link::after {
       content: '';
       position: absolute;
@@ -161,12 +87,10 @@
       width: 100%;
     }
 
-    /* ===================================
-       HERO SECTION (IMAGE + GRADIENT)
-       =================================== */
+    /* Hero Section */
     .hero-section {
       background: linear-gradient(rgba(0, 0, 0, 0.65)), 
-                  url('polteknya_atu.jpg'); 
+                  url('landing/polteknya_atu.jpg'); 
       background-size: cover;
       background-position: center;
       background-attachment: fixed;
@@ -176,7 +100,6 @@
       color: var(--white);
       text-align: center;
       position: relative;
->>>>>>> 7f111d3a91d1972e2c2e5dc5f0cda4b2495894a0
     }
 
     .hero-section h1 {
@@ -217,9 +140,7 @@
       color: #000;
     }
 
-    /* ===================================
-       FITUR SECTION
-       =================================== */
+    /* Fitur Section */
     #fitur {
       padding: 120px 0;
       background: var(--white);
@@ -274,9 +195,7 @@
       color: var(--white) !important;
     }
 
-    /* ===================================
-       TENTANG & PSD
-       =================================== */
+    /* Tentang & PSD */
     #tentang {
       padding: 120px 0;
       background: linear-gradient(180deg, #f8f9fa 0%, #e9f2ff 100%);
@@ -306,9 +225,7 @@
       color: white;
     }
 
-    /* ===================================
-       FOOTER
-       =================================== */
+    /* Footer */
     footer {
       background: var(--dark);
       padding: 60px 0 30px;
@@ -320,7 +237,8 @@
       text-decoration: none;
       font-weight: 600;
     }
-    /* CSS Tambahan untuk Kontak di Footer */
+
+    /* Contact */
     .contact-link {
       color: rgba(255, 255, 255, 0.8);
       text-decoration: none;
@@ -346,7 +264,7 @@
     }
 
     .bi-whatsapp {
-      color: #25D366; /* Warna khas WhatsApp */
+      color: #25D366;
     }
 
     .text-accent {
@@ -357,6 +275,7 @@
 </head>
 <body>
 
+  <!-- Navbar -->
   <nav class="navbar navbar-expand-lg fixed-top">
     <div class="container">
       <a class="navbar-brand fw-bold text-white" href="#">RAPATIN</a>
@@ -368,49 +287,29 @@
           <li class="nav-item"><a href="#hero" class="nav-link">Beranda</a></li>
           <li class="nav-item"><a href="#fitur" class="nav-link">Fitur</a></li>
           <li class="nav-item"><a href="#tentang" class="nav-link">Tentang</a></li>
-<<<<<<< HEAD
-          <li class="nav-item"><a href="#faq" class="nav-link">PSD</a></li>
-=======
           <li class="nav-item"><a href="#psd" class="nav-link">PSD</a></li>
           <li class="nav-item"><a href="#hubungi" class="nav-link">Hubungi Kami</a></li>
->>>>>>> 7f111d3a91d1972e2c2e5dc5f0cda4b2495894a0
         </ul>
       </div>
     </div>
   </nav>
+  <!-- End Navbar -->
 
-<<<<<<< HEAD
-  <!-- ========================= HERO ========================= -->
- <section id="hero" class="hero-section">
-  <div class="container">
-    <div class="row align-items-center">
-      <div class="col-lg-6" data-aos="fade-right">
-        <h1 class="mb-4">Rapat Lebih Cerdas, Cepat, & Efisien</h1>
-        <p class="lead">Atur jadwal, kirim undangan, dan catat hasil rapat hanya dengan beberapa klik tanpa pusing mengatur waktu.</p>
-        <div class="d-flex gap-3">
-            <a href="../login/login.php" class="btn btn-primary btn-lg px-5 shadow">Mulai Sekarang</a>
-            <a href="#fitur" class="btn btn-outline-primary btn-lg px-4">Lihat Fitur</a>
-        </div>
-      </div>
-      
-      <div class="col-lg-6 mt-5 mt-lg-0 text-center" data-aos="fade-left">
-        <img src="undraw_eating-together_mr7m.png" alt="Ilustrasi Rapat" class="hero-image">
-      </div>
-=======
+  <!-- Hero Section -->
   <section id="hero" class="hero-section">
     <div class="container" data-aos="zoom-in" data-aos-duration="1200">
       <div class="row justify-content-center">
         <div class="col-lg-10">
           <h1>Rapat Lebih Cerdas, Cepat, & Efisien</h1>
-          <p>Ubah cara tim Anda berkolaborasi. Atur jadwal, kirim undangan, dan pantau notulen rapat secara otomatis dalam satu platform terintegrasi.</p>
+          <p>Ubah cara tim Anda berkolaborasi. Atur jadwal, kirim undangan, dan pantau notulen rapat dalam satu platform terintegrasi.</p>
           <a href="../login/login.php" class="btn-hero">Mulai Sekarang</a>
         </div>
       </div>
->>>>>>> 7f111d3a91d1972e2c2e5dc5f0cda4b2495894a0
     </div>
-  </div>
-</section>
+  </section>
+  <!-- End Hero Section -->
 
+  <!-- Fitur Section -->
   <section id="fitur">
     <div class="container text-center">
       <h2 class="section-title" data-aos="fade-up">Fitur Unggulan</h2>
@@ -439,7 +338,9 @@
       </div>
     </div>
   </section>
+  <!-- End Fitur Section -->
 
+  <!-- Tentang Section -->
   <section id="tentang">
     <div class="container">
       <div class="text-center mb-5">
@@ -451,7 +352,7 @@
             <div class="row align-items-center">
               <div class="col-lg-12">
                 <p class="lead text-muted mb-0">
-                  <strong>RAPATIN</strong> merupakan website yang dirancang untuk mempermudah pengaturan waktu pertemuan antar anggota tim atau antar departemen. Dengan sistem ini, pengguna dapat menentukan tanggal, waktu, lokasi (fisik atau virtual), serta peserta rapat secara efisien. Fitur ini juga dapat terintegrasi dengan kalender digital dan mengirimkan undangan otomatis ke seluruh peserta, lengkap dengan pengingat dan detail agenda. Penjadwalan yang terorganisir membantu mengurangi bentrokan jadwal, meningkatkan kehadiran, serta memastikan rapat berjalan sesuai rencana.
+                  <strong>RAPATIN</strong> merupakan website yang dirancang untuk mempermudah pengaturan waktu pertemuan antar anggota tim atau antar departemen. Dengan sistem ini, pengguna dapat menentukan tanggal, waktu, lokasi (fisik atau virtual), serta peserta rapat secara efisien. Fitur ini juga dapat terintegrasi dengan kalender digital dan mengirimkan undangan ke seluruh peserta, lengkap dengan pengingat dan detail agenda. Penjadwalan yang terorganisir membantu mengurangi bentrokan jadwal, meningkatkan kehadiran, serta memastikan rapat berjalan sesuai rencana.
                 </p>
               </div>
             </div>
@@ -460,7 +361,9 @@
       </div>
     </div>
   </section>
+  <!-- End Tentang Section -->
 
+  <!-- PSD Section -->
   <section id="psd" class="py-5 bg-white">
     <div class="container py-5">
       <div class="text-center mb-5">
@@ -498,13 +401,15 @@
       </div>
     </div>
   </section>
+  <!-- End PSD Section -->
 
+  <!-- Footer -->
   <footer id="hubungi">
     <div class="container text-center">
       <div class="row mb-4">
         <div class="col-md-12">
           <h3 class="text-white fw-bold mb-3">RAPATIN</h3>
-          <p class="mb-4">Solusi Penjadwalan Rapat Masa Kini. Jika mempunyai pertanyaan lebih lanjut silahkan Hubungi Kami Pada:</p>
+          <p class="mb-4">Solusi Penjadwalan Rapat Masa Kini untuk Efisiensi Tim Anda. Jika anda mempunyai pertanyaan lebih lanjut silahkan Kontak Kami Pada:</p>
           
           <div class="d-flex justify-content-center gap-4 mt-2">
             <a href="https://wa.me/62895417483450" target="_blank" class="contact-link">
@@ -523,22 +428,21 @@
       </p>
     </div>
   </footer>
+  <!-- End Footer -->
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
-  <script>
-    AOS.init({ duration: 1000, once: true });
-
-    window.addEventListener("scroll", () => {
-      const navbar = document.querySelector(".navbar");
-      if (window.scrollY > 50) {
-        navbar.classList.add("scrolled");
-      } else {
-        navbar.classList.remove("scrolled");
-      }
-    });
-  </script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+<script>
+  AOS.init({ duration: 1000, once: true });
+  
+  window.addEventListener("scroll", () => {
+    const navbar = document.querySelector(".navbar");
+    if (window.scrollY > 50) {
+      navbar.classList.add("scrolled");
+    } else {
+      navbar.classList.remove("scrolled");
+    }
+  });
+</script>
 </body>
 </html>
-
-

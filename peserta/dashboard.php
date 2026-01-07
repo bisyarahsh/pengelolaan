@@ -2,7 +2,7 @@
 session_start();
 include("../php/koneksi.php");
 
-// --- 1. CEK AKSES & ID USER ---
+// Cek Sesi dan Akses
 if ($_SESSION['status'] != "login" || !isset($_SESSION['id_user'])) {
     header("location:../login/login.php");
     exit;
@@ -20,6 +20,7 @@ $q_user_info = mysqli_query($koneksi, "SELECT nama_lengkap FROM users WHERE id_u
 $d_user_info = mysqli_fetch_assoc($q_user_info);
 $nama_lengkap = $d_user_info['nama_lengkap'];
 
+// Alert Default Password
 $show_password_alert = false;
 if (!isset($_SESSION['password_alert_shown']) || $_SESSION['password_alert_shown'] !== true) {
     $q_user_data = mysqli_query($koneksi, "SELECT nim, password FROM users WHERE id_user = '$id_user'");
@@ -29,20 +30,17 @@ if (!isset($_SESSION['password_alert_shown']) || $_SESSION['password_alert_shown
         $nim = $user_data['nim'];
         $hashed_password = $user_data['password'];
         
-        // Cek apakah password cocok dengan NIM (Default)
+        // Cek apakah password cocok dengan NIK
         if (password_verify($nim, $hashed_password)) {
             $show_password_alert = true;
-            // Set session agar tidak muncul lagi sampai login ulang
             $_SESSION['password_alert_shown'] = true; 
         }
     }
 }
-// --- END LOGIKA PASSWORD ---
 
-// --- 4. DATA USER, FOTO & INISIAL ---
+// DATA USER, FOTO & INISIAL
 $id_user_login = $_SESSION['id_user'];
 
-// PERHATIAN: Pastikan 'foto' sesuai dengan nama kolom di database Anda
 $sql_user_info = "SELECT nama_lengkap, profile_pic FROM users WHERE id_user = '$id_user_login'"; 
 $q_user_info = mysqli_query($koneksi, $sql_user_info);
 $d_user_info = mysqli_fetch_assoc($q_user_info);
@@ -57,7 +55,7 @@ if (!empty($foto_db) && file_exists($path_foto_target)) {
     $tampilkan_foto = true;
 }
 
-// Logika Membuat Inisial (Tetap dibuat untuk jaga-jaga jika foto dihapus fisik)
+// Membuat Profil Inisial
 $words = explode(" ", $nama_user);
 $initials = "";
 if (count($words) >= 1) {
@@ -69,9 +67,7 @@ if (count($words) >= 1) {
     $initials = "KP";
 }
 
-// --- 2. DATA FETCHING (PERSONAL) ---
-
-// A. Agenda Mendatang (Saya)
+// Agenda Mendatang
 $sql_agenda = "SELECT COUNT(*) as total 
                FROM agenda_rapat ar
                JOIN peserta_rapat pr ON ar.id_rapat = pr.id_rapat
@@ -80,7 +76,7 @@ $sql_agenda = "SELECT COUNT(*) as total
                AND ar.status = 'aktif'";
 $total_agenda = mysqli_fetch_assoc(mysqli_query($koneksi, $sql_agenda))['total'];
 
-// B. Riwayat Rapat (Saya)
+// Riwayat Rapat
 $sql_riwayat = "SELECT COUNT(*) as total 
                 FROM agenda_rapat ar
                 JOIN peserta_rapat pr ON ar.id_rapat = pr.id_rapat
@@ -88,7 +84,7 @@ $sql_riwayat = "SELECT COUNT(*) as total
                 AND CONCAT(ar.tanggal_rapat, ' ', ar.jam_rapat) <= NOW() AND ar.status = 'aktif'"; // Menghitung yang sudah lewat (aktif/batal)
 $total_riwayat = mysqli_fetch_assoc(mysqli_query($koneksi, $sql_riwayat))['total'];
 
-// C. Rapat Bulan Ini
+// Rapat Bulan Ini
 $current_month = date('m');
 $current_year = date('Y');
 $sql_month_now = "SELECT COUNT(*) as total 
@@ -99,7 +95,7 @@ $sql_month_now = "SELECT COUNT(*) as total
                   AND YEAR(ar.tanggal_rapat) = '$current_year'";
 $total_month = mysqli_fetch_assoc(mysqli_query($koneksi, $sql_month_now))['total'];
 
-// --- 3. DATA GRAFIK ---
+// Data Grafik
 $monthly_data = [];
 for ($m = 1; $m <= 12; $m++) {
     $sql_chart = "SELECT COUNT(*) as total 
@@ -112,7 +108,7 @@ for ($m = 1; $m <= 12; $m++) {
     $monthly_data[] = $res_chart['total'];
 }
 
-// --- 4. AGENDA TERDEKAT ---
+// List Agenda
 $sql_next = "SELECT ar.*, o.nama_unit 
              FROM agenda_rapat ar
              JOIN peserta_rapat pr ON ar.id_rapat = pr.id_rapat
@@ -123,6 +119,7 @@ $sql_next = "SELECT ar.*, o.nama_unit
              ORDER BY ar.tanggal_rapat ASC, ar.jam_rapat ASC LIMIT 3";
 $q_next = mysqli_query($koneksi, $sql_next);
 
+// Fungsi Bulan Format Indonesia
 function tgl_indo_short($tanggal){
     $bulan = array (1 => 'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des');
     $pecahkan = explode('-', $tanggal);
@@ -151,46 +148,83 @@ function tgl_indo_short($tanggal){
         }
         .card-stat:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
         
-        .border-left-primary { border-left: 5px solid #4e73df !important; }
-        .border-left-success { border-left: 5px solid #1cc88a !important; }
-        .border-left-warning { border-left: 5px solid #f6c23e !important; }
+        .border-left-primary { 
+            border-left: 5px solid #4e73df !important; 
+        }
+        .border-left-success { 
+            border-left: 5px solid #1cc88a !important; 
+        }
+        .border-left-warning { 
+            border-left: 5px solid #f6c23e !important; 
+        }
 
         .stat-icon {
             font-size: 2.5rem; opacity: 0.3; transform: rotate(15deg); transition: all 0.3s;
         }
-        .card-stat:hover .stat-icon { opacity: 0.6; transform: rotate(0deg) scale(1.1); }
-        .stat-label { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+        .card-stat:hover .stat-icon { 
+            opacity: 0.6; 
+            transform: rotate(0deg) scale(1.1); 
+        }
+        .stat-label { 
+            font-size: 0.8rem; 
+            font-weight: 700; 
+            text-transform: uppercase; 
+            letter-spacing: 1px; 
+        }
 
         .card-chart {
              border: none; border-radius: 20px;
              box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
              height: 100%;
         }
-        .chart-container { position: relative; height: 300px; width: 100%; }
+
+        .chart-container { 
+            position: relative; 
+            height: 300px; 
+            width: 100%; 
+        }
         
         .date-badge {
-            background: #f8f9fc; border-radius: 8px; padding: 5px 10px;
-            text-align: center; min-width: 60px;
+            background: #f8f9fc; 
+            border-radius: 8px; 
+            padding: 5px 10px;
+            text-align: center; 
+            min-width: 60px;
         }
-        .date-day { font-size: 1.2rem; font-weight: bold; line-height: 1; }
-        .date-month { font-size: 0.7rem; text-transform: uppercase; color: #888; }
-        .list-group-item { border: none; border-bottom: 1px solid #f1f1f1; }
-        .list-group-item:last-child { border-bottom: none; }
+        .date-day { 
+            font-size: 1.2rem; 
+            font-weight: bold; 
+            line-height: 1; 
+        }
+        .date-month { 
+            font-size: 0.7rem; 
+            text-transform: uppercase; 
+            color: #888; 
+        }
+        .list-group-item { 
+            border: none; 
+            border-bottom: 1px solid #f1f1f1; 
+        }
+        .list-group-item:last-child { 
+            border-bottom: none; 
+        }
     </style>
 </head>
 <body>
 
+    <!-- Sidebar -->
     <section id="sidebar">
         <a href="../index.html" data-aos="fade-down" class="logo ps-3"><i class='ps-5'></i> Rapatin</a>
         <a href="../index.html" data-aos="fade-down" class="logo-mini fw-bold"> R</a>
         <ul class="side-menu" data-aos="fade-right">
-            <li><a href="dashboard.php" class="active"><i class="fa-solid fa-home icon"></i> Dasbor</a></li>
-            <li><a href="agenda.php"><i class="fa-solid fa-calendar-days icon"></i> Agenda Rapat</a></li>
+            <li><a href="dashboard.php"><i class="fa-solid fa-home icon"></i> Dasbor</a></li>
+            <li><a href="agenda.php" class="active"><i class="fa-solid fa-calendar-days icon"></i> Agenda Rapat</a></li>
             <li><a href="history.php"><i class="fa-solid fa-clock-rotate-left icon"></i> Riwayat Rapat</a></li>
             <li><a href="pengaturan.php"><i class="fa-solid fa-gear icon"></i> Pengaturan</a></li>
             <li><a href="logout.php"><i class="fa-solid fa-right-from-bracket icon"></i> Keluar</a></li>
         </ul>
     </section>
+    <!-- End Sidebar -->
 
     <section id="content">
         <!-- Navbar -->
@@ -235,16 +269,16 @@ function tgl_indo_short($tanggal){
             </div>
         </nav>
 		<!-- End Navbar -->
-
+        
+        <!-- Main -->
         <main>
             <div class="container-fluid p-0">
-                
                 <div class="d-sm-flex align-items-center justify-content-between mb-4" data-aos="fade-down">
                     <h1 class="h3 mb-0 text-gray-800 fw-bold">Selamat Datang, <?php echo htmlspecialchars($nama_lengkap); ?>!</h1>
                 </div>
 
+                <!-- Card -->
                 <div class="row g-4 mb-5">
-                    
                     <div class="col-xl-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
                         <div class="card card-stat border-left-primary h-100 py-2">
                             <div class="card-body">
@@ -295,11 +329,12 @@ function tgl_indo_short($tanggal){
                             </div>
                         </div>
                     </div>
-
                 </div>
+                <!-- End Card -->
 
+                <!-- Grafik dan List Agenda -->
                 <div class="row g-4">
-                    
+                    <!-- Grafik -->
                     <div class="col-lg-8" data-aos="zoom-in-right" data-aos-delay="400">
                         <div class="card card-chart mb-4 h-100">
                             <div class="card-header bg-white py-3 border-bottom-0 d-flex justify-content-between align-items-center">
@@ -314,7 +349,9 @@ function tgl_indo_short($tanggal){
                             </div>
                         </div>
                     </div>
+                    <!-- End Grafik -->
 
+                    <!-- List Agenda -->
                     <div class="col-lg-4" data-aos="zoom-in-left" data-aos-delay="500">
                         <div class="card card-chart mb-4 h-100">
                             <div class="card-header bg-white py-3 border-bottom-0 d-flex justify-content-between align-items-center">
@@ -353,77 +390,74 @@ function tgl_indo_short($tanggal){
                             </div>
                         </div>
                     </div>
-
+                    <!-- End List Agenda -->
                 </div>
-
+                <!-- End Grafik dan List Agenda -->
             </div>
         </main>
+        <!-- End Main -->
     </section>
 
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="../assets/peserta.js"></script> 
-    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
-    
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="../assets/peserta.js"></script> 
+<script src="https://unpkg.com/aos@next/dist/aos.js"></script>
 
-    <script>
-        AOS.init({ once: true, duration: 800, easing: 'ease-out-cubic' });
-
-        // --- CHART JS ---
-        Chart.defaults.font.family = "'Open Sans', sans-serif";
-        Chart.defaults.color = '#858796';
-        const ctx = document.getElementById('myAreaChart').getContext('2d');
-        let gradient = ctx.createLinearGradient(0, 0, 0, 400);
-        gradient.addColorStop(0, 'rgba(78, 115, 223, 0.4)');
-        gradient.addColorStop(1, 'rgba(78, 115, 223, 0.05)');
-
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"],
-                datasets: [{
-                    label: "Jumlah Rapat",
-                    data: <?php echo json_encode($monthly_data); ?>,
-                    backgroundColor: gradient,
-                    borderColor: "#4e73df",
-                    pointBackgroundColor: "#4e73df",
-                    pointBorderColor: "#fff",
-                    fill: true,
-                    tension: 0.4 
-                }],
-            },
-            options: {
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    x: { grid: { display: false } },
-                    y: { beginAtZero: true, ticks: { stepSize: 1 } }
-                }
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    AOS.init({ once: true, duration: 800, easing: 'ease-out-cubic' });
+    // Grafik Setting
+    Chart.defaults.font.family = "'Open Sans', sans-serif";
+    Chart.defaults.color = '#858796';
+    const ctx = document.getElementById('myAreaChart').getContext('2d');
+    let gradient = ctx.createLinearGradient(0, 0, 0, 400);
+    gradient.addColorStop(0, 'rgba(78, 115, 223, 0.4)');
+    gradient.addColorStop(1, 'rgba(78, 115, 223, 0.05)');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"],
+            datasets: [{
+                label: "Jumlah Rapat",
+                data: <?php echo json_encode($monthly_data); ?>,
+                backgroundColor: gradient,
+                borderColor: "#4e73df",
+                pointBackgroundColor: "#4e73df",
+                pointBorderColor: "#fff",
+                fill: true,
+                tension: 0.4 
+            }],
+        },
+        options: {
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { display: false } },
+                y: { beginAtZero: true, ticks: { stepSize: 1 } }
             }
-        });
+        }
+    });
 
-        // --- [BARU] SWEETALERT LOGIC ---
-        <?php if ($show_password_alert): ?>
-        Swal.fire({
-            title: 'Peringatan Keamanan!',
-            html: "Kata sandi Anda masih menggunakan sandi bawaan (NIK Anda).<br><br>Untuk keamanan akun, sangat disarankan untuk mengganti kata sandi Anda sekarang.",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Ganti Kata Sandi Sekarang',
-            cancelButtonText: 'Nanti Saja',
-            allowOutsideClick: false,
-            allowEscapeKey: false
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = 'pengaturan.php';
-            }
-        });
-        <?php endif; ?>
-
-    </script>
+    // Alert Default Kata Sandi
+    <?php if ($show_password_alert): ?>
+    Swal.fire({
+        title: 'Peringatan Keamanan!',
+        html: "Kata sandi Anda masih menggunakan sandi bawaan (NIK Anda).<br><br>Untuk keamanan akun, sangat disarankan untuk mengganti kata sandi Anda sekarang.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Ganti Kata Sandi Sekarang',
+        cancelButtonText: 'Nanti Saja',
+        allowOutsideClick: false,
+        allowEscapeKey: false
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = 'pengaturan.php';
+        }
+    });
+    <?php endif; ?>
+</script>
 </body>
 </html>

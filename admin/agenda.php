@@ -7,17 +7,16 @@ unset($_SESSION['alert']);
 
 include("../php/koneksi.php");
 
-// --- Set Zona Waktu ke WIB ---
+// Set Zona Waktu ke WIB
 date_default_timezone_set('Asia/Jakarta'); 
-// --- End Set Zona Waktu ---
+// End Set Zona Waktu
 
-// --- Cek Sesi dan Akses ---
+// Cek Sesi dan Akses
 if ($_SESSION['status'] != "login" || !isset($_SESSION['id_user'])) {
     header("location:../login/login.php");
     exit;
 }
 
-// Gunakan strtolower untuk mengatasi inkonsistensi role dari database
 $current_role = isset($_SESSION['role']) ? strtolower($_SESSION['role']) : '';
 
 if ($current_role != "admin") {
@@ -25,12 +24,11 @@ if ($current_role != "admin") {
     exit;
 }
 
-// --- Fungsi Ambil Data Rapat berdasarkan ID dan Bulan dalam Format Indo ---
+// Fungsi Ambil Data Rapat dan Bulan dalam Format Indo
 function get_rapat_detail($koneksi, $id_rapat) {
     $rapat_data = null; 
 
     try {
-        // Cek koneksi database dulu
         if (!$koneksi) {
             throw new Exception("Koneksi database terputus.");
         }
@@ -40,12 +38,10 @@ function get_rapat_detail($koneksi, $id_rapat) {
                 JOIN unit o ON r.id_unit = o.id_unit
                 WHERE r.id_rapat = '$id_rapat'";
         $q = mysqli_query($koneksi, $sql);
-        // Cek jika query gagal dieksekusi (Syntax error dll)
         if (!$q) {
             throw new Exception("Error Query Rapat: " . mysqli_error($koneksi));
         }
         $rapat_data = mysqli_fetch_assoc($q);
-        // Jika data rapat ditemukan, baru cari pesertanya
         if ($rapat_data) {
             $peserta_arr = [];
             
@@ -112,7 +108,7 @@ if (!empty($foto_db) && file_exists($path_foto_target)) {
     $tampilkan_foto = true;
 }
 
-// Logika Membuat Inisial (Tetap dibuat untuk jaga-jaga jika foto dihapus fisik)
+// Membuat Profil Inisial
 $words = explode(" ", $nama_user);
 $initials = "";
 if (count($words) >= 1) {
@@ -124,13 +120,12 @@ if (count($words) >= 1) {
     $initials = "AD";
 }
 
-// Tambahkan logika untuk request AJAX detail rapat
+// AJAX Detail Rapat
 if (isset($_GET['action']) && $_GET['action'] == 'get_rapat_detail' && isset($_GET['id'])) {
     header('Content-Type: application/json');
     $id_rapat = $_GET['id'];
     $data = get_rapat_detail($koneksi, $id_rapat);
     
-    // Tambahkan data peserta lengkap (nama, nim) untuk ditampilkan di modal View
     if($data && !empty($data['peserta_id'])) {
         $peserta_details = [];
         $ids = implode("','", $data['peserta_id']);
@@ -145,6 +140,8 @@ if (isset($_GET['action']) && $_GET['action'] == 'get_rapat_detail' && isset($_G
     exit;
 }
 
+
+// Menampilkan Agenda
 $id_pembuat_rapat = $_SESSION['id_user'];
 $list_rapat = [];
 
@@ -162,6 +159,7 @@ $sql_read = "SELECT
 
 $sql_read .= " AND CONCAT(r.tanggal_rapat, ' ', r.jam_rapat) > NOW()";
 
+// Filter Tanggal
 if (!empty($tgl_awal) && !empty($tgl_akhir)) {
     $sql_read .= " AND r.tanggal_rapat BETWEEN '$tgl_awal' AND '$tgl_akhir'";
 }
@@ -237,7 +235,6 @@ $list_unit = get_all_units($koneksi);
 	<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.3.4/css/responsive.bootstrap5.min.css">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
-	<!-- Or for RTL support -->
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.rtl.min.css" />
 	<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
 	<link rel="stylesheet" href="../assets/admin.css">
@@ -317,6 +314,7 @@ $list_unit = get_all_units($koneksi);
 		<!-- Main -->
 		<main>
 			<div data-aos="fade-down" class="rapat bg-light">
+				<!-- Filter Rapat -->
 				<div class="card border-0 shadow-sm mb-4">
     			    <div class="card-body p-3">
 						<h5 class="text-primary">Saring berdasarkan tanggal</h5>
@@ -344,12 +342,15 @@ $list_unit = get_all_units($koneksi);
     			        </form>
     			    </div>
     			</div>
+				<!-- End Filter Rapat -->
+
 				<div class="d-flex justify-content-between align-items-center mb-3 page-header-mobile">
 				    <h2 class="text-primary fw-bold m-0 fs-3">Agenda Rapat</h2>
 				    <button type="button" class="btn btn-primary shadow-sm rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#exampleModal">
 				        <i class="fa-solid fa-plus me-2"></i>Tambah Agenda
 				    </button>
 				</div>
+				<!-- Tabel -->
 				<table id="tabel-rapat" class="table table-striped table-hover nowrap" style="width:100%">
         			<thead>
         			    <tr>
@@ -400,6 +401,7 @@ $list_unit = get_all_units($koneksi);
     				    <?php endforeach; ?>
     				</tbody>
     			</table>
+				<!-- End Tabel -->
 			
 				<!-- Modal Tambah Rapat -->
 				<div class="modal fade modal-compact" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -508,7 +510,7 @@ $list_unit = get_all_units($koneksi);
 				</div>
 				<!-- End Modal Tambah Rapat -->
 												
-				<!-- Modal View Detail Agenda Rapat -->
+				<!-- Modal Detail Agenda Rapat -->
 				<div class="modal fade modal-compact" id="viewModal" tabindex="-1" aria-labelledby="viewModalLabel" aria-hidden="true">
 				    <div class="modal-dialog modal-lg modal-dialog-centered"> <div class="modal-content">
 				            <div class="modal-header header-primary text-white" style="background: linear-gradient(135deg, #1cc88a 0%, #13855c 100%);">
@@ -585,7 +587,7 @@ $list_unit = get_all_units($koneksi);
 				        </div>
 				    </div>
 				</div>
-				<!-- End Modal View Detail Agenda Rapat -->
+				<!-- End Modal Detail Agenda Rapat -->
 												
 				<!-- Modal Edit Agenda Rapat -->
 				<div class="modal fade modal-compact" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
@@ -718,7 +720,7 @@ $list_unit = get_all_units($koneksi);
 				</div>
 				<!-- End Modal Delete Riwayat Rapat -->
 												
-				<!-- Modal Notifikasi -->
+				<!-- Modal Kirim Notifikasi -->
 				<div class="modal fade" id="notifmodal" tabindex="-1" aria-hidden="true">
 				    <div class="modal-dialog modal-dialog-centered">
 				        <div class="modal-content">
@@ -743,7 +745,7 @@ $list_unit = get_all_units($koneksi);
 				        </div>
 				    </div>
 				</div>
-				 <!-- End Modal Notifikasi -->
+				 <!-- End Modal Kirim Notifikasi -->
 			</div>
 		</main>
 		<!-- End Main -->

@@ -6,7 +6,7 @@ unset($_SESSION['alert']);
 
 include("../php/koneksi.php");
 
-// --- Cek Sesi dan Akses ---
+// Cek Sesi dan Akses
 if ($_SESSION['status'] != "login" || !isset($_SESSION['id_user'])) {
     header("location:../login/login.php");
     exit;
@@ -19,10 +19,9 @@ if ($current_role != "admin") {
     exit;
 }
 
-// --- 4. DATA USER, FOTO & INISIAL ---
+// DATA USER, FOTO & INISIAL
 $id_user_login = $_SESSION['id_user'];
 
-// PERHATIAN: Pastikan 'foto' sesuai dengan nama kolom di database Anda
 $sql_user_info = "SELECT nama_lengkap, profile_pic FROM users WHERE id_user = '$id_user_login'"; 
 $q_user_info = mysqli_query($koneksi, $sql_user_info);
 $d_user_info = mysqli_fetch_assoc($q_user_info);
@@ -37,7 +36,7 @@ if (!empty($foto_db) && file_exists($path_foto_target)) {
     $tampilkan_foto = true;
 }
 
-// Logika Membuat Inisial (Tetap dibuat untuk jaga-jaga jika foto dihapus fisik)
+// Membuat Profil Inisial
 $words = explode(" ", $nama_user);
 $initials = "";
 if (count($words) >= 1) {
@@ -49,34 +48,34 @@ if (count($words) >= 1) {
     $initials = "AD";
 }
 
-// --- Penghapusan Otomatis Untuk Rapat yang Tanggal sudah terlewat dengan status dibatalkan ---
+// Penghapusan Otomatis Untuk Rapat yang Tanggal sudah terlewat dengan status dibatalkan
 
 $sql_cleanup = "DELETE FROM agenda_rapat 
                 WHERE status = 'dibatalkan' 
                 AND CONCAT(tanggal_rapat, ' ', jam_rapat) <= NOW()";
 mysqli_query($koneksi, $sql_cleanup);
 
-// --- DATA FETCHING UNTUK CARD DASHBOARD ---
+// DATA FETCHING UNTUK CARD DASHBOARD
 
-// A. Total Agenda Rapat (Akan Datang)
+// Total Agenda Rapat
 $sql_agenda = "SELECT COUNT(*) as total FROM agenda_rapat 
                WHERE CONCAT(tanggal_rapat, ' ', jam_rapat) > NOW() AND status = 'aktif'";
 $q_agenda = mysqli_query($koneksi, $sql_agenda);
 $total_agenda = mysqli_fetch_assoc($q_agenda)['total'];
 
-// B. Total Riwayat Rapat (Sudah Lewat)
+// Total Riwayat Rapat
 $sql_riwayat = "SELECT COUNT(*) as total FROM agenda_rapat 
                 WHERE status = 'aktif' AND CONCAT(tanggal_rapat, ' ', jam_rapat) <= NOW()";
 $q_riwayat = mysqli_query($koneksi, $sql_riwayat);
 $total_riwayat = mysqli_fetch_assoc($q_riwayat)['total'];
 
-// C. Total Unit
+// Total Unit
 $sql_unit = "SELECT COUNT(*) as total FROM unit";
 $q_unit = mysqli_query($koneksi, $sql_unit);
 $total_unit = mysqli_fetch_assoc($q_unit)['total'];
 
 
-// --- 2. DATA FETCHING UNTUK BAR CHART (STATISTIK UNIT) ---
+// DATA FETCHING UNTUK UNIT STATISTIK
 $sql_chart = "SELECT u.nama_unit, COUNT(r.id_rapat) as jumlah_rapat
               FROM unit u
               LEFT JOIN agenda_rapat r ON u.id_unit = r.id_unit
@@ -92,7 +91,7 @@ while ($row = mysqli_fetch_assoc($q_chart)) {
     $data_rapat[] = $row['jumlah_rapat'];
 }
 
-// --- 3. DATA FETCHING UNTUK DOUGHNUT CHART (RASIO RAPAT) ---
+// DATA FETCHING UNTUK RASIO RAPAT
 $labels_status = ['Agenda (Aktif)', 'Riwayat (Selesai)'];
 $data_status = [$total_agenda, $total_riwayat];
 
@@ -111,6 +110,7 @@ $data_status = [$total_agenda, $total_riwayat];
 </head>
 <body>
     
+    <!-- Sidebar -->
     <section id="sidebar">
         <a href="../index.html" data-aos="fade-down" class="logo ps-3"><i class='ps-5'></i> Rapatin</a>
         <a href="../index.html" data-aos="fade-down" class="logo-mini fw-bold"> R</a>
@@ -124,6 +124,7 @@ $data_status = [$total_agenda, $total_riwayat];
             <li><a href="logout.php"><i class="fa-solid fa-right-from-bracket icon"></i> Keluar</a></li>
         </ul>
     </section>
+    <!-- End Sidebar -->
     
     <section id="content">
         <!-- Navbar -->
@@ -222,9 +223,10 @@ $data_status = [$total_agenda, $total_riwayat];
                         </div>
                     </div>
                 </div>
-
+                <!-- End Card -->
+                
+                <!-- Chart -->
                 <div class="row g-4">
-                    
                     <div class="col-xl-8 col-lg-7" data-aos="zoom-in-right" data-aos-delay="400" data-aos-duration="1000">
                         <div class="card card-chart mb-4">
                             <div class="card-header card-header-chart d-flex flex-row align-items-center justify-content-between">
@@ -265,9 +267,9 @@ $data_status = [$total_agenda, $total_riwayat];
                             </div>
                         </div>
                     </div>
-
                 </div>
-                </div>
+                <!-- End Chart -->
+            </div>
         </main>
     </section>
 
@@ -283,14 +285,13 @@ $data_status = [$total_agenda, $total_riwayat];
     </script>
 
     <script>
-        // --- GLOBAL SETTINGS ---
+        // CHART SETTINGS 
         Chart.defaults.font.family = "'Open Sans', sans-serif";
         Chart.defaults.color = '#858796';
 
-        // --- 1. BAR CHART (Unit Stats) ---
+        // Statistik Unit
         const ctxBar = document.getElementById('myBarChart').getContext('2d');
-        
-        // Gradient Ungu ke Biru
+
         let gradientBar = ctxBar.createLinearGradient(0, 0, 0, 400);
         gradientBar.addColorStop(0, 'rgba(78, 115, 223, 0.9)'); 
         gradientBar.addColorStop(1, 'rgba(78, 115, 223, 0.2)');
@@ -337,7 +338,7 @@ $data_status = [$total_agenda, $total_riwayat];
             }
         });
 
-        // --- 2. DOUGHNUT CHART (Rasio Rapat) ---
+        // Rasio Rapat
         const ctxPie = document.getElementById('myPieChart').getContext('2d');
         
         new Chart(ctxPie, {
@@ -346,17 +347,17 @@ $data_status = [$total_agenda, $total_riwayat];
                 labels: <?php echo json_encode($labels_status); ?>,
                 datasets: [{
                     data: <?php echo json_encode($data_status); ?>,
-                    backgroundColor: ['#4e73df', '#1cc88a'], // Biru (Agenda), Hijau (Riwayat)
+                    backgroundColor: ['#4e73df', '#1cc88a'],
                     hoverBackgroundColor: ['#2e59d9', '#17a673'],
                     hoverBorderColor: "rgba(234, 236, 244, 1)",
-                    borderWidth: 4, // Efek bolong lebih rapi
+                    borderWidth: 4,
                 }]
             },
             options: {
                 maintainAspectRatio: false,
-                cutout: '70%', // Membuat lingkaran tengah lebih besar (Modern Look)
+                cutout: '70%',
                 plugins: {
-                    legend: { display: false }, // Legend custom di HTML bawahnya
+                    legend: { display: false },
                     tooltip: {
                         backgroundColor: "#fff",
                         bodyColor: "#858796",

@@ -3,16 +3,15 @@ include '../php/koneksi.php';
 // Memulai sesi
 session_start();
 
-// --- Set Zona Waktu ke WIB ---
+// Set Zona Waktu ke WIB
 date_default_timezone_set('Asia/Jakarta'); 
-// --- End Set Zona Waktu ---
+// End Set Zona Waktu
 
-// Cek apakah user sudah login
+// Cek Sesi
 if ($_SESSION['status'] != "login") {
     header("location:../login/login.php");
     exit;
 }
-// Cek apakah role user bukan 'ketua' (disesuaikan dengan kode Anda sebelumnya)
 if ($_SESSION['role'] != "Admin") {
     header("location:../login/login.php");
     exit;
@@ -21,6 +20,7 @@ if ($_SESSION['role'] != "Admin") {
 $alert = $_SESSION['alert'] ?? null;
 unset($_SESSION['alert']); 
 
+// Fungsi Format Bulan Indonesia dan Mengambil Data Rapat
 function tgl_indo($tanggal){
     $bulan = array (
         1 =>   'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
@@ -42,7 +42,6 @@ function get_rapat_detail($koneksi, $id_rapat) {
     $rapat_data = mysqli_fetch_assoc($q);
 
     if ($rapat_data) {
-        // Ambil Peserta
         $peserta_arr = [];
         $sql_peserta = "SELECT id_user FROM peserta_rapat WHERE id_rapat = '$id_rapat'";
         $q_peserta = mysqli_query($koneksi, $sql_peserta);
@@ -54,10 +53,9 @@ function get_rapat_detail($koneksi, $id_rapat) {
     return $rapat_data;
 }
 
-// --- 4. DATA USER, FOTO & INISIAL ---
+// DATA USER, FOTO & INISIAL
 $id_user_login = $_SESSION['id_user'];
 
-// PERHATIAN: Pastikan 'foto' sesuai dengan nama kolom di database Anda
 $sql_user_info = "SELECT nama_lengkap, profile_pic FROM users WHERE id_user = '$id_user_login'"; 
 $q_user_info = mysqli_query($koneksi, $sql_user_info);
 $d_user_info = mysqli_fetch_assoc($q_user_info);
@@ -72,7 +70,7 @@ if (!empty($foto_db) && file_exists($path_foto_target)) {
     $tampilkan_foto = true;
 }
 
-// Logika Membuat Inisial (Tetap dibuat untuk jaga-jaga jika foto dihapus fisik)
+// Membuat Profil Inisial
 $words = explode(" ", $nama_user);
 $initials = "";
 if (count($words) >= 1) {
@@ -83,12 +81,13 @@ if (count($words) >= 1) {
 } else {
     $initials = "AD";
 }
+
+// Menampilkan Riwayat
 $list_riwayat = [];
 
 $tgl_awal  = isset($_POST['tgl_awal']) ? $_POST['tgl_awal'] : null;
 $tgl_akhir = isset($_POST['tgl_akhir']) ? $_POST['tgl_akhir'] : null;
 
-// --- QUERY UTAMA UNTUK MENAMPILKAN SEMUA RIWAYAT ---
 $sql_read = "SELECT 
                 r.*, 
                 o.nama_unit,
@@ -97,17 +96,14 @@ $sql_read = "SELECT
              JOIN unit o ON r.id_unit = o.id_unit
              LEFT JOIN users u ON r.id_pembuat = u.id_user 
              WHERE r.status = 'aktif'";
-// Catatan: Menggunakan LEFT JOIN pada users agar jika user dihapus, riwayat tetap ada.
 
-// Filter: Hanya tampilkan yang waktunya sudah lewat (History)
 $sql_read .= " AND CONCAT(r.tanggal_rapat, ' ', r.jam_rapat) <= NOW()";
 
-// Filter Tanggal (Jika ada input filter)
+// Filter Tanggal
 if (!empty($tgl_awal) && !empty($tgl_akhir)) {
     $sql_read .= " AND r.tanggal_rapat BETWEEN '$tgl_awal' AND '$tgl_akhir'";
 }
 
-// Urutkan dari yang terbaru
 $sql_read .= " ORDER BY r.tanggal_rapat DESC, r.jam_rapat DESC";
 
 $q_read = mysqli_query($koneksi, $sql_read);
@@ -130,7 +126,6 @@ while ($r_read = mysqli_fetch_assoc($q_read)) {
     <title>Riwayat | Admin - Rapatin</title>
     <link rel="shortcut icon" href="../assets/logo/logo.png">
     <style>
-    /* Agar input tanggal tetap terlihat putih meski readonly (bawaan flatpickr) */
     .form-control.flatpickr-input[readonly] {
         background-color: #fff; 
     }
@@ -140,6 +135,7 @@ while ($r_read = mysqli_fetch_assoc($q_read)) {
     <div id="loader-wrapper">
         <div class="loader-spinner"></div>
     </div>
+    <!-- Sidebar -->
     <section id="sidebar">
         <a href="../index.html" data-aos="fade-down" class="logo ps-3"><i class='ps-5'></i> Rapatin</a>
         <a href="../index.html" data-aos="fade-down" class="logo-mini fw-bold"> R</a>
@@ -153,6 +149,8 @@ while ($r_read = mysqli_fetch_assoc($q_read)) {
             <li><a href="logout.php"><i class="fa-solid fa-right-from-bracket icon"></i> Keluar</a></li>
         </ul>
     </section>
+    <!-- End Sidebar -->
+
     <section id="content">
         <!-- Navbar -->
 		<nav class="atas mb-4 shadow">
@@ -197,9 +195,10 @@ while ($r_read = mysqli_fetch_assoc($q_read)) {
         </nav>
 		<!-- End Navbar -->
          
+        <!-- Main -->
         <main>
             <div data-aos="fade-down" class="rapat bg-light">
-                
+                <!-- Filter Tanggal -->
                 <div class="card border-0 shadow-sm mb-4">
                     <div class="card-body p-3">
                         <h5 class="text-primary">Saring berdasarkan tanggal</h5>
@@ -227,10 +226,12 @@ while ($r_read = mysqli_fetch_assoc($q_read)) {
                         </form>
                     </div>
                 </div>
+                <!-- End Filter Tanggal -->
 
                 <div class="d-flex justify-content-between align-items-center mb-3 page-header-mobile">
                     <h2 class="text-primary fw-bold m-0 fs-3">Riwayat Rapat</h2>
                 </div>
+                <!-- Tabel -->
                 <table id="tabel-rapat" class="table table-striped table-hover nowrap" style="width:100%">
                     <thead>
                         <tr>
@@ -259,7 +260,9 @@ while ($r_read = mysqli_fetch_assoc($q_read)) {
                         <?php endforeach; ?>
                     </tbody>
                 </table>
-            
+                <!-- End Tabel -->
+                
+                <!-- Modal Detail Riwayat Rapat -->
                 <div class="modal fade modal-compact" id="viewModal" tabindex="-1" aria-labelledby="viewModalLabel" aria-hidden="true">
                     <div class="modal-dialog modal-lg modal-dialog-centered"> <div class="modal-content">
                             <div class="modal-header header-primary text-white" style="background: linear-gradient(135deg, #1cc88a 0%, #13855c 100%);">
@@ -336,6 +339,9 @@ while ($r_read = mysqli_fetch_assoc($q_read)) {
                         </div>
                     </div>
                 </div>
+                <!-- End Modal Detail Riwayat Rapat -->
+
+                <!-- Modal Delete Riwayat Rapat -->
                 <div class="modal fade" id="deletemodal" tabindex="-1" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered modal-sm"> 
                         <div class="modal-content text-center">
@@ -359,9 +365,12 @@ while ($r_read = mysqli_fetch_assoc($q_read)) {
                         </div>
                     </div>
                 </div>
-                </div>
+                <!-- End Modal Delete Riwayat Rapat -->
+            </div>
         </main>
+        <!-- End Main -->
     </section>
+
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -382,7 +391,6 @@ while ($r_read = mysqli_fetch_assoc($q_read)) {
 <script type="text/javascript">
     
 $(document).ready(function() {
-    // Inisialisasi DataTables
     $('#tabel-rapat').DataTable({
         responsive: false, 
         scrollX: true,
@@ -400,7 +408,7 @@ $(document).ready(function() {
             { width: "150px", targets: 5 }   
         ],
         "language": {
-            "emptyTable": "Tidak ada riwayat rapat", // Custom text
+            "emptyTable": "Tidak ada riwayat rapat",
             "info": "Menampilkan _START_ sampai _END_ dari _TOTAL_ riwayat",
             "infoEmpty": "Menampilkan 0 sampai 0 dari 0 riwayat",
             "infoFiltered": "(difilter dari total _MAX_ riwayat)",
@@ -414,17 +422,16 @@ $(document).ready(function() {
         }
     });
 
-    // Inisialisasi Flatpickr untuk Input Filter (Ditambahkan)
     flatpickr(".input-tanggal", {
-        locale: "id",          // Pakai Bahasa Indonesia
-        altInput: true,        // Aktifkan tampilan alternatif
-        altFormat: "j F Y",    // Format Tampilan: 17 Agustus 2025
-        dateFormat: "Y-m-d",   // Format Database: 2025-08-17
-        allowInput: true       // Izinkan ketik manual
+        locale: "id",
+        altInput: true,
+        altFormat: "j F Y",
+        dateFormat: "Y-m-d",
+        allowInput: true
     });
 });
 
-// Handler SweetAlert dari PHP Session
+// Alert
 <?php if (isset($alert) && $alert['type'] == 'success') : ?>
     Swal.fire({
         title: "Selamat!",
@@ -439,13 +446,13 @@ $(document).ready(function() {
     });
 <?php endif; ?>
 
-// 1. Handler Tombol Hapus (Delete Modal)
+// Delete Modal
 $(document).on('click', 'button[data-bs-target="#deletemodal"]', function (event) {
     var id_rapat = $(this).data('id'); 
     $('#hapus_id_rapat_modal').val(id_rapat); 
 });
 
-// 2. Handler Tombol DOWNLOAD PDF DETAIL RAPAT
+// Buttin Download Detail
 $(document).on('click', '.print-rapat-detail-btn', function (e) {
     e.preventDefault();
     var id_rapat = $(this).data('id');

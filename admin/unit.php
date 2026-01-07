@@ -148,15 +148,15 @@ unset($_SESSION['alert']); // Hapus setelah diambil
         </nav>
 		<!-- End Navbar -->
 
-		<!-- Table -->
         <main id="unit">
             <div data-aos="fade-down" class="rapat bg-light">
                 <div class="d-flex justify-content-between align-items-center mb-3 page-header-mobile">
-				    <h2 class="text-primary fw-bold m-0 fs-3">Unit</h2>
+                    <h2 class="text-primary fw-bold m-0 fs-3">Unit</h2>
 				    <button type="button" class="btn btn-primary shadow-sm rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#tambahModal">
-				        <i class="fa-solid fa-plus me-2"></i>Tambah Unit
+                        <i class="fa-solid fa-plus me-2"></i>Tambah Unit
 				    </button>
 				</div>
+                <!-- Table -->
                 <table id="tabel-rapat" class="table table-striped table-hover nowrap" style="width:100%">
                     <thead>
                         <tr>
@@ -268,99 +268,95 @@ unset($_SESSION['alert']); // Hapus setelah diambil
             </main>
         </section>
     
-    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
-    <script src="https://cdn.datatables.net/2.3.4/js/dataTables.js"></script>
-    <script src="https://cdn.datatables.net/2.3.4/js/dataTables.bootstrap5.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.datatables.net/responsive/2.3.4/js/dataTables.responsive.js"></script>
-    <script src="https://cdn.datatables.net/responsive/2.3.4/js/responsive.bootstrap5.js"></script>
-    <script src="../assets/admin.js"></script>
-    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
-    <script>
-        AOS.init();
-        (function () {
-          'use strict'
-        
-          var forms = document.querySelectorAll('.needs-validation')
-        
-          Array.prototype.slice.call(forms)
-            .forEach(function (form) {
-              form.addEventListener('submit', function (event) {
-                if (!form.checkValidity()) {
-                  event.preventDefault()
-                  event.stopPropagation()
-                }
-            
-                form.classList.add('was-validated')
-              }, false)
-            })
-        })()
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script type="text/javascript">
-        $(document).ready(function() {
-        $('#tabel-rapat').DataTable({
-            responsive: false, 
-            scrollX: true,
-            scrollCollapse: true,
-        
-            columnDefs: [
-                { className: "text-center", targets: [0, 2] }, // No & Aksi tengah
-                { className: "align-middle", targets: "_all" }, // Vertikal tengah
-                
-                // Atur lebar minimum agar tabel 'terpaksa' melebar dan scroll muncul
-                { width: "50px", targets: 0 },   // No
-                { width: "150px", targets: 1 },  // Nama Unit
-                { width: "150px", targets: 2 } // Aksi
-            ],
-            "language": {
-                "emptyTable": "Tidak Ada Unit",
-                "info": "Menampilkan _START_ sampai _END_ dari _TOTAL_ unit",
-                "infoEmpty": "Menampilkan 0 sampai 0 dari 0 unit",
-                "infoFiltered": "(difilter dari total _MAX_ unit)",
-                "lengthMenu": "Tampilkan _MENU_ unit",
-                "search": "Cari:",
-                "zeroRecords": "Unit Tidak Ditemukan",
-                "paginate": {
-                    "previous": "<",
-                    "next": ">"
-                }
+<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+<script src="https://cdn.datatables.net/2.3.4/js/dataTables.js"></script>
+<script src="https://cdn.datatables.net/2.3.4/js/dataTables.bootstrap5.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.3.4/js/dataTables.responsive.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.3.4/js/responsive.bootstrap5.js"></script>
+<script src="../assets/admin.js"></script>
+<script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script>
+    AOS.init();
+    // Validasi Form
+    (function () {
+      'use strict'
+    
+      var forms = document.querySelectorAll('.needs-validation')
+    
+      Array.prototype.slice.call(forms)
+        .forEach(function (form) {
+          form.addEventListener('submit', function (event) {
+            if (!form.checkValidity()) {
+              event.preventDefault()
+              event.stopPropagation()
             }
-        });
-    });
-
-        // Tampilkan SweetAlert berdasarkan session alert dari PHP
-        const alertData = <?= json_encode($alert); ?>;
-		if (alertData && alertData.message) {
-            Swal.fire({
-                title: alertData.icon === 'success' ? "Selamat!" : "Perhatian!", // Menggunakan "Perhatian!" untuk warning
-                text: alertData.message,
-                icon: alertData.icon, // Membaca 'success' atau 'warning' dari PHP
-                timer: 3000,
-                showConfirmButton: false
-            });
-        }
         
-        $(document).ready(function () {
-            // Logika untuk mengisi data modal Edit saat tombol Edit diklik
-            $('.edit-btn').on('click', function () {
-                const id = $(this).data('id');
-                const nama = $(this).data('nama');
+            form.classList.add('was-validated')
+          }, false)
+        })
+    })()
+</script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+    $('#tabel-rapat').DataTable({
+        responsive: false, 
+        scrollX: true,
+        scrollCollapse: true,
+    
+        columnDefs: [
+            { className: "text-center", targets: [0, 2] }, // No & Aksi tengah
+            { className: "align-middle", targets: "_all" }, // Vertikal tengah
+            
+            { width: "50px", targets: 0 },   // No
+            { width: "150px", targets: 1 },  // Nama Unit
+            { width: "150px", targets: 2 } // Aksi
+        ],
+        "language": {
+            "emptyTable": "Tidak Ada Unit",
+            "info": "Menampilkan _START_ sampai _END_ dari _TOTAL_ unit",
+            "infoEmpty": "Menampilkan 0 sampai 0 dari 0 unit",
+            "infoFiltered": "(difilter dari total _MAX_ unit)",
+            "lengthMenu": "Tampilkan _MENU_ unit",
+            "search": "Cari:",
+            "zeroRecords": "Unit Tidak Ditemukan",
+            "paginate": {
+                "previous": "<",
+                "next": ">"
+            }
+        }
+    });
+});
 
-                $('#edit_id_unit').val(id);
-                $('#edit_nama_unit').val(nama);
-            });
+// Alert
+const alertData = <?= json_encode($alert); ?>;
+if (alertData && alertData.message) {
+    Swal.fire({
+        title: alertData.icon === 'success' ? "Selamat!" : "Perhatian!",
+        text: alertData.message,
+        icon: alertData.icon,
+        timer: 3000,
+        showConfirmButton: false
+    });
+}
 
-            // Logika untuk mengisi data modal Hapus saat tombol Hapus diklik
-            $('.delete-btn').on('click', function () {
-                const id = $(this).data('id');
-                const nama = $(this).data('nama');
-
-                $('#hapus_id_unit').val(id);
-                $('#hapus_nama').text(nama);
-            });
-        });
-    </script>
+$(document).ready(function () {
+    // Modal Edit
+    $('.edit-btn').on('click', function () {
+        const id = $(this).data('id');
+        const nama = $(this).data('nama');
+        $('#edit_id_unit').val(id);
+        $('#edit_nama_unit').val(nama);
+    });
+    // Modal Delete
+    $('.delete-btn').on('click', function () {
+        const id = $(this).data('id');
+        const nama = $(this).data('nama');
+        $('#hapus_id_unit').val(id);
+        $('#hapus_nama').text(nama);
+    });
+});
+</script>
 </body>
-
 </html>

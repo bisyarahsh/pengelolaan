@@ -90,7 +90,6 @@ unset($_SESSION['alert']);
     <title>Anggota | Admin - Rapatin</title>
     <link rel="shortcut icon" href="../assets/logo/logo.png">
     <style>
-    /* Pemisah kolom pada modal landscape */
     @media (min-width: 768px) {
         .border-end {
             border-right: 1px solid #dee2e6 !important;
@@ -105,7 +104,6 @@ unset($_SESSION['alert']);
         border-radius: 12px 12px 0 0;
     }
 
-    /* Memperbaiki tampilan input focus */
     .form-control:focus, .form-select:focus {
         border-color: #0d6efd;
         box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
@@ -181,6 +179,7 @@ unset($_SESSION['alert']);
 				        <i class="fa-solid fa-plus me-2"></i>Tambah Anggota
 				    </button>
 				</div>
+                <!-- Tabel -->
                 <table id="tabel-rapat" class="table table-striped">
                     <thead>
                         <tr>
@@ -241,6 +240,7 @@ unset($_SESSION['alert']);
                         <?php endforeach; ?>
                     </tbody>
                 </table>
+                <!-- End Tabel -->
                 
                 <!-- Modal Tambah Anggota -->
                 <div class="modal fade" id="tambahModal" tabindex="-1" aria-labelledby="tambahModalLabel" aria-hidden="true">
@@ -450,6 +450,7 @@ unset($_SESSION['alert']);
 <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
 <script>
     AOS.init();
+    // Cek form kosong
     (function () {
       'use strict'
     
@@ -471,21 +472,20 @@ unset($_SESSION['alert']);
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script type="text/javascript">
 
+// Alert
 const alertData = <?= json_encode($alert); ?>;
 if (alertData && alertData.message) {
     Swal.fire({
-        // Gunakan 'Perhatian!' untuk icon warning (duplikasi) atau 'Selamat!' untuk success
         title: alertData.icon === 'success' ? "Selamat!" : "Perhatian!", 
         text: alertData.message,
-        icon: alertData.icon, // Membaca 'success' atau 'warning' dari PHP
+        icon: alertData.icon,
         timer: 3000,
         showConfirmButton: false
     });
 }
 
-// 2. Logika Pengisian Modal Edit & Hapus (JQuery)
+// Modal Edit & Hapus
 $(document).ready(function() {
-    // Mengisi data modal Edit
     $('.edit-btn').on('click', function() {
         const id = $(this).data('id');
         const nim = $(this).data('nim');
@@ -498,14 +498,12 @@ $(document).ready(function() {
         $('#edit_nim').val(nim);
         $('#edit_nama_lengkap').val(nama);
         $('#edit_email').val(email);
-        $('#edit_role').val(role); // Pilih opsi Peran
-        $('#edit_unit_id').val(unit_id); // Pilih opsi unit
-        
-        // Kosongkan field password untuk keamanan
+        $('#edit_role').val(role);
+        $('#edit_unit_id').val(unit_id);
         $('#edit_password').val('');
     });
 
-    // Mengisi data modal Hapus
+    // Modal Hapus
     $('.delete-btn').on('click', function() {
         const id = $(this).data('id');
         const nama = $(this).data('nama');
@@ -514,16 +512,13 @@ $(document).ready(function() {
         $('#hapus_nama_pengguna').text(nama);
     });
 
-    // MODIFIKASI: Logika untuk default password = NIM pada modal Tambah Pengguna
+    // Default password = NIK
     $('#tambahModal form').on('submit', function(e) {
         const nim = $('#nim').val();
         const passwordField = $('#password');
         
-        // Cek jika field password kosong
         if (passwordField.val() === '') {
-            // Pastikan NIM terisi
             if (nim !== '') {
-                // Jika kosong, set value password menjadi NIM sebelum dikirim
                 passwordField.val(nim);
             }
         }
@@ -538,7 +533,6 @@ $(document).ready(function() {
             { className: "text-center", targets: [0, 6] }, // No & Aksi tengah
             { className: "align-middle", targets: "_all" }, // Vertikal tengah
             
-            // Atur lebar minimum agar tabel 'terpaksa' melebar dan scroll muncul
             { width: "50px", targets: 0 },   // No
             { width: "50px", targets: 1 },  // NIM
             { width: "150px", targets: 2 },  // Nama

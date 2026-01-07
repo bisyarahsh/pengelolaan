@@ -2,7 +2,6 @@
 session_start();
 include("../php/koneksi.php");
 
-// Cek apakah user sudah login, jika ya, arahkan ke halaman sesuai role
 if(isset($_SESSION['role'])){
     $user_role = $_SESSION['role'];
     if ($user_role == "admin") {
@@ -17,18 +16,17 @@ if(isset($_SESSION['role'])){
     }
 }
 
-// Inisialisasi variabel
-$email = $_POST['email'] ?? ''; // Ambil email dari post, jika ada
+// Variabel
+$email = $_POST['email'] ?? '';
 $password = $_POST['password'] ?? '';
 $err = "";
 $r1 = array();
 
-// Variabel untuk menampung pesan error spesifik
+// Variabel untuk menampung pesan error
 $email_err = "";
 $password_err = "";
 
 if(isset($_POST['login'])){
-    // Validasi input kosong (Front-end sudah menangani, tapi perlu penanganan di Back-end)
     if(empty($email)){
         $email_err = "Email tidak boleh kosong.";
     }
@@ -36,23 +34,20 @@ if(isset($_POST['login'])){
         $password_err = "Kata Sandi tidak boleh kosong.";
     }
 
+    // Invalid Feedback
     if(empty($email_err) && empty($password_err)){
         $sql1 = "SELECT * FROM users WHERE email = '$email'";
         $q1 = mysqli_query($koneksi, $sql1);
         $r1 = mysqli_fetch_array($q1);
 
         if(!$r1){
-            // Email tidak ditemukan
             $email_err = "Email tidak terdaftar.";
         }
-        // Pastikan $r1 ada sebelum mencoba mengakses password
         else if(isset($r1['password']) && !password_verify($password, $r1['password'])){
-            // Kata Sandi salah
             $password_err = "Kata Sandi salah.";
         }
     }
 
-    // Jika tidak ada error (Login berhasil)
     if(empty($email_err) && empty($password_err)){
         $user = $r1["id_user"];
         $user_role = $r1['role'];
@@ -62,7 +57,6 @@ if(isset($_POST['login'])){
         $_SESSION['status'] = "login";
         $_SESSION['pesan_sukses'] = "Selamat datang! Anda berhasil masuk sebagai **" . $user_role . "**.";
 
-        // Clear email sementara dari sesi jika berhasil
         unset($_SESSION['temp_email']);
 
         if ($user_role == "Ketua") {
@@ -76,14 +70,11 @@ if(isset($_POST['login'])){
             exit();
         }
     } else {
-        // Jika ada error, simpan email ke sesi agar input tetap terisi
         $_SESSION['temp_email'] = $email;
     }
 }
 
-// Ambil email dari sesi jika ada error sebelumnya
 $email_value = $_SESSION['temp_email'] ?? '';
-// Hapus temp_email agar tidak muncul lagi pada refresh normal
 if(isset($_SESSION['temp_email']) && !isset($_POST['login'])){
     unset($_SESSION['temp_email']);
 }
@@ -95,9 +86,7 @@ if(isset($_SESSION['temp_email']) && !isset($_POST['login'])){
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Rapatin</title>
     <link rel="shortcut icon" href="../assets/logo/logo.png">
-    <!-- Bootstrap CSS (v5.3) -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style1.css">
@@ -105,7 +94,7 @@ if(isset($_SESSION['temp_email']) && !isset($_POST['login'])){
 <body>
 
   <div class="login-card d-flex flex-row align-items-stretch">
-    <!-- left panel (visual) -->
+    <!-- Panel Kiri -->
     <div class="left-panel col-lg-5 d-none d-lg-flex position-relative">
       <div>
         <div class="brand-logo mb-3">
@@ -123,8 +112,9 @@ if(isset($_SESSION['temp_email']) && !isset($_POST['login'])){
       </div>
       <div class="decor-circles"></div>
     </div>
+    <!-- End Panel Kiri -->
 
-    <!-- form panel -->
+    <!-- Panel Kanan -->
     <div class="form-panel col-lg-7">
       <div class="p-3 p-md-4">
         <div class="mb-4 stagger-anim delay-100">
@@ -173,33 +163,33 @@ if(isset($_SESSION['temp_email']) && !isset($_POST['login'])){
       </div>
     </div>
   </div>
+  <!-- End Panel Kanan -->
 
-  <!-- Bootstrap JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-    // Form validation
-    (function () {
-      'use strict'
-      const forms = document.querySelectorAll('.needs-validation')
-      Array.from(forms).forEach(function (form) {
-        form.addEventListener('submit', function (event) {
-          if (!form.checkValidity()) {
-            event.preventDefault()
-            event.stopPropagation()
-          }
-          form.classList.add('was-validated')
-        }, false)
-      })
-    })()
-
-    // Toggle show/hide password
-    const togglePassword = document.getElementById('togglePassword');
-    const password = document.getElementById('password');
-    togglePassword.addEventListener('click', function (){
-      const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
-      password.setAttribute('type', type);
-      this.innerHTML = type === 'text' ? '<i class="bi bi-eye-slash"></i>' : '<i class="bi bi-eye"></i>';
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // Validasi Form
+  (function () {
+    'use strict'
+    const forms = document.querySelectorAll('.needs-validation')
+    Array.from(forms).forEach(function (form) {
+      form.addEventListener('submit', function (event) {
+        if (!form.checkValidity()) {
+          event.preventDefault()
+          event.stopPropagation()
+        }
+        form.classList.add('was-validated')
+      }, false)
     })
-  </script>
+  })()
+
+  // Toggle show/hide password
+  const togglePassword = document.getElementById('togglePassword');
+  const password = document.getElementById('password');
+  togglePassword.addEventListener('click', function (){
+    const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+    password.setAttribute('type', type);
+    this.innerHTML = type === 'text' ? '<i class="bi bi-eye-slash"></i>' : '<i class="bi bi-eye"></i>';
+  })
+</script>
 </body>
 </html>

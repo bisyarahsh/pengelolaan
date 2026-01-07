@@ -2,25 +2,27 @@
 include 'php/koneksi.php';
 // Memulai sesi
 session_start();
-// Cek apakah user sudah login
+
+$alert = $_SESSION['alert'] ?? null;
+unset($_SESSION['alert']); 
+
+// Cek Sesi dan Akses
 if ($_SESSION['status'] != "login") {
-    // Jika belum login, arahkan ke halaman login
     header("location:../login/login.php");
     exit;
 }
-// Cek apakah role user bukan 'ketua'
 if ($_SESSION['role'] != "Ketua") {
-    // Jika bukan ketua, tolak akses dan arahkan kembali
     header("location:../login/login.php");
     exit;
 }
+
+// Ambil User ID & Unit ID
 $current_user_id = $_SESSION['id_user'] ?? 0;
 $unit_id_ketua = 0;
 
-// --- 4. DATA USER, FOTO & INISIAL ---
+// DATA USER, FOTO & INISIAL
 $id_user_login = $_SESSION['id_user'];
 
-// PERHATIAN: Pastikan 'foto' sesuai dengan nama kolom di database Anda
 $sql_user_info = "SELECT nama_lengkap, profile_pic FROM users WHERE id_user = '$id_user_login'"; 
 $q_user_info = mysqli_query($koneksi, $sql_user_info);
 $d_user_info = mysqli_fetch_assoc($q_user_info);
@@ -35,7 +37,7 @@ if (!empty($foto_db) && file_exists($path_foto_target)) {
     $tampilkan_foto = true;
 }
 
-// Logika Membuat Inisial (Tetap dibuat untuk jaga-jaga jika foto dihapus fisik)
+// Membuat Profil Inisial
 $words = explode(" ", $nama_user);
 $initials = "";
 if (count($words) >= 1) {
@@ -47,7 +49,6 @@ if (count($words) >= 1) {
     $initials = "KP";
 }
 
-// Query untuk mendapatkan unit_id Ketua
 $unit_sql = "SELECT unit_id FROM users WHERE id_user = " . intval($current_user_id);
 $unit_result = $koneksi->query($unit_sql);
 
@@ -56,7 +57,7 @@ if ($unit_result && $unit_result->num_rows > 0) {
     $unit_id_ketua = intval($unit_row['unit_id']);
 }
 
-// Hanya tampilkan peserta dari unit Ketua
+// Tampilkan peserta dari unit Ketua
 $sql = "SELECT u.id_user, u.nim, u.nama_lengkap, u.email, u.role, u.unit_id, o.nama_unit 
         FROM users u
         LEFT JOIN unit o ON u.unit_id = o.id_unit
@@ -71,7 +72,6 @@ if ($result->num_rows > 0) {
     }
 }
 
-// Ambil semua data unit untuk dropdown di modal (Ini dibiarkan menampilkan semua unit)
 $org_sql = "SELECT id_unit, nama_unit FROM unit ORDER BY nama_unit ASC";
 $org_result = $koneksi->query($org_sql);
 $unit_list = [];
@@ -82,12 +82,7 @@ if ($org_result->num_rows > 0) {
 }
 
 $koneksi->close(); 
-
-// Ambil flash message dari session jika ada
-$alert = $_SESSION['alert'] ?? null;
-unset($_SESSION['alert']); 
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -104,6 +99,7 @@ unset($_SESSION['alert']);
 </head>
 <body>
     
+    <!-- Sidebar -->
     <section id="sidebar">
         <a href="../index.html" data-aos="fade-down" class="logo ps-3"><i class='ps-5'></i> Rapatin</a>
         <a href="../index.html" data-aos="fade-down" class="logo-mini fw-bold"> R</a>
@@ -116,6 +112,8 @@ unset($_SESSION['alert']);
             <li><a href="logout.php"><i class="fa-solid fa-right-from-bracket icon"></i> Keluar</a></li>
         </ul>
     </section>
+    <!-- End Sidebar -->
+
     <section id="content">
         <!-- Navbar -->
 		<nav class="atas mb-4 shadow">
@@ -159,15 +157,18 @@ unset($_SESSION['alert']);
             </div>
         </nav>
 		<!-- End Navbar -->
-         
+
+        <!-- Main -->
         <main>
             <div data-aos="fade-down" class="rapat bg-light">
+                <!-- Header dan Button Tambah -->
                 <div class="d-flex justify-content-between align-items-center mb-3 page-header-mobile">
 				    <h2 class="text-primary fw-bold m-0 fs-3">Anggota</h2>
 				    <button type="button" class="btn btn-primary shadow-sm rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#tambahModal">
 				        <i class="fa-solid fa-plus me-2"></i>Tambah Anggota
 				    </button>
 				</div>
+                <!-- Tabel -->
                 <table id="tabel-rapat" class="table table-striped">
                     <thead>
                         <tr>
@@ -216,7 +217,9 @@ unset($_SESSION['alert']);
                         <?php endforeach; ?>
                     </tbody>
                 </table>
-            
+                <!-- End Tabel -->
+                
+                <!-- Modal Tambah -->
                 <div class="modal fade" id="tambahModal" tabindex="-1" aria-labelledby="tambahModalLabel" aria-hidden="true">
                     <div class="modal-dialog ">
                         <div class="modal-content">
@@ -257,6 +260,9 @@ unset($_SESSION['alert']);
                         </div>
                     </div>
                 </div>
+                <!-- End Modal Tambah -->
+                
+                <!-- Modal Edit -->
                 <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
                     <div class="modal-dialog ">
                         <div class="modal-content">
@@ -292,31 +298,33 @@ unset($_SESSION['alert']);
                         </div>
                     </div>
                 </div>
+                <!-- End Modal Edit -->
 
                 <!-- Modal Delete -->
 			    <div class="modal fade" id="deletemodal" tabindex="-1" aria-hidden="true">
-			        	<div class="modal-dialog modal-dialog-centered modal-sm"> <div class="modal-content text-center">
-			                <div class="modal-body pt-5 pb-4">
-			                    <form method="POST" action="php/ketua_delete_user.php">
-			                        <input type="hidden" name="hapus_id_user" id="hapus_id_user"> 
-			                        <div class="modal-icon-wrapper">
-			                            <i class="fa-solid fa-triangle-exclamation"></i>
-			                        </div>
-			                        <h4 class="fw-bold mb-2">Hapus Anggota?</h4>
-			                        <p class="text-muted mb-4 text-small">Tindakan ini tidak dapat dibatalkan. Data Pengguna akan hilang permanen.</p>
-			                        <div class="d-grid gap-2">
-			                            <button type="submit" name="hapus_pengguna" class="btn btn-danger btn-lg shadow-sm">Ya, Hapus Sekarang</button> 
-			                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batalkan</button>
-			                        </div>
-			                    </form>
-			                </div>
+			        <div class="modal-dialog modal-dialog-centered modal-sm"> <div class="modal-content text-center">
+			            <div class="modal-body pt-5 pb-4">
+			                <form method="POST" action="php/ketua_delete_user.php">
+			                    <input type="hidden" name="hapus_id_user" id="hapus_id_user"> 
+			                    <div class="modal-icon-wrapper">
+			                        <i class="fa-solid fa-triangle-exclamation"></i>
+			                    </div>
+			                    <h4 class="fw-bold mb-2">Hapus Anggota?</h4>
+			                    <p class="text-muted mb-4 text-small">Tindakan ini tidak dapat dibatalkan. Data Pengguna akan hilang permanen.</p>
+			                    <div class="d-grid gap-2">
+			                        <button type="submit" name="hapus_pengguna" class="btn btn-danger btn-lg shadow-sm">Ya, Hapus Sekarang</button> 
+			                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batalkan</button>
+			                    </div>
+			                </form>
 			            </div>
 			        </div>
 			    </div>
 			    <!-- End Modal Delete -->
             </div>
         </main>
+        <!-- End Main -->
     </section>
+
 <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
 <script src="https://cdn.datatables.net/2.3.4/js/dataTables.js"></script>
 <script src="https://cdn.datatables.net/2.3.4/js/dataTables.bootstrap5.js"></script>
@@ -325,6 +333,7 @@ unset($_SESSION['alert']);
 <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
 <script>
     AOS.init();
+    // Validasi Form
     (function () {
       'use strict'
     
@@ -345,99 +354,93 @@ unset($_SESSION['alert']);
 </script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script type="text/javascript">
-const alertData = <?= json_encode($alert); ?>;
-if (alertData && alertData.message) {
-    Swal.fire({
-        // Gunakan 'Perhatian!' untuk icon warning (duplikasi) atau 'Selamat!' untuk success
-        title: alertData.icon === 'success' ? "Selamat!" : "Perhatian!", 
-        text: alertData.message,
-        icon: alertData.icon, // Membaca 'success' atau 'warning' dari PHP
-        timer: 3000,
-        showConfirmButton: false
-    });
-}
 
-// 2. Logika Pengisian Modal Edit & Hapus (JQuery)
-$(document).ready(function() {
-    // Mengisi data modal Edit
-    $('.edit-btn').on('click', function() {
-        const id = $(this).data('id');
-        const nim = $(this).data('nim');
-        const nama = $(this).data('nama');
-        const email = $(this).data('email');
-        const role = $(this).data('role');
-        const unit_id = $(this).data('unit');
-        
-        $('#edit_id_user').val(id); 
-        $('#edit_nim').val(nim);
-        $('#edit_nama_lengkap').val(nama);
-        $('#edit_email').val(email);
-        $('#edit_role').val(role); // Pilih opsi Peran
-        $('#edit_unit_id').val(unit_id); // Pilih opsi unit
-        
-        // Kosongkan field password untuk keamanan
-        $('#edit_password').val('');
-    });
+    // Alert
+    const alertData = <?= json_encode($alert); ?>;
+    if (alertData && alertData.message) {
+        Swal.fire({
+            title: alertData.icon === 'success' ? "Selamat!" : "Perhatian!", 
+            text: alertData.message,
+            icon: alertData.icon,
+            timer: 3000,
+            showConfirmButton: false
+        });
+    }
 
-    // Mengisi data modal Hapus
-    $('.delete-btn').on('click', function() {
-        const id = $(this).data('id');
-        const nama = $(this).data('nama');
-        
-        $('#hapus_id_user').val(id); 
-        $('#hapus_nama_pengguna').text(nama);
-    });
+    // Modal Edit dan Hapus
+    $(document).ready(function() {
+        // Mengisi data modal Edit
+        $('.edit-btn').on('click', function() {
+            const id = $(this).data('id');
+            const nim = $(this).data('nim');
+            const nama = $(this).data('nama');
+            const email = $(this).data('email');
+            const role = $(this).data('role');
+            const unit_id = $(this).data('unit');
 
-    // MODIFIKASI: Logika untuk default password = NIM pada modal Tambah Pengguna
-    $('#tambahModal form').on('submit', function(e) {
-        const nim = $('#nim').val();
-        const passwordField = $('#password');
-        
-        // Cek jika field password kosong
-        if (passwordField.val() === '') {
-            // Pastikan NIM terisi
-            if (nim !== '') {
-                // Jika kosong, set value password menjadi NIM sebelum dikirim
-                passwordField.val(nim);
+            $('#edit_id_user').val(id); 
+            $('#edit_nim').val(nim);
+            $('#edit_nama_lengkap').val(nama);
+            $('#edit_email').val(email);
+            $('#edit_role').val(role);
+            $('#edit_unit_id').val(unit_id);
+
+            $('#edit_password').val('');
+        });
+
+        // Mengisi data modal Hapus
+        $('.delete-btn').on('click', function() {
+            const id = $(this).data('id');
+            const nama = $(this).data('nama');
+
+            $('#hapus_id_user').val(id); 
+            $('#hapus_nama_pengguna').text(nama);
+        });
+
+        // Logika untuk default password = NIK
+        $('#tambahModal form').on('submit', function(e) {
+            const nim = $('#nim').val();
+            const passwordField = $('#password');
+
+            if (passwordField.val() === '') {
+                if (nim !== '') {
+                    passwordField.val(nim);
+                }
             }
-        }
-        // Jika password diisi manual, biarkan saja dan lanjutkan submit.
-        // Jika password diisi NIM otomatis, lanjutkan submit.
-    });
+        });
 
-    // Inisialisasi DataTables
-    $('#tabel-rapat').DataTable({
-        responsive: false, 
-        scrollX: true,
-        scrollCollapse: true,
+        // Data Tabel
+        $('#tabel-rapat').DataTable({
+            responsive: false, 
+            scrollX: true,
+            scrollCollapse: true,
 
-        columnDefs: [
-            { className: "text-center", targets: [0, 5] }, // No & Aksi tengah
-            { className: "align-middle", targets: "_all" }, // Vertikal tengah
-            
-            // Atur lebar minimum agar tabel 'terpaksa' melebar dan scroll muncul
-            { width: "50px", targets: 0 },   // No
-            { width: "50px", targets: 1 },  // NIM
-            { width: "150px", targets: 2 },  // Nama
-            { width: "200px", targets: 3 },  // Email
-            { width: "150px", targets: 4 },   // Unit
-            { width: "150px", targets: 5 }   // Aksi
-        ],
-        "language": {
-            "emptyTable": "Tidak Ada Anggota",
-            "info": "Menampilkan _START_ sampai _END_ dari _TOTAL_ anggota",
-            "infoEmpty": "Menampilkan 0 sampai 0 dari 0 anggota",
-            "infoFiltered": "(difilter dari total _MAX_ anggota)",
-            "lengthMenu": "Tampilkan _MENU_ anggota",
-            "search": "Cari:",
-            "zeroRecords": "Anggota Tidak Ditemukan",
-            "paginate": {
-                "previous": "<",
-                "next": ">"
+            columnDefs: [
+                { className: "text-center", targets: [0, 5] }, 
+                { className: "align-middle", targets: "_all" },
+
+                { width: "50px", targets: 0 },   // No
+                { width: "50px", targets: 1 },  // NIM
+                { width: "150px", targets: 2 },  // Nama
+                { width: "200px", targets: 3 },  // Email
+                { width: "150px", targets: 4 },   // Unit
+                { width: "150px", targets: 5 }   // Aksi
+            ],
+            "language": {
+                "emptyTable": "Tidak Ada Anggota",
+                "info": "Menampilkan _START_ sampai _END_ dari _TOTAL_ anggota",
+                "infoEmpty": "Menampilkan 0 sampai 0 dari 0 anggota",
+                "infoFiltered": "(difilter dari total _MAX_ anggota)",
+                "lengthMenu": "Tampilkan _MENU_ anggota",
+                "search": "Cari:",
+                "zeroRecords": "Anggota Tidak Ditemukan",
+                "paginate": {
+                    "previous": "<",
+                    "next": ">"
+                }
             }
-        }
+        });
     });
-});
 </script>
 </body>
 </html>

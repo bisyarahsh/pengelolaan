@@ -11,6 +11,8 @@ include("../php/koneksi.php");
 date_default_timezone_set('Asia/Jakarta'); 
 // --- End Set Zona Waktu ---
 
+
+// Fungsi Bulan Format Indo
 function tgl_indo($tanggal){
     $bulan = array (
         1 =>   'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
@@ -20,13 +22,12 @@ function tgl_indo($tanggal){
     return $pecahkan[2] . ' ' . $bulan[ (int)$pecahkan[1] ] . ' ' . $pecahkan[0];
 }
 
-// --- Cek Sesi dan Akses ---
+// Cek Sesi dan Akses
 if ($_SESSION['status'] != "login" || !isset($_SESSION['id_user'])) {
     header("location:../login/login.php");
     exit;
 }
 
-// Gunakan strtolower untuk mengatasi inkonsistensi role dari database
 $current_role = isset($_SESSION['role']) ? strtolower($_SESSION['role']) : '';
 
 if ($current_role != "ketua") {
@@ -34,24 +35,20 @@ if ($current_role != "ketua") {
     exit;
 }
 
-// --- [PENTING] AMBIL UNIT ID KETUA TERLEBIH DAHULU ---
-// Kita pindahkan logika ini ke atas agar bisa dipakai untuk memfilter daftar rapat
 $id_unit_ketua = $_SESSION['unit_id'] ?? null; 
 
-// FALLBACK: Jika unit_id belum ada di sesi, ambil dari DB
 if (empty($id_unit_ketua)) {
     $q_unit = mysqli_query($koneksi, "SELECT unit_id FROM users WHERE id_user = '{$_SESSION['id_user']}'");
     $r_unit = mysqli_fetch_assoc($q_unit);
     $id_unit_ketua = $r_unit['unit_id'] ?? null;
     if ($id_unit_ketua) {
-        $_SESSION['unit_id'] = $id_unit_ketua; // Simpan ke sesi
+        $_SESSION['unit_id'] = $id_unit_ketua;
     }
 }
 
-// --- 4. DATA USER, FOTO & INISIAL ---
+// DATA USER, FOTO & INISIAL
 $id_user_login = $_SESSION['id_user'];
 
-// PERHATIAN: Pastikan 'foto' sesuai dengan nama kolom di database Anda
 $sql_user_info = "SELECT nama_lengkap, profile_pic FROM users WHERE id_user = '$id_user_login'"; 
 $q_user_info = mysqli_query($koneksi, $sql_user_info);
 $d_user_info = mysqli_fetch_assoc($q_user_info);
@@ -66,7 +63,7 @@ if (!empty($foto_db) && file_exists($path_foto_target)) {
     $tampilkan_foto = true;
 }
 
-// Logika Membuat Inisial (Tetap dibuat untuk jaga-jaga jika foto dihapus fisik)
+// Membuat Profil Inisial
 $words = explode(" ", $nama_user);
 $initials = "";
 if (count($words) >= 1) {
@@ -78,13 +75,12 @@ if (count($words) >= 1) {
     $initials = "KP";
 }
 
+// Fungsi untuk melihat status rapat
 function get_status_display($db_status, $tanggal, $jam) {
-    // 1. Cek Status Database Dulu (Prioritas Utama)
     if ($db_status == 'dibatalkan') {
         return ['text' => 'Dibatalkan', 'class' => 'bg-danger'];
     }
 
-    // 2. Jika status aktif, cek waktu
     $datetime_rapat = date('Y-m-d H:i:s', strtotime("$tanggal $jam"));
     $now = date('Y-m-d H:i:s');
     
@@ -94,7 +90,7 @@ function get_status_display($db_status, $tanggal, $jam) {
     return ['text' => 'Selesai', 'class' => 'bg-success']; 
 }
 
-// --- Tambahkan Fungsi Ambil Data Rapat berdasarkan ID (AJAX Helper) ---
+// Fungsi mengambil data rapat untuk AJAX Detail Rapat
 function get_rapat_detail($koneksi, $id_rapat) {
     $id_rapat = mysqli_real_escape_string($koneksi, $id_rapat);
     $sql = "SELECT 
@@ -119,7 +115,7 @@ function get_rapat_detail($koneksi, $id_rapat) {
     return $rapat_data;
 }
 
-// Tambahkan logika untuk request AJAX detail rapat
+// AJAX detail rapat
 if (isset($_GET['action']) && $_GET['action'] == 'get_rapat_detail' && isset($_GET['id'])) {
     header('Content-Type: application/json');
     $id_rapat = $_GET['id'];
@@ -139,7 +135,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'get_rapat_detail' && isset($_G
     exit;
 }
 
-// --- MENAMPILKAN DAFTAR RAPAT (LOGIKA BARU) ---
+// Menampilkan Daftar Rapat
 
 $list_agenda_unit = [];
 $list_undangan_masuk = [];
@@ -148,7 +144,6 @@ $current_user_id = $_SESSION['id_user'];
 $tgl_awal  = isset($_POST['tgl_awal']) ? $_POST['tgl_awal'] : null;
 $tgl_akhir = isset($_POST['tgl_akhir']) ? $_POST['tgl_akhir'] : null;
 
-// Base Query (Ambil data dasar)
 $base_sql = "SELECT DISTINCT
                 r.*, 
                 o.nama_unit,
@@ -158,12 +153,12 @@ $base_sql = "SELECT DISTINCT
              LEFT JOIN users u ON r.id_pembuat = u.id_user 
 			 WHERE 1=1 ";
 
-// Filter Tanggal (Jika ada)
+// Filter Tanggal
 if (!empty($tgl_awal) && !empty($tgl_akhir)) {
     $base_sql .= " AND r.tanggal_rapat BETWEEN '$tgl_awal' AND '$tgl_akhir'";
 }
 
-// 1. QUERY UNDANGAN MASUK
+// Kueri Undangan Masuk
 $sql_invite = $base_sql . " AND (r.status = 'aktif' OR r.status = 'dibatalkan') 
                             AND CONCAT(r.tanggal_rapat, ' ', r.jam_rapat) > NOW()
                             AND r.id_rapat IN (SELECT id_rapat FROM peserta_rapat WHERE id_user = '$current_user_id') 
@@ -190,7 +185,7 @@ while ($row = mysqli_fetch_assoc($q_unit)) {
     $list_agenda_unit[] = $row;
 }
 
-// Hitung jumlah undangan untuk Badge
+// Hitung jumlah undangan 
 $jumlah_undangan = 0;
 foreach ($list_undangan_masuk as $item_undangan) {
     $status_cek = isset($item_undangan['status']) ? $item_undangan['status'] : 'aktif';
@@ -200,7 +195,7 @@ foreach ($list_undangan_masuk as $item_undangan) {
 }
 
 
-// MENAMPILKAN LIST UNIT
+// Menampilkan List Unit
 $list_unit = [];
 $q_unit = mysqli_query($koneksi, "SELECT * FROM unit WHERE id_unit = '$id_unit_ketua' ORDER BY nama_unit");
 
@@ -208,7 +203,7 @@ while ($r_org = mysqli_fetch_assoc($q_unit)) {
     $list_unit[] = $r_org;
 }
 
-// MENAMPILKAN LIST PESERTA
+// Menampilkan List Peserta
 $list_peserta = [];
 if (!empty($id_unit_ketua)) {
     $current_user_id = $_SESSION['id_user'];
@@ -240,7 +235,6 @@ if (!empty($id_unit_ketua)) {
 	<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.3.4/css/responsive.bootstrap5.min.css">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
-	<!-- Or for RTL support -->
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.rtl.min.css" />
 	<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
 	<link rel="stylesheet" href="../assets/admin.css">
@@ -254,7 +248,7 @@ if (!empty($id_unit_ketua)) {
 </head>
 <body>
 	
-	<!-- SIDEBAR -->
+	<!-- Sidebar -->
 	<section id="sidebar">
 		<a href="../index.html" data-aos="fade-down" class="logo ps-3"><i class='ps-5'></i> Rapatin</a>
 		<a href="../index.html" data-aos="fade-down" class="logo-mini fw-bold"> R</a>
@@ -267,7 +261,7 @@ if (!empty($id_unit_ketua)) {
 			<li><a href="logout.php"><i class="fa-solid fa-right-from-bracket icon"></i> Keluar</a></li>
 		</ul>
 	</section>
-	<!-- SIDEBAR -->
+	<!-- Sidebar -->
 
 	<!-- Content -->
 	<section id="content">
@@ -317,6 +311,7 @@ if (!empty($id_unit_ketua)) {
 		<!-- Main -->
 		<main>
 			<div data-aos="fade-down" class="rapat bg-light">
+				<!-- Filter Tanggal -->
 				<div class="card border-0 shadow-sm mb-4">
     			    <div class="card-body p-3">
 						<h5 class="text-primary">Saring berdasarkan tanggal</h5>
@@ -344,7 +339,9 @@ if (!empty($id_unit_ketua)) {
     			        </form>
     			    </div>
     			</div>
+				<!-- End Filter Tanggal -->
 				
+				<!-- Tab Switch -->
 				<div class="d-flex justify-content-center justify-content-lg-start mb-4">
                     <ul class="nav nav-pills nav-pills-custom" id="pills-tab" role="tablist">
                         <li class="nav-item" role="presentation">
@@ -362,8 +359,11 @@ if (!empty($id_unit_ketua)) {
                         </li>
                     </ul>
                 </div>
-
+				<!-- End Tab Switch -->
+				
+				<!-- Tabel Agenda Unit dan Undangan -->
                 <div class="tab-content" id="pills-tabContent">
+					<!-- Tabel Unit -->
                     <div class="tab-pane fade show active" id="pills-unit" role="tabpanel" aria-labelledby="pills-unit-tab">
 						<div class="d-flex justify-content-between align-items-center mb-3 page-header-mobile">
 						    <h2 class="text-primary fw-bold m-0 fs-3">Agenda Unit</h2>
@@ -421,7 +421,9 @@ if (!empty($id_unit_ketua)) {
                             </tbody>
                         </table>
                     </div>
-
+					<!-- End Tabel Unit -->
+					
+					<!-- Tabel Undangan -->
                     <div class="tab-pane fade" id="pills-invite" role="tabpanel" aria-labelledby="pills-invite-tab">
 						<div class="d-flex justify-content-between align-items-center mb-3 page-header-mobile">
 						    <h2 class="text-primary fw-bold m-0 fs-3">Rapat Undangan</h2>
@@ -442,8 +444,7 @@ if (!empty($id_unit_ketua)) {
 								$db_status = isset($rapat['status']) ? $rapat['status'] : 'aktif';
 
 								$row_class = ($db_status == 'dibatalkan') ? 'row-cancelled' : '';
-                    
-                    			// Panggil fungsi status display baru
+                
                     			$status_display = get_status_display($db_status, $rapat['tanggal_rapat'], $rapat['jam_rapat']);?>
                                 <tr class="<?php echo $row_class; ?>">
                                     <td class="text-center"><?php echo $no++; ?></td>
@@ -461,7 +462,9 @@ if (!empty($id_unit_ketua)) {
                             </tbody>
                         </table>
                     </div>
+					<!-- End Tabel Undangan -->
                 </div>
+				<!-- End Tabel Agenda Unit dan Undangan -->
 			
 				<!-- Modal Tambah Rapat -->
 				<div class="modal fade modal-compact" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -548,7 +551,7 @@ if (!empty($id_unit_ketua)) {
 				</div>
 				<!-- End Modal Tambah Rapat -->
 												
-				<!-- Modal View Detail Agenda Rapat -->
+				<!-- Modal Detail Agenda Rapat -->
 				<div class="modal fade modal-compact" id="viewModal" tabindex="-1" aria-labelledby="viewModalLabel" aria-hidden="true">
 				    <div class="modal-dialog modal-lg modal-dialog-centered"> <div class="modal-content">
 				            <div class="modal-header header-primary text-white" style="background: linear-gradient(135deg, #1cc88a 0%, #13855c 100%);">
@@ -625,7 +628,7 @@ if (!empty($id_unit_ketua)) {
 				        </div>
 				    </div>
 				</div>
-				<!-- End Modal View Detail Agenda Rapat -->
+				<!-- End Modal Detail Agenda Rapat -->
 												
 				<!-- Modal Edit Agenda Rapat -->
 				<div class="modal fade modal-compact" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
@@ -737,7 +740,7 @@ if (!empty($id_unit_ketua)) {
 				</div>
 				<!-- End Modal Delete Riwayat Rapat -->
 															
-				<!-- Modal Notifikasi -->
+				<!-- Modal Kirim Notifikasi -->
 				<div class="modal fade" id="notifmodal" tabindex="-1" aria-hidden="true">
 				    <div class="modal-dialog modal-dialog-centered">
 				        <div class="modal-content">
@@ -762,7 +765,7 @@ if (!empty($id_unit_ketua)) {
 				        </div>
 				    </div>
 				</div>
-				 <!-- End Modal Notifikasi -->
+				 <!-- End Modal Kirim Notifikasi -->
 			</div>
 		</main>
 		<!-- End Main -->
@@ -782,12 +785,8 @@ if (!empty($id_unit_ketua)) {
 <script src="https://npmcdn.com/flatpickr/dist/l10n/id.js"></script>
 <script>
   AOS.init();
-</script>
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="../assets/agenda_handlers.js"></script>
-<script>
-(function () {
+  // Validasi Form
+  (function () {
   'use strict'
 
   var forms = document.querySelectorAll('.needs-validation')
@@ -805,8 +804,12 @@ if (!empty($id_unit_ketua)) {
     })
 })()
 </script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="../assets/agenda_handlers.js"></script>
 <script type="text/javascript">
 
+// Setting Data Tabel
 $(document).ready(function() {
    var tableOptions = {
         responsive: false, 
@@ -817,12 +820,11 @@ $(document).ready(function() {
             { className: "text-center", targets: [0, 5] },
             { className: "align-middle", targets: "_all" },
             
-            // Atur lebar minimum agar tabel 'terpaksa' melebar dan scroll muncul
             { width: "50px", targets: 0 },   // No
-            { width: "150px", targets: 1 },  // Tanggal (biar gak turun baris)
+            { width: "150px", targets: 1 },  // Tanggal
             { width: "100px", targets: 2 },  // Jam
             { width: "200px", targets: 3 },  // Unit
-            { width: "200px", targets: 4 },  // Judul Rapat (paling lebar)
+            { width: "200px", targets: 4 },  // Judul Rapat
             { width: "150px", targets: 5 }   // Aksi
         ],
         "language": {
@@ -842,10 +844,8 @@ $(document).ready(function() {
 
 	var tableUnit = $('#tabel-rapat').DataTable(tableOptions);
 
-    // Inisialisasi Tabel Undangan Masuk (Gunakan options yang sama)
     var tableInvite = $('#tabel-undangan').DataTable(tableOptions);
     
-    // Perbaikan bug DataTables saat berada di dalam Tabs tersembunyi
     $('button[data-bs-toggle="pill"]').on('shown.bs.tab', function (e) {
         tableUnit.columns.adjust();
         tableInvite.columns.adjust();
@@ -871,7 +871,7 @@ $(document).ready(function() {
     });
 });
 
-// Handler SweetAlert dari PHP Session harus tetap di sini
+// Alert
 <?php if (isset($_GET['status']) && $_GET['status'] == 'sukses_tambah') : ?>
     Swal.fire({
         title: "Selamat!",

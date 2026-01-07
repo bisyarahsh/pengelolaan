@@ -1,10 +1,7 @@
 <?php
-// Cek dan Mulai Sesi (Hanya jika belum aktif)
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-
-// Hapus semua variabel sesi
 $_SESSION = array();
 
 // Hancurkan sesi
@@ -17,7 +14,6 @@ if (ini_get("session.use_cookies")) {
 }
 session_destroy();
 
-// Redireksi ke halaman login
 header("location:../login/login.php");
 exit();
 ?>

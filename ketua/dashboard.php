@@ -9,7 +9,7 @@ include("../php/koneksi.php");
 // --- Set Zona Waktu ---
 date_default_timezone_set('Asia/Jakarta'); 
 
-// --- Cek Sesi dan Akses ---
+// Cek Sesi dan Akses
 if ($_SESSION['status'] != "login" || !isset($_SESSION['id_user'])) {
     header("location:../login/login.php");
     exit;
@@ -21,10 +21,11 @@ if ($current_role != "ketua") {
     exit;
 }
 
-// --- AMBIL UNIT ID & USER ID ---
+// Ambil User ID & Unit ID
 $current_user_id = $_SESSION['id_user'];
 $id_unit_ketua   = $_SESSION['unit_id'] ?? null; 
 
+// Alert Default Password
 $show_password_alert = false;
 if (!isset($_SESSION['password_alert_shown']) || $_SESSION['password_alert_shown'] !== true) {
     $q_user_data = mysqli_query($koneksi, "SELECT nim, password FROM users WHERE id_user = '$current_user_id'");
@@ -34,7 +35,7 @@ if (!isset($_SESSION['password_alert_shown']) || $_SESSION['password_alert_shown
         $nim = $user_data['nim'];
         $hashed_password = $user_data['password'];
         
-        // Cek apakah password cocok dengan NIK (Default)
+        // Cek apakah password cocok dengan NIK
         if (password_verify($nim, $hashed_password)) {
             $show_password_alert = true;
             $_SESSION['password_alert_shown'] = true; 
@@ -42,7 +43,7 @@ if (!isset($_SESSION['password_alert_shown']) || $_SESSION['password_alert_shown
     }
 }
 
-// --- DATA USER, FOTO & INISIAL ---
+// DATA USER, FOTO & INISIAL
 $id_user_login = $_SESSION['id_user'];
 
 $sql_user_info = "SELECT nama_lengkap, profile_pic FROM users WHERE id_user = '$id_user_login'"; 
@@ -59,7 +60,7 @@ if (!empty($foto_db) && file_exists($path_foto_target)) {
     $tampilkan_foto = true;
 }
 
-// Logika Membuat Inisial (Tetap dibuat untuk jaga-jaga jika foto dihapus fisik)
+// Membuat Profil Inisial
 $words = explode(" ", $nama_user);
 $initials = "";
 if (count($words) >= 1) {
@@ -80,7 +81,7 @@ if (empty($id_unit_ketua)) {
     }
 }
 
-// Total Agenda Rapat (Akan Datang)
+// Total Agenda Rapat
 $sql_agenda = "SELECT COUNT(DISTINCT r.id_rapat) as total 
                FROM agenda_rapat r
                WHERE r.status = 'aktif'
@@ -93,7 +94,7 @@ $sql_agenda = "SELECT COUNT(DISTINCT r.id_rapat) as total
 $q_agenda = mysqli_query($koneksi, $sql_agenda);
 $total_agenda = mysqli_fetch_assoc($q_agenda)['total'];
 
-// Total Riwayat Rapat (Sudah Lewat)
+// Total Riwayat Rapat
 $sql_riwayat = "SELECT COUNT(DISTINCT r.id_rapat) as total 
                 FROM agenda_rapat r
                 WHERE r.status = 'aktif'
@@ -115,7 +116,7 @@ $total_anggota = mysqli_fetch_assoc($q_anggota)['total'];
 $q_unit_name = mysqli_query($koneksi, "SELECT nama_unit FROM unit WHERE id_unit = '$id_unit_ketua'");
 $nama_unit_ketua = mysqli_fetch_assoc($q_unit_name)['nama_unit'] ?? 'Unit';
 
-// --- DATA GRAFIK  ---
+// Data Grafik
 $current_year = date('Y');
 $monthly_data = [];
 for ($m = 1; $m <= 12; $m++) {
@@ -127,7 +128,7 @@ for ($m = 1; $m <= 12; $m++) {
     $monthly_data[] = $res_month['total'];
 }
 
-// --- TABEL RINGKAS  ---
+// List Agenda
 $sql_next = "SELECT * FROM agenda_rapat 
             WHERE (
                 id_unit = '$id_unit_ketua' 
@@ -163,12 +164,10 @@ function tgl_indo_short($tanggal){
         .card-stat:hover .stat-icon { opacity: 0.6; transform: rotate(0deg) scale(1.1); }
         .stat-label { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
 
-        /* Style Border Left Warna-Warni */
         .border-left-primary { border-left: 5px solid #4e73df !important; }
         .border-left-success { border-left: 5px solid #1cc88a !important; }
-        .border-left-info { border-left: 5px solid #36b9cc !important; } /* Cyan untuk Anggota */
+        .border-left-info { border-left: 5px solid #36b9cc !important; }
 
-        /* Style List Agenda */
         .date-badge {
             background: #f8f9fc; border-radius: 8px; padding: 5px 10px;
             text-align: center; min-width: 60px;
@@ -186,6 +185,7 @@ function tgl_indo_short($tanggal){
 </head>
 <body>
 
+    <!-- Sidebar -->
     <section id="sidebar">
         <a href="../index.html" data-aos="fade-down" class="logo ps-3"><i class='ps-5'></i> Rapatin</a>
         <a href="../index.html" data-aos="fade-down" class="logo-mini fw-bold"> R</a>
@@ -198,6 +198,7 @@ function tgl_indo_short($tanggal){
             <li><a href="logout.php"><i class="fa-solid fa-right-from-bracket icon"></i> Keluar</a></li>
         </ul>
     </section>
+    <!-- End Sidebar -->
 
     <section id="content">
         <!-- Navbar -->
@@ -245,13 +246,12 @@ function tgl_indo_short($tanggal){
 
         <main>
             <div class="container-fluid p-0">
-                
                 <div class="d-sm-flex align-items-center justify-content-between mb-4" data-aos="fade-down" data-aos-duration="800">
                     <h1 class="h3 mb-0 text-gray-800 fw-bold">Dasbor <?php echo $nama_unit_ketua; ?></h1>
                 </div>
-
+                
+                <!-- Card -->
                 <div class="row g-4 mb-5">
-                    
                     <div class="col-xl-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
                         <div class="card card-stat border-left-primary h-100 py-2">
                             <div class="card-body">
@@ -302,11 +302,12 @@ function tgl_indo_short($tanggal){
                             </div>
                         </div>
                     </div>
-
                 </div>
+                <!-- End Card -->
 
+                <!-- Grafik dan List Agenda -->
                 <div class="row g-4">
-                    
+                    <!-- Grafik -->
                     <div class="col-lg-8" data-aos="zoom-in-right" data-aos-delay="500">
                         <div class="card card-chart mb-4 h-100">
                             <div class="card-header bg-white py-3 border-bottom-0 d-flex justify-content-between align-items-center">
@@ -321,7 +322,9 @@ function tgl_indo_short($tanggal){
                             </div>
                         </div>
                     </div>
-
+                    <!-- End Grafik -->
+                    
+                    <!-- List Agenda -->
                     <div class="col-lg-4" data-aos="zoom-in-left" data-aos-delay="600">
                         <div class="card card-chart mb-4 h-100">
                             <div class="card-header bg-white py-3 border-bottom-0 d-flex justify-content-between align-items-center">
@@ -359,108 +362,111 @@ function tgl_indo_short($tanggal){
                             </div>
                         </div>
                     </div>
-
+                    <!-- End List Agenda -->
                 </div>
-
+                <!-- End Grafik dan List Agenda -->
             </div>
         </main>
     </section>
 
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="../assets/admin.js"></script>
-    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>AOS.init({ once: true, duration: 800, easing: 'ease-out-cubic' });</script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="../assets/admin.js"></script>
+<script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    AOS.init({ 
+        once: true, 
+        duration: 800, 
+        easing: 'ease-out-cubic' 
+    });
+</script>
+<script>
+    // Grafik
+    Chart.defaults.font.family = "'Open Sans', sans-serif";
+    Chart.defaults.color = '#858796';
+    const ctx = document.getElementById('myAreaChart').getContext('2d');
 
-    <script>
-        // Chart.js Configuration
-        Chart.defaults.font.family = "'Open Sans', sans-serif";
-        Chart.defaults.color = '#858796';
-
-        const ctx = document.getElementById('myAreaChart').getContext('2d');
-        
-        // Gradient Fill
-        let gradient = ctx.createLinearGradient(0, 0, 0, 400);
-        gradient.addColorStop(0, 'rgba(78, 115, 223, 0.4)');
-        gradient.addColorStop(1, 'rgba(78, 115, 223, 0.05)');
-
-        const myChart = new Chart(ctx, {
-            type: 'line', // Gunakan Line chart untuk melihat tren waktu
-            data: {
-                labels: ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"],
-                datasets: [{
-                    label: "Frekuensi Rapat",
-                    data: <?php echo json_encode($monthly_data); ?>,
-                    backgroundColor: gradient,
-                    borderColor: "#4e73df",
-                    pointBackgroundColor: "#4e73df",
-                    pointBorderColor: "#fff",
-                    pointHoverBackgroundColor: "#fff",
-                    pointHoverBorderColor: "#4e73df",
-                    fill: true,
-                    tension: 0.4 // Garis melengkung halus
-                }],
-            },
-            options: {
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        mode: 'index',
-                        intersect: false,
-                        backgroundColor: '#fff',
-                        titleColor: '#6e707e',
-                        bodyColor: '#858796',
-                        borderColor: '#dddfeb',
-                        borderWidth: 1,
-                        padding: 10,
-                        displayColors: false,
-                        callbacks: {
-                            label: function(tooltipItem) {
-                                return tooltipItem.raw + ' Rapat';
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    x: { 
-                        grid: { display: false },
-                        ticks: { maxRotation: 0 } 
-                    },
-                    y: { 
-                        beginAtZero: true,
-                        ticks: { stepSize: 1, padding: 10 },
-                        grid: { 
-                            color: "rgb(234, 236, 244)",
-                            zeroLineColor: "rgb(234, 236, 244)",
-                            borderDash: [2], 
-                            drawBorder: false 
+    let gradient = ctx.createLinearGradient(0, 0, 0, 400);
+    gradient.addColorStop(0, 'rgba(78, 115, 223, 0.4)');
+    gradient.addColorStop(1, 'rgba(78, 115, 223, 0.05)');
+    const myChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"],
+            datasets: [{
+                label: "Frekuensi Rapat",
+                data: <?php echo json_encode($monthly_data); ?>,
+                backgroundColor: gradient,
+                borderColor: "#4e73df",
+                pointBackgroundColor: "#4e73df",
+                pointBorderColor: "#fff",
+                pointHoverBackgroundColor: "#fff",
+                pointHoverBorderColor: "#4e73df",
+                fill: true,
+                tension: 0.4
+            }],
+        },
+        options: {
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                    backgroundColor: '#fff',
+                    titleColor: '#6e707e',
+                    bodyColor: '#858796',
+                    borderColor: '#dddfeb',
+                    borderWidth: 1,
+                    padding: 10,
+                    displayColors: false,
+                    callbacks: {
+                        label: function(tooltipItem) {
+                            return tooltipItem.raw + ' Rapat';
                         }
                     }
                 }
+            },
+            scales: {
+                x: { 
+                    grid: { display: false },
+                    ticks: { maxRotation: 0 } 
+                },
+                y: { 
+                    beginAtZero: true,
+                    ticks: { stepSize: 1, padding: 10 },
+                    grid: { 
+                        color: "rgb(234, 236, 244)",
+                        zeroLineColor: "rgb(234, 236, 244)",
+                        borderDash: [2], 
+                        drawBorder: false 
+                    }
+                }
             }
-        });
+        }
+    });
 
-        <?php if ($show_password_alert): ?>
-        Swal.fire({
-            title: 'Peringatan Keamanan!',
-            html: "Kata sandi Anda masih menggunakan sandi bawaan (NIK Anda).<br><br>Untuk keamanan akun, sangat disarankan untuk mengganti kata sandi Anda sekarang.",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Ganti Kata Sandi Sekarang',
-            cancelButtonText: 'Nanti Saja',
-            allowOutsideClick: false,
-            allowEscapeKey: false
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = 'pengaturan.php';
-            }
-        });
-        <?php endif; ?>
-    </script>
+    // Alert
+    <?php if ($show_password_alert): ?>
+    Swal.fire({
+        title: 'Peringatan Keamanan!',
+        html: "Kata sandi Anda masih menggunakan sandi bawaan (NIK Anda).<br><br>Untuk keamanan akun, sangat disarankan untuk mengganti kata sandi Anda sekarang.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Ganti Kata Sandi Sekarang',
+        cancelButtonText: 'Nanti Saja',
+        allowOutsideClick: false,
+        allowEscapeKey: false
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = 'pengaturan.php';
+        }
+    });
+    <?php endif; ?>
+</script>
 </body>
 </html>
