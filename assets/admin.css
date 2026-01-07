@@ -39,7 +39,7 @@ li {
 	list-style: none;
 }
 
-/* SIDEBAR */
+/* Sidebar */
 #sidebar {
 	position: fixed;
 	max-width: 260px;
@@ -166,10 +166,9 @@ li {
 	background: var(--biru);
 	color: var(--putih);
 }
+/* End Sidebar */
 
-/* SIDEBAR */
-
-/* CONTENT */
+/* Content */
 #content {
 	position: relative;
 	width: calc(100% - 260px);
@@ -186,8 +185,9 @@ li {
     width: calc(100% - 60px);
     left: 60px;
 }
+/* End Content */
 
-
+/* Navbar */
 .img-profile-initials {
     width: 40px;
     height: 40px;
@@ -231,17 +231,15 @@ nav.atas {
     z-index: 1000;
     transition: all .3s ease;
 }
-
-/* Pastikan Hamburger tetap terlihat */
 nav .toggle-sidebar {
     font-size: 18px;
     cursor: pointer;
     position: relative;
     z-index: 1001;
 }
-/* NAVBAR */
+/* End Navbar */
 
-/* MAIN */
+/* Main */
 main {
 	width: 100%;
 	padding: 24px 20px 20px 20px;
@@ -262,7 +260,7 @@ main .tableheader h2{
 	margin-left: 10px;
 	font-size: 25px;
 }
-/* MAIN */
+/* End Main */
 
 /* Pengaturan */
 .card-custom { 
@@ -365,7 +363,7 @@ main .tableheader h2{
     text-transform: uppercase; 
     letter-spacing: 0.5px; 
 }
-/* Pengaturan */
+/* End Pengaturan */
 
 /* Modal Delete */
 .modal-icon-wrapper {
@@ -382,7 +380,7 @@ main .tableheader h2{
     font-size: 40px;
     color: #e74a3b;
 }
-/* Modal Delete */
+/* End Modal Delete */
 
 /* Modal View */
 .view-date-box {
@@ -427,8 +425,8 @@ main .tableheader h2{
     border: 1px solid #e3e6f0;
     border-radius: 8px;
     padding: 10px;
-    height: 320px; /* Tinggi fix agar tidak perlu scroll halaman */
-    overflow-y: auto; /* Scroll hanya di area peserta */
+    height: 320px;
+    overflow-y: auto;
 }
 
 .participant-item {
@@ -457,8 +455,8 @@ main .tableheader h2{
     justify-content: space-between;
 }
 .description-box {
-    background-color: #f8f9fc;    /* Warna latar abu muda */
-    border-left: 4px solid #4e73df; /* Garis biru di kiri */
+    background-color: #f8f9fc;
+    border-left: 4px solid #4e73df;
     border-radius: 4px;
     padding: 15px;
     color: #333;
@@ -468,17 +466,16 @@ main .tableheader h2{
     word-wrap: break-word;
     white-space: pre-wrap;
 }
-/* Modal View */
+/* End Modal View */
 
-/* Warna Header Modal */
+/* Modal Custom */
 .header-primary { background: linear-gradient(135deg, #4e73df 0%, #224abe 100%); color: white; }
 .header-danger { background: linear-gradient(135deg, #e74a3b 0%, #be2617 100%); color: white; }
-/* Warna Header Modal */
 
 .modal-compact .modal-header {
     background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
     color: white;
-    padding: 10px 20px; /* Header lebih tipis */
+    padding: 10px 20px;
 }
 
 .modal-compact .modal-title {
@@ -521,7 +518,9 @@ input[type="file"]::file-selector-button {
     border-radius: 4px;
     color: #495057;
 }
+/* End Modal Custom */
 
+/* Card */
 .card-stat {
     border: none;
     border-radius: 20px;
@@ -540,12 +539,14 @@ input[type="file"]::file-selector-button {
 }
 .card-stat:hover .stat-icon { opacity: 0.6; transform: rotate(0deg) scale(1.1); }
 .stat-label { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
-/* Chart Card Styles */
+/* End Card */
+
+/* Chart Card */
 .card-chart {
     border: none;
     border-radius: 20px;
     box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
-    height: 100%; /* Agar tinggi sama rata */
+    height: 100%;
 }
 .card-header-chart {
     background-color: transparent;
@@ -554,17 +555,19 @@ input[type="file"]::file-selector-button {
 }
 .chart-area {
     position: relative;
-    height: 22rem; /* Tinggi chart default */
+    height: 22rem;
     width: 100%;
 }
 .doughnut-chart-container {
     position: relative;
-    height: 18rem; /* Chart lingkaran lebih pendek dikit biar proporsional */
+    height: 18rem;
     width: 100%;
     display: flex;
     justify-content: center;
 }
+/* End Chart Card */
 
+/* Tab Switch Custom */
 .nav-pills-custom {
     background-color: #fff;
     border-radius: 50px;
@@ -572,7 +575,6 @@ input[type="file"]::file-selector-button {
     display: inline-flex;
     box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
     border: 1px solid #e3e6f0;
-    /* Tambahan agar tidak overflow */
     max-width: 100%; 
     flex-wrap: nowrap;
 }
@@ -582,7 +584,7 @@ input[type="file"]::file-selector-button {
     border-radius: 50px;
     padding: 8px 25px;
     transition: all 0.3s;
-    white-space: nowrap; /* Mencegah teks turun baris aneh */
+    white-space: nowrap;
 }
 .nav-pills-custom .nav-link.active {
     background-color: #1775F1;
@@ -597,36 +599,22 @@ input[type="file"]::file-selector-button {
     margin-left: 5px;
     vertical-align: top;
 }
-/* --- PERBAIKAN KHUSUS MOBILE (RESPONSIF) --- */
-@media (max-width: 576px) {
-    .nav-pills-custom {
-        display: flex; /* Ubah ke flex biasa agar bisa diatur lebarnya */
-        width: 100%;   /* Memenuhi lebar layar */
-        padding: 3px;  /* Kurangi padding container */
-    }
-    .nav-pills-custom .nav-item {
-        flex: 1;       /* Membagi lebar tombol sama rata (50:50) */
-        text-align: center;
-    }
-    .nav-pills-custom .nav-link {
-        width: 100%;
-        padding: 8px 10px; /* Padding kiri-kanan diperkecil */
-        font-size: 0.85rem; /* Font diperkecil sedikit agar muat */
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    
-    /* Opsional: Jika layar sangat kecil, margin ikon dikurangi */
-    .nav-pills-custom .nav-link i {
-        margin-right: 4px !important; 
-    }
-}
-.row-cancelled { background-color: #ffecec !important; }
-.row-cancelled td { color: #888; text-decoration: line-through; }
-.row-cancelled td.status-cell { text-decoration: none; }
-/* CONTENT */
+/* End Tab Switch Custom */
 
+/* Status Rapat */
+.row-cancelled { 
+    background-color: #ffecec !important; 
+}
+.row-cancelled td { 
+    color: #888; 
+    text-decoration: line-through; 
+}
+.row-cancelled td.status-cell { 
+    text-decoration: none; 
+}
+/* End Status Rapat */
+
+/* Validasi Form */
 .was-validated .form-select:invalid + .select2 .select2-selection {
     border-color: #dc3545 !important;
     padding-right: 4.125rem;
@@ -655,15 +643,67 @@ input[type="file"]::file-selector-button {
     border-color: #dee2e6 !important;
     background-image: none !important;
 }
+/* End Validasi Form */
 
+/* Custom Input Focus dan Hover */
 #select_unit_peserta:focus, #myFile:focus {
     border-color: #86b7fe !important;
     box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25) !important;
 }
 
+.form-control[type="date"] {
+    border: 1px solid #e3e6f0;
+    border-radius: 0.35rem;
+    padding: 0.4rem 0.75rem;
+    color: #6e707e;
+}
+.form-control[type="date"]:focus {
+    border-color: #bac8f3;
+    box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+}
+.btn-outline-secondary {
+    border-color: #d1d3e2;
+    color: #858796;
+}
+.btn-outline-secondary:hover {
+    background-color: #eaecf4;
+    color: #333;
+    border-color: #d1d3e2;
+}
+/* End Custom Input Focus dan Hover */
+
+/* Data Table Custom */
+.dataTables_scrollBody::-webkit-scrollbar {
+    height: 8px;
+}
+.dataTables_scrollBody::-webkit-scrollbar-track {
+    background: #f1f1f1; 
+    border-radius: 4px;
+}
+.dataTables_scrollBody::-webkit-scrollbar-thumb {
+    background: #c1c1c1; 
+    border-radius: 4px;
+}
+.dataTables_scrollBody::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8; 
+}
+
+.dataTables_filter {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 5px;
+}
+
+.dataTables_filter label {
+    margin-bottom: 0; 
+    display: flex;
+    align-items: center;
+}
+/* End Data Table Custom */
+
 /* Responsive */
 @media screen and (max-width: 768px) {
-	/* CONTENT */
 	#content {
 		width: calc(100% - 60px);
 		left: 60px;
@@ -676,7 +716,7 @@ input[type="file"]::file-selector-button {
     	transition: all .3s ease;
 	}
 	.atas {
-        width: calc(100% - 60px); /* Lebar penuh dikurangi sidebar mini di mobile */
+        width: calc(100% - 60px);
         left: 60px;
     }
 	#sidebar.hide + #content nav .toggle-sidebar {
@@ -798,53 +838,52 @@ input[type="file"]::file-selector-button {
 	#sidebar.hide .side-menu > li > a.active .icon-right {
 		transform: rotateZ(90deg);
 	}
-	/* SIDEBAR */
 }
-/* Responsive */
 
-.form-control[type="date"] {
-        border: 1px solid #e3e6f0;
-        border-radius: 0.35rem;
-        padding: 0.4rem 0.75rem;
-        color: #6e707e;
+@media (max-width: 576px) {
+    .nav-pills-custom {
+        display: flex;
+        width: 100%;
+        padding: 3px;
     }
-    .form-control[type="date"]:focus {
-        border-color: #bac8f3;
-        box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+    .nav-pills-custom .nav-item {
+        flex: 1;
+        text-align: center;
     }
-    .btn-outline-secondary {
-        border-color: #d1d3e2;
-        color: #858796;
+    .nav-pills-custom .nav-link {
+        width: 100%;
+        padding: 8px 10px;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
-    .btn-outline-secondary:hover {
-        background-color: #eaecf4;
-        color: #333;
-        border-color: #d1d3e2;
+    
+    .nav-pills-custom .nav-link i {
+        margin-right: 4px !important; 
     }
+}
 
-@media (max-width: 767px) {
-        /* 1. Header Judul & Tombol Tambah */
+@media (max-width: 768px) {
         .page-header-mobile {
             flex-direction: column;
             align-items: stretch !important;
             gap: 10px;
         }
         .page-header-mobile h2 {
-            font-size: 1.5rem; /* Perkecil font judul di HP */
+            font-size: 1.5rem;
             text-align: center;
         }
         .page-header-mobile .btn {
-            width: 100%; /* Tombol tambah jadi full width */
+            width: 100%;
         }
 
-        /* 2. DataTables Controls (Show Entries & Search) */
         div.dataTables_wrapper div.dataTables_length,
         div.dataTables_wrapper div.dataTables_filter {
-            text-align: left !important; /* Rata kiri biar rapi */
+            text-align: left !important;
             margin-bottom: 10px;
         }
         
-        /* Input Pencarian jadi Full Width agar mudah diketik */
         div.dataTables_wrapper div.dataTables_filter input {
             width: 100% !important;
             margin-left: 0 !important;
@@ -852,7 +891,6 @@ input[type="file"]::file-selector-button {
             margin-top: 5px;
         }
         
-        /* Pagination di tengah */
         div.dataTables_wrapper div.dataTables_paginate ul.pagination {
             justify-content: center !important;
             flex-wrap: wrap;
@@ -864,60 +902,24 @@ input[type="file"]::file-selector-button {
         overflow-x: hidden !important;
     }
 }
-
-.dataTables_scrollBody::-webkit-scrollbar {
-    height: 8px;
-}
-.dataTables_scrollBody::-webkit-scrollbar-track {
-    background: #f1f1f1; 
-    border-radius: 4px;
-}
-.dataTables_scrollBody::-webkit-scrollbar-thumb {
-    background: #c1c1c1; 
-    border-radius: 4px;
-}
-.dataTables_scrollBody::-webkit-scrollbar-thumb:hover {
-    background: #a8a8a8; 
-}
-
-/* Pastikan container search menggunakan Flexbox agar sejajar */
-.dataTables_filter {
-    display: flex;
-    justify-content: flex-end; /* Rata kanan di desktop */
-    align-items: center;
-    gap: 5px; /* Jarak antar elemen */
-}
-
-/* Label "Cari:" bawaan DataTables */
-.dataTables_filter label {
-    margin-bottom: 0; 
-    display: flex;
-    align-items: center;
-}
-
-/* TAMPILAN MOBILE */
 @media screen and (max-width: 768px) {
-    /* Di HP, ubah jadi rata kiri dan mungkin bertumpuk vertikal jika sempit */
     .dataTables_wrapper .dataTables_filter {
         justify-content: space-between !important; 
         width: 100%;
         margin-top: 10px;
     }
     
-    /* Dropdown Filter di HP */
     #customUnitFilter {
-        width: 48% !important; /* Setengah layar */
+        width: 48% !important;
         margin-right: 0 !important;
     }
     
-    /* Input Search di HP */
     .dataTables_filter input {
-        width: 100% !important; /* Input search full */
+        width: 100% !important;
     }
     
-    /* Agar label "Cari:" hilang di HP supaya muat, opsional */
     .dataTables_filter label {
         width: 48%;
     }
 }
-
+/* Responsive */

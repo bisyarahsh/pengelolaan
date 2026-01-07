@@ -1,4 +1,4 @@
-// SIDEBAR COLLAPSE
+// Sidebar
 const toggleSidebar = document.querySelector('nav .toggle-sidebar');
 const allSideDivider = document.querySelectorAll('#sidebar .divider');
 
@@ -67,9 +67,9 @@ sidebar.addEventListener('mouseenter', function () {
 		})
 	}
 })
+// End Sidebar
 
-
-// MENU
+// Menu
 const allMenu = document.querySelectorAll('main .content-data .head .menu');
 
 allMenu.forEach(item=> {
@@ -80,14 +80,9 @@ allMenu.forEach(item=> {
 		menuLink.classList.toggle('show');
 	})
 })
+// End Menu
 
 // Table
 new DataTable('#example');
 // Table
 
-// Modal Select
-mobiscroll.select('#multiple-select', {
-    inputElement: document.getElementById('my-input'),
-    touchUi: false
-});
-// Modal Select
